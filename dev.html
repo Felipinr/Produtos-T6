@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desenvolvedor | T6 Medicina</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --rosa-principal: #e91e63;
+      --rosa-escuro: #880e4f;
+      --dourado: #d4af37;
+      --cinza-header: #f4f4f4;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #fff0f5, #ffe4ec);
+      color: #333;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--cinza-header);
+      padding: 0 60px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 90px;
+      max-width: 1300px;
+      margin: auto;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo-area img {
+      height: 70px;
+      width: auto;
+    }
+
+    .brand {
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--rosa-escuro);
+      letter-spacing: 1px;
+    }
+
+    .menu {
+      list-style: none;
+      display: flex;
+      gap: 40px;
+    }
+
+    .menu li a {
+      text-decoration: none;
+      font-weight: 600;
+      color: #444;
+      letter-spacing: 1px;
+      position: relative;
+      transition: 0.3s ease;
+    }
+
+    .menu li a::after {
+      content: "";
+      position: absolute;
+      width: 0%;
+      height: 3px;
+      left: 0;
+      bottom: -8px;
+      background: var(--rosa-principal);
+      transition: 0.3s ease;
+    }
+
+    .menu li a:hover {
+      color: var(--rosa-principal);
+    }
+
+    .menu li a:hover::after {
+      width: 100%;
+    }
+
+    /* SEÇÃO DESENVOLVEDOR */
+    .dev-section {
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+    }
+
+    .dev-card {
+      background: white;
+      max-width: 900px;
+      width: 100%;
+      padding: 50px;
+      border-radius: 30px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dev-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(90deg, var(--rosa-principal), var(--dourado));
+    }
+
+    .dev-photo {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 5px solid var(--rosa-principal);
+      margin-bottom: 25px;
+      transition: 0.3s ease;
+    }
+
+    .dev-photo:hover {
+      transform: scale(1.05);
+      border-color: var(--dourado);
+    }
+
+    .dev-card h1 {
+      font-size: 28px;
+      color: var(--rosa-escuro);
+      margin-bottom: 15px;
+    }
+
+    .dev-card p {
+      font-size: 16px;
+      line-height: 1.7;
+      color: #555;
+      margin-bottom: 15px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      background: linear-gradient(135deg, #880e4f, #ad1457);
+      color: white;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 0 20px;
+      }
+
+      .dev-card {
+        padding: 30px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <nav class="navbar">
+      <div class="logo-area">
+        <a href="index.html">
+          <img src="/imagens/logot6.png.png" alt="Logo T6 Medicina">
+        </a>
+        <span class="brand">T6 Medicina</span>
+      </div>
+      <ul class="menu">
+        <li><a href="index.html">INÍCIO</a></li>
+        <li><a href="produtos.html">PRODUTOS</a></li>
+        <li><a href="desenvolvedor_t6.html">DESENVOLVEDOR</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="dev-section">
+    <div class="dev-card">
+
+      <a href="/imagens/dev.png" target="_blank">
+        <img src="/imagens/dev.png" alt="Foto do Desenvolvedor" class="dev-photo">
+      </a>
+
+      <h1>Olá, meu nome é Felipe</h1>
+
+      <p>
+        Sou técnico em informática, formado pelo IF Goiano (2024)
+        e desenvolvi este site como um projeto demonstrativo para a turma e a comissão da T6 - UNIRV.
+      </p>
+
+      <p>
+        Este site é um teste criado para a amostra e apresentação dos produtos não oficiais da turma,
+        com foco em identidade visual, organização e experiência profissional.
+        A proposta é oferecer belos produtos, assim como o povo da T6.
+      </p>
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    © 2025 - 2031 T6 Medicina | UNIRV
+  </footer>
+
+</body>
+</html>
