@@ -45,14 +45,18 @@ h2 span{color:var(--brand-color)}
 
 .control-group{display:flex;flex-direction:column;gap:6px}
 label{font-size:11px;text-transform:uppercase;font-weight:800;color:#666}
-input,select{padding:10px;border-radius:10px;border:1px solid #e0e0e0;font-weight:600}
+input,select,button{padding:10px;border-radius:10px;border:1px solid #e0e0e0;font-weight:600}
 input[type="color"]{padding:4px;height:40px}
 input[type="range"]{width:100%}
 .row{display:flex;gap:8px}
 .small{flex:1}
 .btn-save{margin-top:auto;background:#111;color:#fff;border:none;padding:12px;border-radius:30px;font-weight:900;cursor:pointer}
 .btn-save:hover{background:var(--brand-color)}
+.btn-template{cursor:pointer;background:#f6f6f6}
+.btn-template:hover{background:#eee}
 .note{font-size:12px;color:#444}
+
+.badge{display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;border-radius:999px;padding:4px 10px;background:#111;color:#fff;width:max-content}
 </style>
 </head>
 
@@ -103,12 +107,35 @@ input[type="range"]{width:100%}
       <option value="checker">Xadrez</option>
       <option value="grid">Grid</option>
       <option value="dots">Pontos</option>
+      <option value="diagonal">Diagonal</option>
+      <option value="sash">Faixa Diagonal</option>
+      <option value="half">Meio a Meio</option>
+      <option value="hoops">Aros (hoops)</option>
+      <option value="chevrons">Chevron</option>
+      <option value="pinstripes">Pinstripes</option>
     </select>
   </div>
 
   <div class="control-group">
     <label>Escala do Padrão</label>
     <input type="range" id="patScale" min="20" max="400" value="150">
+  </div>
+
+  <div class="control-group">
+    <label>Modelo inspirado</label>
+    <select id="presetInput">
+      <option value="manual">Manual (cores livres)</option>
+      <option value="classic_stripes">Clássico Listrado</option>
+      <option value="retro_hoops">Retrô com Aros</option>
+      <option value="modern_sash">Moderno com Faixa</option>
+      <option value="two_halves">Meio a Meio Tradicional</option>
+      <option value="dark_pinstripe">Noturno Pinstripe</option>
+      <option value="royal_diagonal">Diagonal Real</option>
+      <option value="checker_attack">Quadriculado Ofensivo</option>
+      <option value="warm_chevron">Chevron Quente</option>
+    </select>
+    <button class="btn-template" id="btnInfinite">Ideias de modelos</button>
+    <span class="badge" id="modelBadge">Modelo atual: Manual</span>
   </div>
 
   <hr>
@@ -121,8 +148,6 @@ input[type="range"]{width:100%}
       <option value="right">Direita</option>
     </select>
   </div>
-
-  <!-- REMOVIDO: Escala do logo (controle retirado a pedido) -->
 
   <div class="control-group">
     <label><input type="checkbox" id="logoShow" checked> Mostrar logo</label>
@@ -156,14 +181,85 @@ canvas.width = 4096;
 canvas.height = 4096;
 const ctx = canvas.getContext('2d');
 
+const PRESETS = {
+  classic_stripes: { label:'Clássico Listrado', pattern:'stripes_v', scale:170, main:'#f5f5f5', sec:'#005bbb', name:'#ffffff', num:'#ffffff' },
+  retro_hoops: { label:'Retrô com Aros', pattern:'hoops', scale:180, main:'#106d37', sec:'#ffffff', name:'#ffffff', num:'#ffffff' },
+  modern_sash: { label:'Moderno com Faixa', pattern:'sash', scale:210, main:'#ffffff', sec:'#c1121f', name:'#101010', num:'#101010' },
+  two_halves: { label:'Meio a Meio Tradicional', pattern:'half', scale:200, main:'#1d3557', sec:'#e63946', name:'#ffffff', num:'#ffffff' },
+  dark_pinstripe: { label:'Noturno Pinstripe', pattern:'pinstripes', scale:110, main:'#111827', sec:'#60a5fa', name:'#ffffff', num:'#ffffff' },
+  royal_diagonal: { label:'Diagonal Real', pattern:'diagonal', scale:150, main:'#0b4f9f', sec:'#f8fafc', name:'#ffffff', num:'#ffffff' },
+  checker_attack: { label:'Quadriculado Ofensivo', pattern:'checker', scale:280, main:'#ffffff', sec:'#d62828', name:'#111111', num:'#111111' },
+  warm_chevron: { label:'Chevron Quente', pattern:'chevrons', scale:220, main:'#ffb703', sec:'#fb8500', name:'#111111', num:'#111111' }
+};
+
 // logo local
 const logoImg = new Image();
 logoImg.crossOrigin = "anonymous";
 logoImg.src = "/imagens/logot6.png.png";
 logoImg.onload = () => updateDesign();
 
-// Tamanho fixo da logo (controle removido). Mude aqui se quiser outro valor.
+// Tamanho fixo da logo
 const LOGO_FIXED_SIZE = 300; // pixels
+
+function seededRand(seed){
+  let t = seed + 0x6D2B79F5;
+  t = Math.imul(t ^ t >>> 15, t | 1);
+  t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+  return ((t ^ t >>> 14) >>> 0) / 4294967296;
+}
+
+function hslToHex(h, s, l){
+  s /= 100;
+  l /= 100;
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  const m = l - c / 2;
+  let r = 0, g = 0, b = 0;
+
+  if(h < 60){ r = c; g = x; }
+  else if(h < 120){ r = x; g = c; }
+  else if(h < 180){ g = c; b = x; }
+  else if(h < 240){ g = x; b = c; }
+  else if(h < 300){ r = x; b = c; }
+  else { r = c; b = x; }
+
+  const toHex = v => Math.round((v + m) * 255).toString(16).padStart(2, '0');
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+function randomHex(seedOffset){
+  const h = Math.floor(seededRand(Date.now() + seedOffset) * 360);
+  const s = 65 + Math.floor(seededRand(Date.now() + seedOffset + 77) * 25);
+  const l = 35 + Math.floor(seededRand(Date.now() + seedOffset + 144) * 35);
+  return hslToHex(h, s, l);
+}
+
+function applyPreset(def, badgeText){
+  document.getElementById('patternInput').value = def.pattern;
+  document.getElementById('patScale').value = def.scale;
+  document.getElementById('mainColor').value = def.main;
+  document.getElementById('secColor').value = def.sec;
+  document.getElementById('nameColor').value = def.name;
+  document.getElementById('numColor').value = def.num;
+  document.getElementById('modelBadge').textContent = `Modelo atual: ${badgeText}`;
+  updateDesign();
+}
+
+function applyInfiniteModel(){
+  const patterns = ['stripes_v','stripes_h','checker','grid','dots','diagonal','sash','half','hoops','chevrons','pinstripes'];
+  const pat = patterns[Math.floor(Math.random() * patterns.length)];
+  const model = {
+    pattern: pat,
+    scale: 70 + Math.floor(Math.random() * 250),
+    main: randomHex(1),
+    sec: randomHex(2),
+    name: '#ffffff',
+    num: '#ffffff'
+  };
+
+  applyPreset(model, `Infinito #${Math.floor(Math.random()*100000)}`);
+  document.getElementById('presetInput').value = 'manual';
+}
 
 /* ---------------- PATTERN ---------------- */
 
@@ -208,21 +304,63 @@ function drawPattern(pat,c1,c2,scale){
         ctx.arc(i,j,s/4,0,Math.PI*2);
         ctx.fill();
       }
+
+  if(pat === "diagonal"){
+    ctx.save();
+    ctx.translate(2048, 2048);
+    ctx.rotate(-Math.PI / 4);
+    for(let i=-5000;i<5000;i+=s){
+      ctx.fillRect(i, -5000, s/2, 10000);
+    }
+    ctx.restore();
+  }
+
+  if(pat === "sash"){
+    ctx.save();
+    ctx.translate(2048, 2048);
+    ctx.rotate(-Math.PI / 5.2);
+    ctx.fillRect(-280, -5000, 560, 10000);
+    ctx.restore();
+  }
+
+  if(pat === "half"){
+    ctx.fillRect(0,0,2048,4096);
+  }
+
+  if(pat === "hoops"){
+    for(let i=0;i<4096;i+=s){
+      if((i/s)%2===0) ctx.fillRect(0,i,4096,s/2);
+    }
+  }
+
+  if(pat === "chevrons"){
+    ctx.strokeStyle = c2;
+    ctx.lineWidth = Math.max(6, s/8);
+    for(let y=-s; y<4096+s; y+=s){
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(2048, y + s/2);
+      ctx.lineTo(4096, y);
+      ctx.stroke();
+    }
+  }
+
+  if(pat === "pinstripes"){
+    for(let i=0;i<4096;i+=Math.max(12, s/3)){
+      ctx.fillRect(i,0,3,4096);
+    }
+  }
 }
 
-/* ---------------- LOGO (posição FIXA: LEFT / CENTER / RIGHT) ----------------
-   Valores fixos para manter sempre na mesma altura do peito.
-*/
 function drawLogo(pos, show){
   if(!show) return;
   if(!logoImg.complete) return;
 
   const size = LOGO_FIXED_SIZE;
 
-  // VALORES FIXOS (não editáveis pelo usuário)
-  const centerX = 1190;   // centro frontal
-  const chestY  = 1840;    // ALTURA FIXA do peito (mais próximo do topo)
-  const offset  = 420;    // deslocamento lateral para "left" / "right"
+  const centerX = 1190;
+  const chestY  = 1840;
+  const offset  = 420;
 
   let x = centerX - size/2;
   if(pos === "left")  x = centerX - offset - size/2;
@@ -230,19 +368,15 @@ function drawLogo(pos, show){
 
   let y = chestY - size/2;
 
-  // Alguns UVs precisam de rotação de 180° — mantive para compatibilidade
   ctx.save();
   ctx.translate(x + size/2, y + size/2);
   ctx.rotate(Math.PI);
 
-  // Se a posição for RIGHT, invertemos (espelhamos) horizontalmente a logo
   if(pos === "right") ctx.scale(-1,1);
 
   ctx.drawImage(logoImg, -size/2, -size/2, size, size);
   ctx.restore();
 }
-
-/* ---------------- COSTAS ---------------- */
 
 function drawBack(name,num,nameColor,numColor){
   ctx.save();
@@ -269,8 +403,6 @@ function drawBack(name,num,nameColor,numColor){
   ctx.restore();
 }
 
-/* ---------------- UPDATE ---------------- */
-
 function updateDesign(){
   drawPattern(
     document.getElementById("patternInput").value,
@@ -294,8 +426,6 @@ function updateDesign(){
   if(texture) texture.needsUpdate = true;
 }
 
-/* ---------------- THREE ---------------- */
-
 function init(){
   scene = new THREE.Scene();
 
@@ -317,7 +447,6 @@ function init(){
   texture = new THREE.CanvasTexture(canvas);
   texture.flipY = false;
 
-  // Carregue seu modelo .glb (caminho: oversized_t-shirt.glb)
   new GLTFLoader().load("oversized_t-shirt.glb", (gltf) => {
 
     const shirt = gltf.scene;
@@ -353,8 +482,19 @@ function animate(){
   renderer.render(scene, camera);
 }
 
-// liga controles (apenas inputs restantes)
 document.querySelectorAll("input,select").forEach(e => e.oninput = updateDesign);
+
+document.getElementById('presetInput').addEventListener('change', (e) => {
+  if(e.target.value === 'manual'){
+    document.getElementById('modelBadge').textContent = 'Modelo atual: Manual';
+    return;
+  }
+
+  const preset = PRESETS[e.target.value];
+  if(preset) applyPreset(preset, preset.label);
+});
+
+document.getElementById('btnInfinite').addEventListener('click', applyInfiniteModel);
 
 document.getElementById("btnSave").onclick = () => {
   const link = document.createElement("a");

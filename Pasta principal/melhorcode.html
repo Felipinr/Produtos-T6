@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>T6 MEDICINA | NIKE BY YOU EXPERIENCE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --brand-color: #e91e63;
+            --bg-color: #ffffff; /* FUNDO BRANCO PROFISSIONAL */
+            --panel-bg: rgba(255, 255, 255, 0.95);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --text-main: #111111;
+            --text-muted: #666666;
+        }
+
+        body { 
+            margin: 0; background: var(--bg-color); color: var(--text-main); 
+            font-family: 'Inter', sans-serif; overflow: hidden; 
+        }
+
+        /* 3D VIEWPORT */
+        #viewport { 
+            position: absolute; top: 0; left: 0; 
+            width: 100vw; height: 100vh; z-index: 1;
+        }
+
+        /* MENU LATERAL PREMIUM LIGHT */
+        #sidebar { 
+            position: absolute; top: 20px; left: 20px; width: 340px; 
+            height: calc(100vh - 40px); background: var(--panel-bg); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color); border-radius: 20px; 
+            z-index: 10; padding: 25px; box-sizing: border-box;
+            display: flex; flex-direction: column; gap: 15px; 
+            overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+        }
+
+        /* Scrollbar elegante */
+        #sidebar::-webkit-scrollbar { width: 4px; }
+        #sidebar::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
+
+        h2 { font-family: 'Archivo Black'; color: var(--text-main); text-align: center; font-size: 1.4rem; text-transform: uppercase; margin-bottom: 5px; }
+        h2 span { color: var(--brand-color); }
+
+        .control-group { display: flex; flex-direction: column; gap: 5px; }
+        label { font-size: 9px; text-transform: uppercase; color: var(--text-muted); font-weight: 800; letter-spacing: 1px; }
+
+        input[type="text"], input[type="number"], select { 
+            padding: 12px; background: #f8f8f8; 
+            border: 1px solid #e0e0e0; color: var(--text-main); border-radius: 10px; 
+            font-size: 13px; font-family: 'Inter'; font-weight: 600; outline: none; transition: 0.3s;
+        }
+        input:focus, select:focus { border-color: var(--brand-color); background: #fff; }
+
+        input[type="range"] { accent-color: var(--brand-color); }
+
+        .btn-save { 
+            margin-top: auto; background: var(--text-main); color: white; 
+            border: none; padding: 15px; border-radius: 30px; 
+            font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.2s;
+        }
+        .btn-save:hover { background: var(--brand-color); transform: translateY(-2px); }
+
+        .hint { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #888; font-size: 10px; z-index: 2; font-weight: bold; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+<div id="sidebar">
+    <h2>T6 <span>MEDICINA</span></h2>
+    
+    <div class="control-group">
+        <label>Nome do Aluno (Costas)</label>
+        <input type="text" id="nameInput" value="FELIPE" maxlength="15">
+    </div>
+
+    <div class="control-group">
+        <label>Número</label>
+        <input type="number" id="numInput" value="10">
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 5px;">
+        <div class="control-group">
+            <label>Cor da Camisa</label>
+            <input type="color" id="mainColor" value="#ffffff" style="width:100%; height:40px; border:none; padding:0; border-radius: 8px;">
+        </div>
+        <div class="control-group">
+            <label>Cor da Estampa</label>
+            <input type="color" id="secColor" value="#e91e63" style="width:100%; height:40px; border:none; padding:0; border-radius: 8px;">
+        </div>
+    </div>
+
+    <div class="control-group" style="margin-top: 5px;">
+        <label>Gerador de Modelos (Padrão)</label>
+        <select id="patternInput">
+            <option value="none">Sólida (Lisa)</option>
+            <option value="stripes_v">Listras Verticais</option>
+            <option value="stripes_h">Listras Horizontais</option>
+            <option value="checker">Xadrez / Quadriculado</option>
+            <option value="dots">Micro Furos (Dry-Fit)</option>
+            <option value="waves">Ondas</option>
+            <option value="honeycomb">Colmeia (Hexágonos)</option>
+            <option value="diagonal">Diagonais Rápidas</option>
+        </select>
+    </div>
+
+    <div class="control-group">
+        <label>Escala da Estampa (Gera Infinitas Variações)</label>
+        <input type="range" id="patScale" min="20" max="400" value="150">
+    </div>
+
+    <div class="control-group" style="margin-top: 5px; padding-top: 10px; border-top: 1px solid #eee;">
+        <label>Subir / Descer Personalização</label>
+        <input type="range" id="posY" min="200" max="1500" value="550">
+    </div>
+
+    <button class="btn-save" id="btnSave">Salvar Design</button>
+</div>
+
+<div id="viewport"></div>
+<div class="hint">ARRASTE PARA GIRAR A CAMISA</div>
+
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+</script>
+
+<script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    let scene, camera, renderer, controls, texture, shirt;
+    const canvas = document.createElement('canvas');
+    canvas.width = 4096; canvas.height = 4096;
+    const ctx = canvas.getContext('2d');
+
+    // CARREGAMENTO DO ESCUDO T6 FIXO
+    const logoImg = new Image();
+    logoImg.src = 'imagens/logot6.png.png';
+    logoImg.onload = () => updateDesign(); // Atualiza a camisa assim que a imagem carregar
+
+    function init() {
+        scene = new THREE.Scene();
+        
+        // 1. CAMISA MAIOR NA TELA: FOV reduzido de 25 para 18 (Efeito Super Zoom)
+        camera = new THREE.PerspectiveCamera(18, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 5.5);
+
+        // Fundo transparente no renderizador para mostrar o fundo branco do CSS
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.getElementById('viewport').appendChild(renderer.domElement);
+
+        // Iluminação adaptada para fundos claros
+        scene.add(new THREE.AmbientLight(0xffffff, 1.8));
+        const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+        sun.position.set(5, 5, 5);
+        scene.add(sun);
+        const backLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        backLight.position.set(-5, 5, -5);
+        scene.add(backLight);
+
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.target.set(0, -0.15, 0); // Ajuste fino do centro
+
+        texture = new THREE.CanvasTexture(canvas);
+        texture.flipY = false;
+        texture.anisotropy = 16;
+
+        const loader = new GLTFLoader();
+        loader.load('oversized_t-shirt.glb', (gltf) => {
+            shirt = gltf.scene;
+            
+            // Centraliza o modelo no mundo 3D
+            const box = new THREE.Box3().setFromObject(shirt);
+            const center = box.getCenter(new THREE.Vector3());
+            shirt.position.sub(center);
+
+            shirt.traverse(c => {
+                if(c.isMesh) {
+                    c.material = new THREE.MeshStandardMaterial({ 
+                        map: texture, 
+                        roughness: 0.8, // Tecido mais opaco
+                        metalness: 0.0
+                    });
+                }
+            });
+            scene.add(shirt);
+            updateDesign();
+        });
+
+        window.addEventListener('resize', onWindowResize);
+        animate();
+    }
+
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    // MOTOR DE PADRÕES COM ESCALA DINÂMICA
+    function drawPattern(pat, c1, c2, scale) {
+        ctx.fillStyle = c1;
+        ctx.fillRect(0, 0, 4096, 4096);
+        ctx.fillStyle = c2;
+        ctx.strokeStyle = c2;
+
+        if(pat === 'none') return;
+
+        // O parâmetro "scale" permite criar infinitas combinações visuais
+        const s = parseInt(scale);
+
+        if(pat === 'stripes_v') {
+            for(let i=0; i<4096; i+=s) ctx.fillRect(i, 0, s/2, 4096);
+        } else if(pat === 'stripes_h') {
+            for(let i=0; i<4096; i+=s) ctx.fillRect(0, i, 4096, s/2);
+        } else if(pat === 'checker') {
+            for(let i=0; i<4096; i+=s) {
+                for(let j=0; j<4096; j+=s) {
+                    if((i/s + j/s) % 2 === 0) ctx.fillRect(i, j, s, s);
+                }
+            }
+        } else if(pat === 'dots') {
+            for(let i=0; i<4096; i+=s) {
+                for(let j=0; j<4096; j+=s) {
+                    ctx.beginPath();
+                    ctx.arc(i, j, s/4, 0, Math.PI*2);
+                    ctx.fill();
+                }
+            }
+        } else if(pat === 'waves') {
+            for(let i=0; i<4096; i+=s) {
+                for(let j=0; j<4096; j+=s*2) {
+                    ctx.beginPath();
+                    ctx.arc(i, j + Math.sin(i/(s/2))*s, s/4, 0, Math.PI*2);
+                    ctx.fill();
+                }
+            }
+        } else if(pat === 'diagonal') {
+            ctx.lineWidth = s/2;
+            ctx.beginPath();
+            for(let i=-4096; i<4096*2; i+=s*1.5) {
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i + 4096, 4096);
+            }
+            ctx.stroke();
+        } else if(pat === 'honeycomb') {
+            ctx.lineWidth = s/10;
+            const h = s * Math.sqrt(3)/2;
+            for(let i=0; i<4096/s + 2; i++) {
+                for(let j=0; j<4096/h + 2; j++) {
+                    let cx = i * s * 1.5;
+                    let cy = j * h;
+                    if(j % 2 !== 0) cx += s * 0.75;
+                    
+                    ctx.beginPath();
+                    for(let k=0; k<6; k++) {
+                        let angle = Math.PI / 3 * k;
+                        let x = cx + s/2 * Math.cos(angle);
+                        let y = cy + s/2 * Math.sin(angle);
+                        if(k===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+                    }
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+
+    function updateDesign() {
+        if(!texture) return;
+
+        const c1 = document.getElementById('mainColor').value;
+        const c2 = document.getElementById('secColor').value;
+        const name = document.getElementById('nameInput').value.toUpperCase();
+        const num = document.getElementById('numInput').value;
+        const pat = document.getElementById('patternInput').value;
+        const scale = document.getElementById('patScale').value;
+        const yPos = parseInt(document.getElementById('posY').value);
+
+        // 1. Limpar e Desenhar Padrão Base
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        drawPattern(pat, c1, c2, scale);
+
+        // 2. DESENHAR ESCUDO FIXO (PEITO - FRENTE DA CAMISA)
+        // Coordenadas padrão da frente no Mapeamento UV (Aproximadamente X=1024, Y=800)
+        // Como o modelo 3D às vezes varia, o tamanho está grande para ser visível.
+        if(logoImg.complete && logoImg.naturalWidth !== 0) {
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            const logoSize = 350; // Tamanho do Escudo
+            // Centralizado na metade esquerda (Frente) do mapa 4K
+            ctx.drawImage(logoImg, 1024 - (logoSize/2), 800 - (logoSize/2), logoSize, logoSize);
+        }
+
+        // 3. DESENHAR NOME E NÚMERO (COSTAS)
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.translate(3072, yPos); // yPos agora começa em 550 (Bem mais alto)
+        ctx.rotate(Math.PI);
+        ctx.scale(-1, 1);
+
+        // Sombra leve para garantir leitura contra qualquer padrão
+        ctx.shadowColor = "rgba(0,0,0,0.6)";
+        ctx.shadowBlur = 15;
+        
+        // Define a cor do texto igual à cor secundária escolhida, ou branco/preto de contraste
+        ctx.fillStyle = c2 === '#ffffff' ? '#111111' : '#ffffff'; 
+        ctx.textAlign = "center";
+
+        // Nome
+        ctx.font = "900 240px 'Archivo Black'";
+        ctx.fillText(name, 0, 0);
+        
+        // Número
+        ctx.font = "900 1000px 'Archivo Black'";
+        ctx.fillText(num, 0, 750);
+
+        // Remover sombra para não afetar próximas atualizações
+        ctx.shadowBlur = 0;
+
+        texture.needsUpdate = true;
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        if(controls) controls.update();
+        if(renderer && scene && camera) renderer.render(scene, camera);
+    }
+
+    document.getElementById('btnSave').onclick = () => {
+        const link = document.createElement('a');
+        link.download = `T6_Custom_${document.getElementById('nameInput').value}.png`;
+        link.href = renderer.domElement.toDataURL();
+        link.click();
+    };
+
+    document.querySelectorAll('input, select').forEach(el => el.oninput = updateDesign);
+    init();
+</script>
+</body>
+</html>
