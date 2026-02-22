@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Configurador T6 Medicina</title>
+<style>
+body{
+    margin:0;
+    overflow:hidden;
+    font-family:Arial;
+    background:#111;
+    color:white;
+}
+#ui{
+    position:absolute;
+    right:20px;
+    top:20px;
+    background:rgba(0,0,0,0.7);
+    padding:20px;
+    border-radius:12px;
+    width:260px;
+}
+#ui input, #ui select{
+    width:100%;
+    margin-bottom:10px;
+}
+canvas{
+    display:block;
+}
+</style>
+</head>
+<body>
+
+<div id="ui">
+    <h3>T6 Kit Configurator</h3>
+
+    Cor Camisa:
+    <input type="color" id="shirtColor" value="#e91e63">
+
+    Cor Nome:
+    <input type="color" id="nameColor" value="#ffffff">
+
+    Cor Número:
+    <input type="color" id="numberColor" value="#ffffff">
+
+    Nome:
+    <input type="text" id="playerName" value="T6">
+
+    Número:
+    <input type="text" id="playerNumber" value="06">
+
+    Posição Escudo:
+    <select id="badgePosition">
+        <option value="left">Lateral</option>
+        <option value="center">Centralizado</option>
+    </select>
+</div>
+
+<script type="module">
+
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js";
+import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/loaders/GLTFLoader.js";
+import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/controls/OrbitControls.js";
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x111111);
+
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
+camera.position.set(0,1.5,4);
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+document.body.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+
+const light = new THREE.DirectionalLight(0xffffff, 1.2);
+light.position.set(5,10,5);
+light.castShadow = true;
+scene.add(light);
+
+scene.add(new THREE.AmbientLight(0xffffff,0.6));
+
+// chão
+const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(20,20),
+    new THREE.ShadowMaterial({opacity:0.3})
+);
+floor.rotation.x = -Math.PI/2;
+floor.position.y = -1;
+floor.receiveShadow = true;
+scene.add(floor);
+
+loader.load("human_body_base_mesh_male.glb", (gltf)=>{
+    const model = gltf.scene;
+
+    model.traverse((child)=>{
+        if(child.isMesh){
+            child.castShadow = true;
+            child.receiveShadow = true;
+        }
+    });
+
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+
+    model.position.sub(center); // centraliza
+    const scale = 2 / size.y; // ajusta altura
+    model.scale.setScalar(scale);
+
+    scene.add(model);
+});
+
+// criar camisa procedural
+function createShirt(body){
+
+    const shirtGeo = new THREE.CylinderGeometry(0.7,0.8,1.4,32,1,true);
+    const shirtMat = new THREE.MeshStandardMaterial({
+        color: document.getElementById("shirtColor").value,
+        roughness:0.6,
+        metalness:0.1
+    });
+
+    const shirt = new THREE.Mesh(shirtGeo, shirtMat);
+    shirt.position.y = 0.2;
+    shirt.castShadow = true;
+    scene.add(shirt);
+
+    // textura nome + número
+    const canvas = document.createElement("canvas");
+    canvas.width = 1024;
+    canvas.height = 1024;
+    const ctx = canvas.getContext("2d");
+
+    const texture = new THREE.CanvasTexture(canvas);
+    shirtMat.map = texture;
+
+    function updateTexture(){
+        ctx.fillStyle = document.getElementById("shirtColor").value;
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        ctx.fillStyle = document.getElementById("nameColor").value;
+        ctx.font = "bold 120px Arial";
+        ctx.textAlign="center";
+        ctx.fillText(document.getElementById("playerName").value, 512,300);
+
+        ctx.fillStyle = document.getElementById("numberColor").value;
+        ctx.font = "bold 300px Arial";
+        ctx.fillText(document.getElementById("playerNumber").value,512,650);
+
+        texture.needsUpdate = true;
+    }
+
+    updateTexture();
+
+    document.querySelectorAll("#ui input").forEach(el=>{
+        el.addEventListener("input", updateTexture);
+    });
+
+}
+
+function animate(){
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene,camera);
+}
+animate();
+
+window.addEventListener("resize",()=>{
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+});
+
+</script>
+</body>
+</html>
