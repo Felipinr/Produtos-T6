@@ -122,10 +122,7 @@ input[type="range"]{width:100%}
     </select>
   </div>
 
-  <div class="control-group">
-    <label>Escala do Logo (pixels)</label>
-    <input type="range" id="logoScale" min="80" max="900" value="300">
-  </div>
+  <!-- REMOVIDO: Escala do logo (controle retirado a pedido) -->
 
   <div class="control-group">
     <label><input type="checkbox" id="logoShow" checked> Mostrar logo</label>
@@ -164,6 +161,9 @@ const logoImg = new Image();
 logoImg.crossOrigin = "anonymous";
 logoImg.src = "/imagens/logot6.png.png";
 logoImg.onload = () => updateDesign();
+
+// Tamanho fixo da logo (controle removido). Mude aqui se quiser outro valor.
+const LOGO_FIXED_SIZE = 300; // pixels
 
 /* ---------------- PATTERN ---------------- */
 
@@ -212,13 +212,12 @@ function drawPattern(pat,c1,c2,scale){
 
 /* ---------------- LOGO (posição FIXA: LEFT / CENTER / RIGHT) ----------------
    Valores fixos para manter sempre na mesma altura do peito.
-   - centerX: centro horizontal da frente (UV)
-   - chestY: altura do peito (UV) — posicionado no topo do peito
-   - offset: distância lateral usada para left/right
 */
-function drawLogo(pos,size,show){
+function drawLogo(pos, show){
   if(!show) return;
   if(!logoImg.complete) return;
+
+  const size = LOGO_FIXED_SIZE;
 
   // VALORES FIXOS (não editáveis pelo usuário)
   const centerX = 1190;   // centro frontal
@@ -235,6 +234,10 @@ function drawLogo(pos,size,show){
   ctx.save();
   ctx.translate(x + size/2, y + size/2);
   ctx.rotate(Math.PI);
+
+  // Se a posição for RIGHT, invertemos (espelhamos) horizontalmente a logo
+  if(pos === "right") ctx.scale(-1,1);
+
   ctx.drawImage(logoImg, -size/2, -size/2, size, size);
   ctx.restore();
 }
@@ -243,7 +246,7 @@ function drawLogo(pos,size,show){
 
 function drawBack(name,num,nameColor,numColor){
   ctx.save();
-  ctx.translate(3072,1500);
+  ctx.translate(3072,1800);
   ctx.rotate(Math.PI);
   ctx.scale(-1,1);
 
@@ -278,7 +281,6 @@ function updateDesign(){
 
   drawLogo(
     document.getElementById("logoPos").value,
-    parseInt(document.getElementById("logoScale").value,10),
     document.getElementById("logoShow").checked
   );
 
