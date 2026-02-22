@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador Oficial T6 Medicina</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --rosa:#e91e63;
+  --rosa-escuro:#880e4f;
+  --dourado:#d4af37;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  font-family:'Montserrat',sans-serif;
+  background:linear-gradient(135deg,#f2f2f2,#e8e8e8);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+header{
+  width:100%;
+  padding:20px 40px;
+  background:linear-gradient(135deg,var(--rosa),var(--rosa-escuro));
+  color:white;
+  font-weight:600;
+  font-size:20px;
+  text-align:center;
+  letter-spacing:1px;
+}
+
+.container{
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  gap:50px;
+  padding:50px;
+  flex-wrap:wrap;
+}
+
+/* MENU */
+.menu{
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  width:260px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.1);
+}
+
+.menu h3{
+  margin-bottom:15px;
+  font-size:16px;
+  color:var(--rosa-escuro);
+}
+
+.menu label{
+  display:block;
+  margin-top:15px;
+  font-weight:600;
+  font-size:14px;
+}
+
+.menu input,
+.menu select{
+  width:100%;
+  padding:7px;
+  margin-top:5px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+/* CAMISA 3D */
+.preview-area{
+  perspective:1200px;
+}
+
+.camisa{
+  width:300px;
+  height:380px;
+  background:var(--rosa);
+  border-radius:30px 30px 60px 60px;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:0.6s;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  box-shadow:0 40px 60px rgba(0,0,0,0.2);
+}
+
+.camisa:hover{
+  transform:rotateY(15deg) rotateX(5deg);
+}
+
+.camisa::before,
+.camisa::after{
+  content:"";
+  position:absolute;
+  width:90px;
+  height:140px;
+  background:inherit;
+  top:0;
+  border-radius:25px;
+}
+
+.camisa::before{ left:-70px; }
+.camisa::after{ right:-70px; }
+
+.sombra{
+  width:250px;
+  height:40px;
+  background:radial-gradient(ellipse at center,rgba(0,0,0,0.3),transparent);
+  margin:auto;
+  margin-top:20px;
+  border-radius:50%;
+}
+
+/* ESCUDO */
+.escudo{
+  position:absolute;
+  width:70px;
+  top:80px;
+}
+
+.central{ left:50%; transform:translateX(-50%); }
+.lateral{ left:30px; }
+
+/* NOME E NUMERO */
+.numero{
+  font-family:'Orbitron',sans-serif;
+  font-size:80px;
+  margin-top:60px;
+  color:white;
+}
+
+.nome{
+  position:absolute;
+  bottom:40px;
+  font-family:'Orbitron',sans-serif;
+  font-size:20px;
+  color:white;
+}
+
+/* MODELOS */
+.modelo-away{
+  background:linear-gradient(135deg,#000,#222);
+}
+
+.modelo-alternativo{
+  background:linear-gradient(135deg,#111,var(--rosa));
+}
+
+</style>
+</head>
+<body>
+
+<header>
+SIMULADOR OFICIAL CAMISA T6 MEDICINA 🔥
+</header>
+
+<div class="container">
+
+<!-- MENU ESQUERDO -->
+<div class="menu">
+<h3>MODELO</h3>
+<select id="modelo">
+<option value="home">Home T6</option>
+<option value="away">Away</option>
+<option value="alt">Alternativa</option>
+</select>
+
+<h3>ESCUDO</h3>
+<select id="posicaoEscudo">
+<option value="lateral">Lateral</option>
+<option value="central">Centralizado</option>
+</select>
+
+<h3>PERSONALIZAÇÃO</h3>
+
+<label>Nome</label>
+<input type="text" id="nomeInput" placeholder="Seu nome">
+
+<label>Número</label>
+<input type="number" id="numeroInput" placeholder="10">
+
+<label>Cor Camisa</label>
+<input type="color" id="corCamisa" value="#e91e63">
+
+<label>Cor Nome</label>
+<input type="color" id="corNome" value="#ffffff">
+
+<label>Cor Número</label>
+<input type="color" id="corNumero" value="#ffffff">
+
+</div>
+
+<!-- CAMISA 3D -->
+<div class="preview-area">
+  <div class="camisa" id="camisa">
+
+    <img src="logot6.png.png" class="escudo lateral" id="escudo">
+
+    <div class="numero" id="numero">10</div>
+    <div class="nome" id="nome">T6</div>
+
+  </div>
+
+  <div class="sombra"></div>
+</div>
+
+</div>
+
+<script>
+
+const camisa = document.getElementById("camisa");
+const escudo = document.getElementById("escudo");
+
+document.getElementById("modelo").addEventListener("change", function(){
+  camisa.classList.remove("modelo-away","modelo-alternativo");
+  if(this.value === "away"){
+    camisa.classList.add("modelo-away");
+  }
+  if(this.value === "alt"){
+    camisa.classList.add("modelo-alternativo");
+  }
+});
+
+document.getElementById("posicaoEscudo").addEventListener("change", function(){
+  escudo.classList.remove("central","lateral");
+  escudo.classList.add(this.value);
+});
+
+document.getElementById("nomeInput").addEventListener("input", function(){
+  document.getElementById("nome").innerText = this.value.toUpperCase();
+});
+
+document.getElementById("numeroInput").addEventListener("input", function(){
+  document.getElementById("numero").innerText = this.value;
+});
+
+document.getElementById("corCamisa").addEventListener("input", function(){
+  camisa.style.background = this.value;
+});
+
+document.getElementById("corNome").addEventListener("input", function(){
+  document.getElementById("nome").style.color = this.value;
+});
+
+document.getElementById("corNumero").addEventListener("input", function(){
+  document.getElementById("numero").style.color = this.value;
+});
+
+</script>
+
+</body>
+</html>
