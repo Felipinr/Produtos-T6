@@ -48,7 +48,10 @@ body{font-family:'Archivo',sans-serif;background:#fff;color:#222;}
   color:var(--rosa-escuro);
 }
 
-.menu{display:flex;gap:40px;}
+.menu{
+  display:flex;
+  gap:40px;
+}
 
 .menu a{
   text-decoration:none;
@@ -58,7 +61,9 @@ body{font-family:'Archivo',sans-serif;background:#fff;color:#222;}
   position:relative;
 }
 
-.menu a:hover{color:var(--rosa);} 
+.menu a:hover{
+  color:var(--rosa);
+}
 
 .menu a::after{
   content:"";
@@ -71,7 +76,9 @@ body{font-family:'Archivo',sans-serif;background:#fff;color:#222;}
   transition:.3s;
 }
 
-.menu a:hover::after{width:100%;}
+.menu a:hover::after{
+  width:100%;
+}
 
 /* HERO PRINCIPAL */
 .hero{
@@ -146,13 +153,31 @@ footer{
   padding:25px;
 }
 
+/* RESPONSIVO */
 @media(max-width:768px){
-  .topo{padding:20px;flex-direction:column;gap:15px;}
-  .hero h2{font-size:34px;}
-  .sobre{padding:80px 20px;}
+  .topo{
+    padding:20px;
+    flex-direction:column;
+    gap:15px;
+  }
+
+  .menu{
+    gap:20px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+
+  .hero h2{
+    font-size:34px;
+  }
+
+  .sobre{
+    padding:80px 20px;
+  }
 }
 </style>
 </head>
+
 <body>
 
 <header class="topo">
@@ -162,9 +187,11 @@ footer{
       <h1>T6 Store</h1>
     </a>
   </div>
+
   <nav class="menu">
     <a href="index.html">Início</a>
     <a href="produtos.html">Produtos</a>
+    <a href="customizar.html">Customizar</a>
     <a href="dev.html">Desenvolvedor</a>
   </nav>
 </header>
@@ -172,15 +199,23 @@ footer{
 <section class="hero">
   <div class="hero__content">
     <h2>T6 Medicina</h2>
-    <p>Identidade. União. Excelência. Somente pra atletas<br>Loja não oficial da turma 6 | 2025 - 2031.</p>
-    <button onclick="window.location.href='produtos.html'">Ver Produtos</button>
+    <p>
+      Identidade. União. Excelência. Somente pra atletas<br>
+      Loja não oficial da turma 6 | 2025 - 2031.
+    </p>
+    <button onclick="window.location.href='produtos.html'">
+      Ver Produtos
+    </button>
   </div>
 </section>
 
 <section class="sobre">
   <h3>Sobre a T6</h3>
   <p>
-   A T6 Medicina UNIRV é reconhecida como a melhor turma da faculdade — destaque dentro e fora das salas de aula. Formada pelos melhores alunos, aqui só tem atleta. Este espaço foi criado para apresentar não oficialmente os produtos da turma
+    A T6 Medicina UNIRV é reconhecida como a melhor turma da faculdade — 
+    destaque dentro e fora das salas de aula. Formada pelos melhores alunos, 
+    aqui só tem atleta. Este espaço foi criado para apresentar não oficialmente 
+    os produtos da turma.
   </p>
 </section>
 

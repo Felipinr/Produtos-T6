@@ -126,23 +126,44 @@ input[type="range"]{width:100%}
 <label>Cor da Gola</label>
 <input type="color" id="corGola" value="#ffffff">
   <div class="control-group">
-    <label>Padrão</label>
-    <select id="patternInput">
-      <option value="none">Sólida</option>
-      <option value="stripes_v">Listras Verticais</option>
-      <option value="stripes_h">Listras Horizontais</option>
-      <option value="checker">Xadrez</option>
-      <option value="grid">Grid</option>
-      <option value="dots">Pontos</option>
-      <option value="diagonal">Diagonal</option>
-      <option value="sash">Faixa Diagonal</option>
-      <option value="half">Meio a Meio</option>
-      <option value="hoops">Aros (hoops)</option>
-      <option value="chevrons">Chevron</option>
-      <option value="pinstripes">Pinstripes</option>
-    </select>
-  </div>
+   <label>Padrão</label>
+<select id="patternInput">
 
+  <optgroup label="Básicos">
+    <option value="none">Sólida</option>
+    <option value="stripes_v">Listras Verticais</option>
+    <option value="stripes_h">Listras Horizontais</option>
+    <option value="checker">Xadrez</option>
+    <option value="grid">Grid</option>
+    <option value="dots">Pontos</option>
+    <option value="diagonal">Diagonal</option>
+    <option value="sash">Faixa Diagonal</option>
+    <option value="half">Meio a Meio</option>
+    <option value="hoops">Aros (Hoops)</option>
+    <option value="chevrons">Chevron</option>
+    <option value="pinstripes">Pinstripes</option>
+  </optgroup>
+
+  <optgroup label="Premium / Europeus">
+    <option value="center_stripe">Faixa Central (PSG/Ajax)</option>
+    <option value="gradient">Degradê Moderno</option>
+    <option value="camo">Camuflado Elite</option>
+    <option value="solid_gold">Sólida Ouro</option>
+    <option value="royal_diagonal">Diagonal Real</option>
+  </optgroup>
+
+  <optgroup label="Estilos Especiais">
+    <option value="wide_stripes">Listras Largas</option>
+    <option value="micro_stripes">Micro Listras</option>
+    <option value="split_vertical">Divisão Vertical</option>
+    <option value="split_horizontal">Divisão Horizontal</option>
+    <option value="v_stripe_center">V Central</option>
+    <option value="diamond">Diamante Clássico</option>
+    <option value="wave">Ondas Modernas</option>
+  </optgroup>
+
+</select>
+</div>
   <div class="control-group">
     <label>Escala do Padrão</label>
     <input type="range" id="patScale" min="20" max="400" value="150">
@@ -400,8 +421,74 @@ const PRESETS = {
   dark_pinstripe: { label:'Noturno Pinstripe', pattern:'pinstripes', scale:110, main:'#111827', sec:'#60a5fa', name:'#ffffff', num:'#ffffff' },
   royal_diagonal: { label:'Diagonal Real', pattern:'diagonal', scale:150, main:'#0b4f9f', sec:'#f8fafc', name:'#ffffff', num:'#ffffff' },
   checker_attack: { label:'Quadriculado Ofensivo', pattern:'checker', scale:280, main:'#ffffff', sec:'#d62828', name:'#111111', num:'#111111' },
-  warm_chevron: { label:'Chevron Quente', pattern:'chevrons', scale:220, main:'#ffb703', sec:'#fb8500', name:'#111111', num:'#111111' }
+  warm_chevron: { label:'Chevron Quente', pattern:'chevrons', scale:220, main:'#ffb703', sec:'#fb8500', name:'#111111', num:'#111111' },
+
+  /* ===================== GALÁCTICOS ===================== */
+  galactico_white: { label:'Galáctico Branco', pattern:'solid', scale:200, main:'#ffffff', sec:'#d4af37', name:'#d4af37', num:'#d4af37' },
+  galactico_black: { label:'Galáctico Preto', pattern:'solid', scale:200, main:'#111111', sec:'#d4af37', name:'#ffffff', num:'#ffffff' },
+  galactico_pink: { label:'Galáctico Rosa', pattern:'solid', scale:200, main:'#e91e63', sec:'#ffffff', name:'#ffffff', num:'#ffffff' },
+
+  /* ===================== MILAN STYLE ===================== */
+  milan_red_black: { label:'Rubro Milan', pattern:'stripes_v', scale:140, main:'#a4161a', sec:'#000000', name:'#ffffff', num:'#ffffff' },
+  milan_dark: { label:'Milan Noturno', pattern:'stripes_v', scale:160, main:'#111111', sec:'#a4161a', name:'#ffffff', num:'#ffffff' },
+
+  /* ===================== BARÇA STYLE ===================== */
+  barca_classic: { label:'Catalão Clássico', pattern:'stripes_v', scale:150, main:'#1d3557', sec:'#e63946', name:'#ffffff', num:'#ffffff' },
+  barca_modern: { label:'Catalão Moderno', pattern:'stripes_v', scale:190, main:'#0a1f44', sec:'#9b2226', name:'#ffffff', num:'#ffffff' },
+
+  /* ===================== INTER STYLE ===================== */
+  inter_blue_black: { label:'Inter T6', pattern:'stripes_v', scale:150, main:'#003049', sec:'#000000', name:'#ffffff', num:'#ffffff' },
+
+  /* ===================== AJAX STYLE ===================== */
+  ajax_vertical: { label:'Ajax Medicina', pattern:'center_stripe', scale:220, main:'#ffffff', sec:'#d62828', name:'#111111', num:'#111111' },
+
+  /* ===================== PSG STYLE ===================== */
+  paris_dark: { label:'Paris Elite', pattern:'center_stripe', scale:200, main:'#0b1c2d', sec:'#e63946', name:'#ffffff', num:'#ffffff' },
+
+  /* ===================== CELTIC STYLE ===================== */
+  celtic_hoops: { label:'Verde Tradição', pattern:'hoops', scale:170, main:'#1b4332', sec:'#ffffff', name:'#ffffff', num:'#ffffff' },
+
+  /* ===================== 70 MODELOS EXTRAS VARIAÇÕES ===================== */
+
+  elite_01: { label:'Elite Branco Dourado', pattern:'solid', scale:200, main:'#ffffff', sec:'#d4af37', name:'#000000', num:'#000000' },
+  elite_02: { label:'Elite Preto Rosa', pattern:'solid', scale:200, main:'#111111', sec:'#e91e63', name:'#ffffff', num:'#ffffff' },
+  elite_03: { label:'Elite Azul Royal', pattern:'solid', scale:200, main:'#0b4f9f', sec:'#ffffff', name:'#ffffff', num:'#ffffff' },
+  elite_04: { label:'Elite Vinho Ouro', pattern:'solid', scale:200, main:'#6a040f', sec:'#d4af37', name:'#ffffff', num:'#ffffff' },
+  elite_05: { label:'Elite Verde Escuro', pattern:'solid', scale:200, main:'#1b4332', sec:'#ffffff', name:'#ffffff', num:'#ffffff' },
+
+  stripe_01: { label:'Listrado Azul Branco', pattern:'stripes_v', scale:150, main:'#0b4f9f', sec:'#ffffff', name:'#ffffff', num:'#ffffff' },
+  stripe_02: { label:'Listrado Rosa Preto', pattern:'stripes_v', scale:150, main:'#e91e63', sec:'#111111', name:'#ffffff', num:'#ffffff' },
+  stripe_03: { label:'Listrado Verde Preto', pattern:'stripes_v', scale:150, main:'#1b4332', sec:'#000000', name:'#ffffff', num:'#ffffff' },
+  stripe_04: { label:'Listrado Dourado Preto', pattern:'stripes_v', scale:150, main:'#d4af37', sec:'#000000', name:'#111111', num:'#111111' },
+  stripe_05: { label:'Listrado Branco Rosa', pattern:'stripes_v', scale:150, main:'#ffffff', sec:'#e91e63', name:'#111111', num:'#111111' },
+
+  sash_01: { label:'Faixa Azul', pattern:'sash', scale:200, main:'#ffffff', sec:'#0b4f9f', name:'#111111', num:'#111111' },
+  sash_02: { label:'Faixa Rosa', pattern:'sash', scale:200, main:'#111111', sec:'#e91e63', name:'#ffffff', num:'#ffffff' },
+  sash_03: { label:'Faixa Dourada', pattern:'sash', scale:200, main:'#ffffff', sec:'#d4af37', name:'#111111', num:'#111111' },
+
+  half_01: { label:'Meio Preto Rosa', pattern:'half', scale:200, main:'#111111', sec:'#e91e63', name:'#ffffff', num:'#ffffff' },
+  half_02: { label:'Meio Azul Branco', pattern:'half', scale:200, main:'#0b4f9f', sec:'#ffffff', name:'#ffffff', num:'#ffffff' },
+
+  checker_01: { label:'Quadriculado Azul', pattern:'checker', scale:260, main:'#0b4f9f', sec:'#ffffff', name:'#111111', num:'#111111' },
+  checker_02: { label:'Quadriculado Rosa', pattern:'checker', scale:260, main:'#e91e63', sec:'#ffffff', name:'#111111', num:'#111111' },
+
+  pin_01: { label:'Pinstripe Azul', pattern:'pinstripes', scale:120, main:'#0b4f9f', sec:'#ffffff', name:'#ffffff', num:'#ffffff' },
+  pin_02: { label:'Pinstripe Rosa', pattern:'pinstripes', scale:120, main:'#111111', sec:'#e91e63', name:'#ffffff', num:'#ffffff' },
+
+  diag_01: { label:'Diagonal Rosa', pattern:'diagonal', scale:160, main:'#ffffff', sec:'#e91e63', name:'#111111', num:'#111111' },
+  diag_02: { label:'Diagonal Ouro', pattern:'diagonal', scale:160, main:'#111111', sec:'#d4af37', name:'#ffffff', num:'#ffffff' },
+
+  chevron_01: { label:'Chevron Preto Ouro', pattern:'chevrons', scale:210, main:'#111111', sec:'#d4af37', name:'#ffffff', num:'#ffffff' },
+  chevron_02: { label:'Chevron Azul Branco', pattern:'chevrons', scale:210, main:'#0b4f9f', sec:'#ffffff', name:'#ffffff', num:'#ffffff' },
+
+  camo_01: { label:'Camuflado Preto', pattern:'camo', scale:230, main:'#111111', sec:'#333333', name:'#ffffff', num:'#ffffff' },
+  camo_02: { label:'Camuflado Verde', pattern:'camo', scale:230, main:'#1b4332', sec:'#2d6a4f', name:'#ffffff', num:'#ffffff' },
+
+  gradient_01: { label:'Degradê Rosa Preto', pattern:'gradient', scale:200, main:'#e91e63', sec:'#111111', name:'#ffffff', num:'#ffffff' },
+  gradient_02: { label:'Degradê Azul Roxo', pattern:'gradient', scale:200, main:'#0b4f9f', sec:'#7209b7', name:'#ffffff', num:'#ffffff' }
+
 };
+
 
 // logo local
 const logoImg = new Image();
@@ -478,6 +565,10 @@ function drawPattern(pat,c1,c2,scale){
   ctx.clearRect(0,0,4096,4096);
   ctx.fillStyle = c1;
   ctx.fillRect(0,0,4096,4096);
+  ctx.fillStyle = c1;
+  ctx.fillRect(0,0,4096,4096);
+
+ctx.fillStyle = c2;
 
   if(pat === "none") return;
 
@@ -562,6 +653,9 @@ function drawPattern(pat,c1,c2,scale){
     }
   }
 }
+
+
+
 
 function drawLogo(pos, show){
   if(!show) return;
