@@ -49,8 +49,6 @@ h2 span{color:var(--brand-color)}
   position: relative; /* obrigatório */
 }
 
-
-
 .gola.polo {
   border-radius: 10px 10px 40px 40px;
   height: 55px;
@@ -84,6 +82,9 @@ input[type="range"]{width:100%}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
+
+<link rel="icon" href="/imagens/logot6.png.png" type="image/png">
+<link rel="shortcut icon" href="/imagens/logot6.png.png" type="image/png">
 </head>
 
 <body>
@@ -655,8 +656,11 @@ ctx.fillStyle = c2;
 
   /* ===================== NOVOS MODELOS ===================== */
 
-if(pat === "center_stripe"){
-  ctx.fillRect(2048 - s/2, 0, s, 4096);
+if (pat === "center_stripe") {
+  const bodyTop = 300;     // onde começa o corpo
+  const bodyHeight = 2600; // altura real do tronco
+
+  ctx.fillRect(1200 - s/2, bodyTop, s, bodyHeight);
 }
 
 if(pat === "wide_stripes"){
