@@ -1,430 +1,826 @@
- (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
-diff --git a/Pasta principal/simulador.html b/Pasta principal/simulador.html
-index fb9d6c342738f1d5efe6957d7cf5452eb7513687..2c3444a60fcd8d04fcfa13e1f4ce972f03b8cc66 100644
---- a/Pasta principal/simulador.html	
-+++ b/Pasta principal/simulador.html	
-@@ -2,51 +2,52 @@
- <html lang="pt-br">
- <head>
- <meta charset="UTF-8">
- <title>T6 MEDICINA | Custom 3D</title>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title> MEDICINA | Custom 3D</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --brand-color:#e91e63;
+  --bg-color:#ffffff;
+  --panel-bg:rgba(255,255,255,0.95);
+  --border-color:rgba(0,0,0,0.08);
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg-color);font-family:'Inter',sans-serif;overflow:hidden}
+#viewport{position:absolute;top:0;left:0;width:100vw;height:100vh}
+
+#sidebar{
+  position:absolute;
+  top:20px;
+  left:20px;
+  width:420px;
+  height:calc(100vh - 40px);
+  background:var(--panel-bg);
+  border:1px solid var(--border-color);
+  border-radius:20px;
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  overflow-y:auto;
+  z-index:10;
+}
+
+h2{
+  font-family:'Archivo Black';
+  text-align:center;
+  font-size:1.25rem;
+  margin:0;
+}
+h2 span{color:var(--brand-color)}
+
+/* ===== GOLA ===== */
+
+.camisa {
+  position: relative; /* obrigatório */
+}
+
+
+
+.gola.polo {
+  border-radius: 10px 10px 40px 40px;
+  height: 55px;
+}
+
+.gola.highneck {
+  border-radius: 0 0 25px 25px;
+  height: 80px;
+}
+
+.control-group{display:flex;flex-direction:column;gap:6px}
+label{font-size:11px;text-transform:uppercase;font-weight:800;color:#666}
+input,select,button{padding:10px;border-radius:10px;border:1px solid #e0e0e0;font-weight:600}
+input[type="color"]{padding:4px;height:40px}
+input[type="range"]{width:100%}
+.row{display:flex;gap:8px}
+.small{flex:1}
+.btn-save{margin-top:auto;background:#111;color:#fff;border:none;padding:12px;border-radius:30px;font-weight:900;cursor:pointer}
+.btn-save:hover{background:var(--brand-color)}
+.btn-template{cursor:pointer;background:#f6f6f6}
+.btn-template:hover{background:#eee}
+.note{font-size:12px;color:#444}
+
+.badge{display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;border-radius:999px;padding:4px 10px;background:#111;color:#fff;width:max-content}
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@600;700&family=Bebas+Neue&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+
+
+<!-- ===== EXPORTAÇÃO PROFISSIONAL ===== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+</head>
+
+<body>
+
+<div id="sidebar">
+
+  <h2>T6 <span>MEDICINA</span></h2>
+
+  <div class="control-group">
+    <label>Nome (costas)</label>
+    <input type="text" id="nameInput" value="FELIPE">
+  </div>
+
+  <div class="control-group">
+    <label>Número (costas)</label>
+    <input type="number" id="numInput" value="10">
+  </div>
+
+  <div class="control-group row">
+    <div class="small">
+      <label>Cor do Nome</label>
+      <input type="color" id="nameColor" value="#ffffff">
+    </div>
+    <div class="small">
+      <label>Cor do Número</label>
+      <input type="color" id="numColor" value="#ffffff">
+    </div>
+  </div>
+
+  <div class="control-group row">
+    <div class="small">
+      <label>Cor Principal</label>
+      <input type="color" id="mainColor" value="#ffffff">
+    </div>
+    <div class="small">
+      <label>Cor Secundária</label>
+      <input type="color" id="secColor" value="#e91e63">
+    </div>
+  </div>
+<label>Cor da Gola</label>
+<input type="color" id="corGola" value="#ffffff">
+  <div class="control-group">
+    <label>Padrão</label>
+    <select id="patternInput">
+      <option value="none">Sólida</option>
+      <option value="stripes_v">Listras Verticais</option>
+      <option value="stripes_h">Listras Horizontais</option>
+      <option value="checker">Xadrez</option>
+      <option value="grid">Grid</option>
+      <option value="dots">Pontos</option>
+      <option value="diagonal">Diagonal</option>
+      <option value="sash">Faixa Diagonal</option>
+      <option value="half">Meio a Meio</option>
+      <option value="hoops">Aros (hoops)</option>
+      <option value="chevrons">Chevron</option>
+      <option value="pinstripes">Pinstripes</option>
+    </select>
+  </div>
+
+  <div class="control-group">
+    <label>Escala do Padrão</label>
+    <input type="range" id="patScale" min="20" max="400" value="150">
+  </div>
+
+  <div class="control-group">
+    <label>Modelo inspirado</label>
+    <select id="presetInput">
+      <option value="manual">Manual (cores livres)</option>
+      <option value="classic_stripes">Clássico Listrado</option>
+      <option value="retro_hoops">Retrô com Aros</option>
+      <option value="modern_sash">Moderno com Faixa</option>
+      <option value="two_halves">Meio a Meio Tradicional</option>
+      <option value="dark_pinstripe">Noturno Pinstripe</option>
+      <option value="royal_diagonal">Diagonal Real</option>
+      <option value="checker_attack">Quadriculado Ofensivo</option>
+      <option value="warm_chevron">Chevron Quente</option>
+    </select>
+    <button class="btn-template" id="btnInfinite">Ideias de modelos</button>
+    <span class="badge" id="modelBadge">Modelo atual: Manual</span>
+  </div>
+
+  <hr>
+
+  <div class="control-group">
+    <label>Logo T6 (frente) — posição (FIXA)</label>
+    <select id="logoPos">
+      <option value="left">Esquerda</option>
+      <option value="center" selected>Centralizada</option>
+      <option value="right">Direita</option>
+    </select>
+  </div>
+
+  <div class="control-group">
+    <label><input type="checkbox" id="logoShow" checked> Mostrar logo</label>
+  </div>
+
+  <div class="control-group">
+    <label>Cor da Gola</label>
+<input type="color" id="corGola" value="#ffffff">
+  <label>Tipo de Gola</label>
+  <select id="collarSelect">
+    <option value="careca">Gola Careca</option>
+    <option value="v">Gola V</option>
+    <option value="polo">Gola Polo</option>
+    <option value="ribana">Ribana Esportiva</option>
+    <option value="v_deep">V Profundo</option>
+    <option value="retro">Retrô Anos 90</option>
+    <option value="wave">Wave Moderna</option>
+    <option value="highneck">High Neck</option>
+  </select>
+</div>
+
+  <button class="btn-save" id="btnSave">Salvar (exportar imagem)</button>
  
- <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
- 
- <style>
- :root{
-   --brand-color:#e91e63;
-   --bg-color:#ffffff;
-   --panel-bg:rgba(255,255,255,0.95);
-   --border-color:rgba(0,0,0,0.08);
- }
- 
- *{box-sizing:border-box}
- body{margin:0;background:var(--bg-color);font-family:'Inter',sans-serif;overflow:hidden}
- #viewport{position:absolute;top:0;left:0;width:100vw;height:100vh}
- 
- #sidebar{
-   position:absolute;
-   top:20px;
-   left:20px;
-   width:420px;
-   height:calc(100vh - 40px);
--  background:var(--panel-bg);
-+  background:linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.9));
-+  backdrop-filter: blur(8px);
-   border:1px solid var(--border-color);
-   border-radius:20px;
-   padding:18px;
-   display:flex;
-   flex-direction:column;
-   gap:10px;
-   overflow-y:auto;
-   z-index:10;
- }
- 
- h2{
-   font-family:'Archivo Black';
-   text-align:center;
-   font-size:1.25rem;
-   margin:0;
- }
- h2 span{color:var(--brand-color)}
- 
- .control-group{display:flex;flex-direction:column;gap:6px}
- label{font-size:11px;text-transform:uppercase;font-weight:800;color:#666}
- input,select,button{padding:10px;border-radius:10px;border:1px solid #e0e0e0;font-weight:600}
- input[type="color"]{padding:4px;height:40px}
- input[type="range"]{width:100%}
- .row{display:flex;gap:8px}
- .small{flex:1}
-@@ -99,50 +100,71 @@ input[type="range"]{width:100%}
-   </div>
- 
-   <div class="control-group">
-     <label>Padrão</label>
-     <select id="patternInput">
-       <option value="none">Sólida</option>
-       <option value="stripes_v">Listras Verticais</option>
-       <option value="stripes_h">Listras Horizontais</option>
-       <option value="checker">Xadrez</option>
-       <option value="grid">Grid</option>
-       <option value="dots">Pontos</option>
-       <option value="diagonal">Diagonal</option>
-       <option value="sash">Faixa Diagonal</option>
-       <option value="half">Meio a Meio</option>
-       <option value="hoops">Aros (hoops)</option>
-       <option value="chevrons">Chevron</option>
-       <option value="pinstripes">Pinstripes</option>
-     </select>
-   </div>
- 
-   <div class="control-group">
-     <label>Escala do Padrão</label>
-     <input type="range" id="patScale" min="20" max="400" value="150">
-   </div>
- 
-+  <div class="control-group row">
-+    <div class="small">
-+      <label>Modelo de Gola</label>
-+      <select id="collarStyle">
-+        <option value="round" selected>Redonda</option>
-+        <option value="vneck">V</option>
-+        <option value="polo">Polo</option>
-+        <option value="contrast">Contrastante</option>
-+      </select>
-+    </div>
-+    <div class="small">
-+      <label>Modelo de Manga</label>
-+      <select id="sleeveStyle">
-+        <option value="clean" selected>Lisa</option>
-+        <option value="double">Dupla Faixa</option>
-+        <option value="solid">Punho Sólido</option>
-+        <option value="fade">Gradiente</option>
-+      </select>
-+    </div>
-+  </div>
-+
-   <div class="control-group">
-     <label>Modelo inspirado</label>
-     <select id="presetInput">
-       <option value="manual">Manual (cores livres)</option>
-       <option value="classic_stripes">Clássico Listrado</option>
-       <option value="retro_hoops">Retrô com Aros</option>
-       <option value="modern_sash">Moderno com Faixa</option>
-       <option value="two_halves">Meio a Meio Tradicional</option>
-       <option value="dark_pinstripe">Noturno Pinstripe</option>
-       <option value="royal_diagonal">Diagonal Real</option>
-       <option value="checker_attack">Quadriculado Ofensivo</option>
-       <option value="warm_chevron">Chevron Quente</option>
-     </select>
-     <button class="btn-template" id="btnInfinite">Ideias de modelos</button>
-     <span class="badge" id="modelBadge">Modelo atual: Manual</span>
-   </div>
- 
-   <hr>
- 
-   <div class="control-group">
-     <label>Logo T6 (frente) — posição (FIXA)</label>
-     <select id="logoPos">
-       <option value="left">Esquerda</option>
-       <option value="center" selected>Centralizada</option>
-       <option value="right">Direita</option>
-@@ -381,88 +403,185 @@ function drawLogo(pos, show){
- function drawBack(name,num,nameColor,numColor){
-   ctx.save();
-   ctx.translate(3072,1800);
-   ctx.rotate(Math.PI);
-   ctx.scale(-1,1);
- 
-   ctx.textAlign="center";
-   ctx.shadowColor="rgba(0,0,0,0.6)";
-   ctx.shadowBlur=20;
- 
-   if(name){
-     ctx.fillStyle=nameColor;
-     ctx.font="900 220px Archivo Black";
-     ctx.fillText(name.toUpperCase(),0,-200);
-   }
- 
-   if(num){
-     ctx.fillStyle=numColor;
-     ctx.font="900 900px Archivo Black";
-     ctx.fillText(num,0,750);
-   }
- 
-   ctx.restore();
- }
- 
-+function drawCollarAndSleeves(c1, c2){
-+  const collarStyle = document.getElementById('collarStyle').value;
-+  const sleeveStyle = document.getElementById('sleeveStyle').value;
-+
-+  const frontCenterX = 1190;
-+  const backCenterX = 3072;
-+  const neckY = 950;
-+
-+  ctx.save();
-+  ctx.globalAlpha = 0.95;
-+
-+  if(collarStyle === 'round' || collarStyle === 'contrast'){
-+    ctx.strokeStyle = collarStyle === 'contrast' ? c2 : '#111111';
-+    ctx.lineWidth = 70;
-+    ctx.beginPath();
-+    ctx.arc(frontCenterX, neckY, 260, 0.22*Math.PI, 0.78*Math.PI);
-+    ctx.stroke();
-+    ctx.beginPath();
-+    ctx.arc(backCenterX, neckY, 260, 0.22*Math.PI, 0.78*Math.PI);
-+    ctx.stroke();
-+  }
-+
-+  if(collarStyle === 'vneck'){
-+    ctx.strokeStyle = c2;
-+    ctx.lineWidth = 62;
-+    [frontCenterX, backCenterX].forEach((x) => {
-+      ctx.beginPath();
-+      ctx.moveTo(x-220, neckY+120);
-+      ctx.lineTo(x, neckY+320);
-+      ctx.lineTo(x+220, neckY+120);
-+      ctx.stroke();
-+    });
-+  }
-+
-+  if(collarStyle === 'polo'){
-+    [frontCenterX, backCenterX].forEach((x) => {
-+      ctx.fillStyle = '#ffffffd9';
-+      ctx.beginPath();
-+      ctx.moveTo(x-240, neckY+70);
-+      ctx.lineTo(x, neckY+250);
-+      ctx.lineTo(x-40, neckY+40);
-+      ctx.closePath();
-+      ctx.fill();
-+      ctx.beginPath();
-+      ctx.moveTo(x+240, neckY+70);
-+      ctx.lineTo(x, neckY+250);
-+      ctx.lineTo(x+40, neckY+40);
-+      ctx.closePath();
-+      ctx.fill();
-+    });
-+  }
-+
-+  const sleeves = [
-+    { x: 500, y: 1450, w: 280, h: 520 },
-+    { x: 1600, y: 1450, w: 280, h: 520 },
-+    { x: 2380, y: 1450, w: 280, h: 520 },
-+    { x: 3470, y: 1450, w: 280, h: 520 }
-+  ];
-+
-+  sleeves.forEach((s) => {
-+    if(sleeveStyle === 'double'){
-+      ctx.fillStyle = c2;
-+      ctx.fillRect(s.x, s.y + s.h - 110, s.w, 35);
-+      ctx.fillRect(s.x, s.y + s.h - 55, s.w, 28);
-+    }
-+
-+    if(sleeveStyle === 'solid'){
-+      ctx.fillStyle = c2;
-+      ctx.fillRect(s.x, s.y + s.h - 130, s.w, 130);
-+    }
-+
-+    if(sleeveStyle === 'fade'){
-+      const grad = ctx.createLinearGradient(0, s.y, 0, s.y + s.h);
-+      grad.addColorStop(0, `${c1}00`);
-+      grad.addColorStop(1, `${c2}cc`);
-+      ctx.fillStyle = grad;
-+      ctx.fillRect(s.x, s.y, s.w, s.h);
-+    }
-+  });
-+
-+  ctx.restore();
-+}
-+
- function updateDesign(){
-   drawPattern(
-     document.getElementById("patternInput").value,
-     document.getElementById("mainColor").value,
-     document.getElementById("secColor").value,
-     document.getElementById("patScale").value
-   );
- 
-   drawLogo(
-     document.getElementById("logoPos").value,
-     document.getElementById("logoShow").checked
-   );
- 
-   drawBack(
-     document.getElementById("nameInput").value,
-     document.getElementById("numInput").value,
-     document.getElementById("nameColor").value,
-     document.getElementById("numColor").value
-   );
- 
-+  drawCollarAndSleeves(
-+    document.getElementById("mainColor").value,
-+    document.getElementById("secColor").value
-+  );
-+
-   if(texture) texture.needsUpdate = true;
- }
- 
- function init(){
-   scene = new THREE.Scene();
- 
-   camera = new THREE.PerspectiveCamera(18, window.innerWidth/window.innerHeight, 0.1, 1000);
- 
-   renderer = new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
-+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-+  renderer.outputColorSpace = THREE.SRGBColorSpace;
-+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-+  renderer.toneMappingExposure = 1.1;
-   renderer.setSize(window.innerWidth, window.innerHeight);
-   document.getElementById("viewport").appendChild(renderer.domElement);
- 
--  scene.add(new THREE.AmbientLight(0xffffff,2));
-+  scene.background = new THREE.Color('#f5f7fb');
-+  scene.add(new THREE.AmbientLight(0xffffff,1.8));
- 
--  const light = new THREE.DirectionalLight(0xffffff,1.3);
-+  const light = new THREE.DirectionalLight(0xffffff,1.45);
-   light.position.set(5,5,5);
-   scene.add(light);
- 
-+  const rim = new THREE.DirectionalLight(0xffffff,0.8);
-+  rim.position.set(-4,2,-3);
-+  scene.add(rim);
-+
-   controls = new OrbitControls(camera, renderer.domElement);
-   controls.enableDamping = true;
- 
-   texture = new THREE.CanvasTexture(canvas);
-   texture.flipY = false;
- 
-   new GLTFLoader().load("oversized_t-shirt.glb", (gltf) => {
- 
-     const shirt = gltf.scene;
- 
-     const box = new THREE.Box3().setFromObject(shirt);
-     const center = box.getCenter(new THREE.Vector3());
-     shirt.position.sub(center);
-     shirt.scale.set(1.05,1.05,1.05);
- 
-     shirt.traverse(c => {
-       if(c.isMesh){
-         c.material = new THREE.MeshStandardMaterial({map: texture, roughness: 0.6, metalness: 0});
-       }
-     });
- 
-     scene.add(shirt);
- 
-     camera.position.set(0,0,8);
-     controls.target.set(0,0,0);
-@@ -475,36 +594,103 @@ function init(){
- 
-   animate();
- }
- 
- function animate(){
-   requestAnimationFrame(animate);
-   controls.update();
-   renderer.render(scene, camera);
- }
- 
- document.querySelectorAll("input,select").forEach(e => e.oninput = updateDesign);
- 
- document.getElementById('presetInput').addEventListener('change', (e) => {
-   if(e.target.value === 'manual'){
-     document.getElementById('modelBadge').textContent = 'Modelo atual: Manual';
-     return;
-   }
- 
-   const preset = PRESETS[e.target.value];
-   if(preset) applyPreset(preset, preset.label);
- });
- 
- document.getElementById('btnInfinite').addEventListener('click', applyInfiniteModel);
- 
- document.getElementById("btnSave").onclick = () => {
--  const link = document.createElement("a");
--  link.download = "camisa_t6.png";
--  link.href = renderer.domElement.toDataURL();
--  link.click();
-+  const originalSize = renderer.getSize(new THREE.Vector2());
-+  const originalRatio = renderer.getPixelRatio();
-+  const originalCam = camera.position.clone();
-+  const originalTarget = controls.target.clone();
-+
-+  const exportW = 3200;
-+  const exportH = 3200;
-+
-+  renderer.setPixelRatio(1);
-+  renderer.setSize(exportW, exportH, false);
-+  camera.aspect = 1;
-+  camera.updateProjectionMatrix();
-+
-+  const captureView = (position) => {
-+    camera.position.copy(position);
-+    controls.target.set(0,0,0);
-+    camera.lookAt(0,0,0);
-+    controls.update();
-+    renderer.render(scene, camera);
-+    const img = new Image();
-+    img.src = renderer.domElement.toDataURL('image/png');
-+    return img;
-+  };
-+
-+  const frontImg = captureView(new THREE.Vector3(0, 0.1, 8));
-+  const backImg = captureView(new THREE.Vector3(0, 0.1, -8));
-+
-+  const finalCanvas = document.createElement('canvas');
-+  finalCanvas.width = exportW * 2;
-+  finalCanvas.height = exportH;
-+  const finalCtx = finalCanvas.getContext('2d');
-+
-+  const finishExport = () => {
-+    finalCtx.fillStyle = '#f5f7fb';
-+    finalCtx.fillRect(0,0,finalCanvas.width,finalCanvas.height);
-+    finalCtx.drawImage(frontImg, 0, 0, exportW, exportH);
-+    finalCtx.drawImage(backImg, exportW, 0, exportW, exportH);
-+
-+    finalCtx.fillStyle = '#111';
-+    finalCtx.font = '700 72px Inter';
-+    finalCtx.fillText('Frente', 120, 120);
-+    finalCtx.fillText('Costas', exportW + 120, 120);
-+
-+    const link = document.createElement("a");
-+    link.download = "camisa_t6_frente_costas_hd.png";
-+    link.href = finalCanvas.toDataURL('image/png');
-+    link.click();
-+
-+    renderer.setPixelRatio(originalRatio);
-+    renderer.setSize(originalSize.x, originalSize.y, false);
-+    camera.aspect = originalSize.x / originalSize.y;
-+    camera.position.copy(originalCam);
-+    controls.target.copy(originalTarget);
-+    camera.updateProjectionMatrix();
-+    controls.update();
-+  };
-+
-+  if(frontImg.complete && backImg.complete){
-+    finishExport();
-+  }else{
-+    let loaded = 0;
-+    const onLoad = () => { loaded += 1; if(loaded === 2) finishExport(); };
-+    frontImg.onload = onLoad;
-+    backImg.onload = onLoad;
-+  }
- };
- 
-+window.addEventListener('resize', () => {
-+  camera.aspect = window.innerWidth / window.innerHeight;
-+  camera.updateProjectionMatrix();
-+  renderer.setSize(window.innerWidth, window.innerHeight);
-+});
-+
- init();
- 
- </script>
- </body>
- </html>
- 
-EOF
-)
+<script>
+
+  /* =========================================================
+   EXPORTAÇÃO PROFISSIONAL (ADICIONADO - NÃO REMOVE NADA)
+========================================================= */
+
+// Fundo transparente real
+renderer.setClearColor(0x000000, 0);
+
+// Função de render alta resolução
+async function renderHighRes(width, height, rotationY = 0){
+
+  const originalRotation = model.rotation.y;
+  model.rotation.y = rotationY;
+
+  const originalSize = renderer.getSize(new THREE.Vector2());
+
+  const renderTarget = new THREE.WebGLRenderTarget(width, height);
+  renderer.setRenderTarget(renderTarget);
+  renderer.setSize(width, height);
+  renderer.render(scene, camera);
+
+  const pixels = new Uint8Array(width * height * 4);
+  renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+
+  const imageData = ctx.createImageData(width, height);
+  imageData.data.set(pixels);
+  ctx.putImageData(imageData, 0, 0);
+
+  renderer.setRenderTarget(null);
+  renderer.setSize(originalSize.x, originalSize.y);
+  model.rotation.y = originalRotation;
+
+  return canvas;
+}
+
+// Download helper
+function downloadCanvas(canvas, name){
+  const link = document.createElement("a");
+  link.download = name;
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
+
+/* ===================== 4K HORIZONTAL + BLEED ===================== */
+
+document.getElementById("btn4K").onclick = async () => {
+
+  const width = 3840;
+  const height = 2160;
+  const bleed = 60;
+
+  const front = await renderHighRes(width, height, 0);
+  const back  = await renderHighRes(width, height, Math.PI);
+
+  const finalCanvas = document.createElement("canvas");
+  finalCanvas.width = width * 2 + bleed * 2;
+  finalCanvas.height = height + bleed * 2;
+
+  const ctx = finalCanvas.getContext("2d");
+
+  ctx.drawImage(front, bleed, bleed);
+  ctx.drawImage(back, width + bleed, bleed);
+
+  downloadCanvas(finalCanvas, "camisa_4K_horizontal_bleed.png");
+};
+
+
+/* ===================== 8K VERTICAL ROLO ===================== */
+
+document.getElementById("btn8K").onclick = async () => {
+
+  const width = 4320;
+  const height = 7680;
+  const bleed = 60;
+
+  const front = await renderHighRes(width, height, 0);
+  const back  = await renderHighRes(width, height, Math.PI);
+
+  const finalCanvas = document.createElement("canvas");
+  finalCanvas.width = width + bleed * 2;
+  finalCanvas.height = height * 2 + bleed * 2;
+
+  const ctx = finalCanvas.getContext("2d");
+
+  ctx.drawImage(front, bleed, bleed);
+  ctx.drawImage(back, bleed, height + bleed);
+
+  downloadCanvas(finalCanvas, "camisa_8K_vertical_rolo.png");
+};
+
+
+/* ===================== PDF SUBLIMAÇÃO ===================== */
+
+document.getElementById("btnPDF").onclick = async () => {
+
+  const width = 4320;
+  const height = 7680;
+
+  const front = await renderHighRes(width, height, 0);
+  const back  = await renderHighRes(width, height, Math.PI);
+
+  const finalCanvas = document.createElement("canvas");
+  finalCanvas.width = width;
+  finalCanvas.height = height * 2;
+
+  const ctx = finalCanvas.getContext("2d");
+
+  ctx.drawImage(front, 0, 0);
+  ctx.drawImage(back, 0, height);
+
+  const imgData = finalCanvas.toDataURL("image/png");
+
+  const { jsPDF } = window.jspdf;
+
+  const pdf = new jsPDF({
+    orientation: "portrait",
+    unit: "px",
+    format: [width, height * 2]
+  });
+
+  pdf.addImage(imgData, "PNG", 0, 0, width, height * 2);
+  pdf.save("camisa_sublimacao.pdf");
+};
+
+
+/* ===================== MOCKUPS SEPARADOS ===================== */
+
+document.getElementById("btnMockups").onclick = async () => {
+
+  const front = await renderHighRes(3840, 2160, 0);
+  const back  = await renderHighRes(3840, 2160, Math.PI);
+
+  downloadCanvas(front, "mockup_frente.png");
+  downloadCanvas(back, "mockup_verso.png");
+};
+
+
+/* ===================== ZIP AUTOMÁTICO ===================== */
+
+document.getElementById("btnZIP").onclick = async () => {
+
+  const zip = new JSZip();
+
+  const front = await renderHighRes(3840, 2160, 0);
+  const back  = await renderHighRes(3840, 2160, Math.PI);
+
+  zip.file("frente.png", front.toDataURL().split(',')[1], { base64:true });
+  zip.file("verso.png", back.toDataURL().split(',')[1], { base64:true });
+
+  zip.generateAsync({ type:"blob" }).then(content => {
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(content);
+    link.download = "pack_grafica.zip";
+    link.click();
+
+  });
+
+};
+</script>
+</div>
+
+<div id="viewport"></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+
+
+</script>
+
+<script type="module">
+
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+let scene, camera, renderer, controls, texture;
+
+const canvas = document.createElement('canvas');
+canvas.width = 4096;
+canvas.height = 4096;
+const ctx = canvas.getContext('2d');
+
+const PRESETS = {
+  classic_stripes: { label:'Clássico Listrado', pattern:'stripes_v', scale:170, main:'#f5f5f5', sec:'#005bbb', name:'#ffffff', num:'#ffffff' },
+  retro_hoops: { label:'Retrô com Aros', pattern:'hoops', scale:180, main:'#106d37', sec:'#ffffff', name:'#ffffff', num:'#ffffff' },
+  modern_sash: { label:'Moderno com Faixa', pattern:'sash', scale:210, main:'#ffffff', sec:'#c1121f', name:'#101010', num:'#101010' },
+  two_halves: { label:'Meio a Meio Tradicional', pattern:'half', scale:200, main:'#1d3557', sec:'#e63946', name:'#ffffff', num:'#ffffff' },
+  dark_pinstripe: { label:'Noturno Pinstripe', pattern:'pinstripes', scale:110, main:'#111827', sec:'#60a5fa', name:'#ffffff', num:'#ffffff' },
+  royal_diagonal: { label:'Diagonal Real', pattern:'diagonal', scale:150, main:'#0b4f9f', sec:'#f8fafc', name:'#ffffff', num:'#ffffff' },
+  checker_attack: { label:'Quadriculado Ofensivo', pattern:'checker', scale:280, main:'#ffffff', sec:'#d62828', name:'#111111', num:'#111111' },
+  warm_chevron: { label:'Chevron Quente', pattern:'chevrons', scale:220, main:'#ffb703', sec:'#fb8500', name:'#111111', num:'#111111' }
+};
+
+// logo local
+const logoImg = new Image();
+logoImg.crossOrigin = "anonymous";
+logoImg.src = "/imagens/logot6.png.png";
+logoImg.onload = () => updateDesign();
+
+// Tamanho fixo da logo
+const LOGO_FIXED_SIZE = 300; // pixels
+
+function seededRand(seed){
+  let t = seed + 0x6D2B79F5;
+  t = Math.imul(t ^ t >>> 15, t | 1);
+  t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+  return ((t ^ t >>> 14) >>> 0) / 4294967296;
+}
+
+function hslToHex(h, s, l){
+  s /= 100;
+  l /= 100;
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  const m = l - c / 2;
+  let r = 0, g = 0, b = 0;
+
+  if(h < 60){ r = c; g = x; }
+  else if(h < 120){ r = x; g = c; }
+  else if(h < 180){ g = c; b = x; }
+  else if(h < 240){ g = x; b = c; }
+  else if(h < 300){ r = x; b = c; }
+  else { r = c; b = x; }
+
+  const toHex = v => Math.round((v + m) * 255).toString(16).padStart(2, '0');
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+function randomHex(seedOffset){
+  const h = Math.floor(seededRand(Date.now() + seedOffset) * 360);
+  const s = 65 + Math.floor(seededRand(Date.now() + seedOffset + 77) * 25);
+  const l = 35 + Math.floor(seededRand(Date.now() + seedOffset + 144) * 35);
+  return hslToHex(h, s, l);
+}
+
+function applyPreset(def, badgeText){
+  document.getElementById('patternInput').value = def.pattern;
+  document.getElementById('patScale').value = def.scale;
+  document.getElementById('mainColor').value = def.main;
+  document.getElementById('secColor').value = def.sec;
+  document.getElementById('nameColor').value = def.name;
+  document.getElementById('numColor').value = def.num;
+  document.getElementById('modelBadge').textContent = `Modelo atual: ${badgeText}`;
+  updateDesign();
+}
+
+function applyInfiniteModel(){
+  const patterns = ['stripes_v','stripes_h','checker','grid','dots','diagonal','sash','half','hoops','chevrons','pinstripes'];
+  const pat = patterns[Math.floor(Math.random() * patterns.length)];
+  const model = {
+    pattern: pat,
+    scale: 70 + Math.floor(Math.random() * 250),
+    main: randomHex(1),
+    sec: randomHex(2),
+    name: '#ffffff',
+    num: '#ffffff'
+  };
+
+  applyPreset(model, `Infinito #${Math.floor(Math.random()*100000)}`);
+  document.getElementById('presetInput').value = 'manual';
+}
+
+/* ---------------- PATTERN ---------------- */
+
+function drawPattern(pat,c1,c2,scale){
+  ctx.clearRect(0,0,4096,4096);
+  ctx.fillStyle = c1;
+  ctx.fillRect(0,0,4096,4096);
+
+  if(pat === "none") return;
+
+  ctx.fillStyle = c2;
+  const s = parseInt(scale,10);
+
+  if(pat === "stripes_v")
+    for(let i=0;i<4096;i+=s) ctx.fillRect(i,0,s/2,4096);
+
+  if(pat === "stripes_h")
+    for(let i=0;i<4096;i+=s) ctx.fillRect(0,i,4096,s/2);
+
+  if(pat === "checker")
+    for(let i=0;i<4096;i+=s)
+      for(let j=0;j<4096;j+=s)
+        if(((i+j)/s)%2==0) ctx.fillRect(i,j,s,s);
+
+  if(pat === "grid"){
+    ctx.strokeStyle = c2;
+    ctx.lineWidth = Math.max(1, s/80);
+    for(let i=0;i<4096;i+=s){
+      ctx.beginPath();
+      ctx.moveTo(i,0);
+      ctx.lineTo(i,4096);
+      ctx.moveTo(0,i);
+      ctx.lineTo(4096,i);
+      ctx.stroke();
+    }
+  }
+
+  if(pat === "dots")
+    for(let i=0;i<4096;i+=s)
+      for(let j=0;j<4096;j+=s){
+        ctx.beginPath();
+        ctx.arc(i,j,s/4,0,Math.PI*2);
+        ctx.fill();
+      }
+
+  if(pat === "diagonal"){
+    ctx.save();
+    ctx.translate(2048, 2048);
+    ctx.rotate(-Math.PI / 4);
+    for(let i=-5000;i<5000;i+=s){
+      ctx.fillRect(i, -5000, s/2, 10000);
+    }
+    ctx.restore();
+  }
+
+  if(pat === "sash"){
+    ctx.save();
+    ctx.translate(2048, 2048);
+    ctx.rotate(-Math.PI / 5.2);
+    ctx.fillRect(-280, -5000, 560, 10000);
+    ctx.restore();
+  }
+
+  if(pat === "half"){
+    ctx.fillRect(0,0,2048,4096);
+  }
+
+  if(pat === "hoops"){
+    for(let i=0;i<4096;i+=s){
+      if((i/s)%2===0) ctx.fillRect(0,i,4096,s/2);
+    }
+  }
+
+  if(pat === "chevrons"){
+    ctx.strokeStyle = c2;
+    ctx.lineWidth = Math.max(6, s/8);
+    for(let y=-s; y<4096+s; y+=s){
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(2048, y + s/2);
+      ctx.lineTo(4096, y);
+      ctx.stroke();
+    }
+  }
+
+  if(pat === "pinstripes"){
+    for(let i=0;i<4096;i+=Math.max(12, s/3)){
+      ctx.fillRect(i,0,3,4096);
+    }
+  }
+}
+
+function drawLogo(pos, show){
+  if(!show) return;
+  if(!logoImg.complete) return;
+
+  const size = LOGO_FIXED_SIZE;
+
+  const centerX = 1190;
+  const chestY  = 1840;
+  const offset  = 420;
+
+  let x = centerX - size/2;
+  if(pos === "left")  x = centerX - offset - size/2;
+  if(pos === "right") x = centerX + offset - size/2;
+
+  let y = chestY - size/2;
+
+  ctx.save();
+  ctx.translate(x + size/2, y + size/2);
+  ctx.rotate(Math.PI);
+
+  if(pos === "right") ctx.scale(-1,1);
+
+  ctx.drawImage(logoImg, -size/2, -size/2, size, size);
+  ctx.restore();
+}
+
+function drawBack(name,num,nameColor,numColor){
+  ctx.save();
+  ctx.translate(3072,1800);
+  ctx.rotate(Math.PI);
+  ctx.scale(-1,1);
+
+  ctx.textAlign="center";
+  ctx.shadowColor="rgba(0,0,0,0.6)";
+  ctx.shadowBlur=20;
+
+  if(name){
+    ctx.fillStyle=nameColor;
+    ctx.font="900 300px Teko";
+    ctx.fillText(name.toUpperCase(),0,-200);
+  }
+
+  if(num){
+    ctx.fillStyle=numColor;
+    ctx.font="900 1050px Teko";
+    ctx.fillText(num,0,750);
+  }
+
+  ctx.restore();
+}
+
+function updateDesign(){
+  drawPattern(
+    document.getElementById("patternInput").value,
+    document.getElementById("mainColor").value,
+    document.getElementById("secColor").value,
+    document.getElementById("patScale").value
+  );
+
+  drawCollar(document.getElementById("collarSelect").value);
+
+  drawLogo(
+    document.getElementById("logoPos").value,
+    document.getElementById("logoShow").checked
+    
+  );
+function drawCollar(type){
+
+
+  const mainColor = document.getElementById("mainColor").value;
+  const secColor = document.getElementById("secColor").value;
+  const centerX = 20480;
+  const topY = 260;
+
+  ctx.save();
+
+  /* ================= CARECA ================= */
+  if(type === "careca"){
+    ctx.fillStyle = secColor;
+    ctx.beginPath();
+    ctx.arc(centerX, topY, 420, 0, Math.PI);
+    ctx.fill();
+  }
+
+  /* ================= V NORMAL ================= */
+  if(type === "v"){
+    ctx.fillStyle = secColor;
+    ctx.beginPath();
+    ctx.moveTo(centerX - 400, topY);
+    ctx.lineTo(centerX, topY + 600);
+    ctx.lineTo(centerX + 400, topY);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  /* ================= POLO ================= */
+  if(type === "polo"){
+    ctx.fillStyle = secColor;
+    ctx.fillRect(centerX - 260, topY, 520, 600);
+
+    ctx.fillStyle = mainColor;
+    ctx.fillRect(centerX - 20, topY + 150, 40, 300);
+  }
+
+  /* ================= RIBANA ESPORTIVA ================= */
+  if(type === "ribana"){
+    ctx.fillStyle = secColor;
+    ctx.beginPath();
+    ctx.arc(centerX, topY, 430, 0, Math.PI);
+    ctx.fill();
+
+    ctx.strokeStyle = mainColor;
+    ctx.lineWidth = 40;
+    ctx.beginPath();
+    ctx.arc(centerX, topY, 400, 0, Math.PI);
+    ctx.stroke();
+  }
+
+  /* ================= V PROFUNDO ================= */
+  if(type === "v_deep"){
+    ctx.fillStyle = secColor;
+    ctx.beginPath();
+    ctx.moveTo(centerX - 450, topY);
+    ctx.lineTo(centerX, topY + 900);
+    ctx.lineTo(centerX + 450, topY);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  /* ================= RETRÔ ANOS 90 ================= */
+  if(type === "retro"){
+    ctx.fillStyle = secColor;
+    ctx.beginPath();
+    ctx.arc(centerX, topY, 450, 0, Math.PI);
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 25;
+    ctx.beginPath();
+    ctx.arc(centerX, topY, 420, 0, Math.PI);
+    ctx.stroke();
+  }
+
+  /* ================= WAVE MODERNA ================= */
+  if(type === "wave"){
+    ctx.fillStyle = secColor;
+    ctx.beginPath();
+    ctx.moveTo(centerX - 500, topY);
+    ctx.quadraticCurveTo(centerX, topY + 400, centerX + 500, topY);
+    ctx.lineTo(centerX + 500, topY + 150);
+    ctx.quadraticCurveTo(centerX, topY + 550, centerX - 500, topY + 150);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  /* ================= HIGH NECK ================= */
+  if(type === "highneck"){
+    ctx.fillStyle = secColor;
+    ctx.fillRect(centerX - 450, topY - 50, 900, 350);
+  }
+
+  ctx.restore();
+}
+  drawBack(
+    document.getElementById("nameInput").value,
+    document.getElementById("numInput").value,
+    document.getElementById("nameColor").value,
+    document.getElementById("numColor").value
+  );
+
+  if(texture) texture.needsUpdate = true;
+}
+
+function init(){
+  scene = new THREE.Scene();
+
+  camera = new THREE.PerspectiveCamera(18, window.innerWidth/window.innerHeight, 0.1, 1000);
+
+  renderer = new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.getElementById("viewport").appendChild(renderer.domElement);
+
+  scene.add(new THREE.AmbientLight(0xffffff,2));
+
+  const light = new THREE.DirectionalLight(0xffffff,1.3);
+  light.position.set(5,5,5);
+  scene.add(light);
+
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+
+  texture = new THREE.CanvasTexture(canvas);
+  texture.flipY = false;
+
+  new GLTFLoader().load("oversized_t-shirt.glb", (gltf) => {
+
+    const shirt = gltf.scene;
+
+    const box = new THREE.Box3().setFromObject(shirt);
+    const center = box.getCenter(new THREE.Vector3());
+    shirt.position.sub(center);
+    shirt.scale.set(1.05,1.05,1.05);
+
+    shirt.traverse(c => {
+      if(c.isMesh){
+        c.material = new THREE.MeshStandardMaterial({map: texture, roughness: 0.6, metalness: 0});
+      }
+    });
+
+    scene.add(shirt);
+
+    camera.position.set(0,0,8);
+    controls.target.set(0,0,0);
+    controls.update();
+
+    updateDesign();
+  }, undefined, (err) => {
+    console.error("Erro ao carregar o GLB:", err);
+  });
+
+  animate();
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+document.querySelectorAll("input,select").forEach(e => e.oninput = updateDesign);
+
+document.getElementById('presetInput').addEventListener('change', (e) => {
+  if(e.target.value === 'manual'){
+    document.getElementById('modelBadge').textContent = 'Modelo atual: Manual';
+    return;
+  }
+
+  const preset = PRESETS[e.target.value];
+  if(preset) applyPreset(preset, preset.label);
+});
+
+document.getElementById('btnInfinite').addEventListener('click', applyInfiniteModel);
+
+document.getElementById("btnSave").onclick = () => {
+  const link = document.createElement("a");
+  link.download = "camisa_t6.png";
+  link.href = renderer.domElement.toDataURL();
+  link.click();
+};
+
+init();
+
+const toggleGola = document.getElementById("toggleGola");
+const gola = document.getElementById("gola");
+
+toggleGola.addEventListener("change", function() {
+  gola.style.display = this.checked ? "block" : "none";
+});
+</script>
+</body>
+</html>
