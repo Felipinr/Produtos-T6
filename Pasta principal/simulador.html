@@ -652,9 +652,42 @@ ctx.fillStyle = c2;
       ctx.fillRect(i,0,3,4096);
     }
   }
+
+  /* ===================== NOVOS MODELOS ===================== */
+
+if(pat === "center_stripe"){
+  ctx.fillRect(2048 - s/2, 0, s, 4096);
 }
 
+if(pat === "wide_stripes"){
+  for(let i=0;i<4096;i+=s){
+    ctx.fillRect(i,0,s/2,4096);
+  }
+}
 
+if(pat === "micro_stripes"){
+  for(let i=0;i<4096;i+=Math.max(10,s/4)){
+    ctx.fillRect(i,0,3,4096);
+  }
+}
+
+if(pat === "split_vertical"){
+  ctx.fillRect(0,0,2048,4096);
+}
+
+if(pat === "split_horizontal"){
+  ctx.fillRect(0,0,4096,2048);
+}
+
+if(pat === "royal_diagonal"){
+  ctx.save();
+  ctx.translate(1400,2048);
+  ctx.rotate(-Math.PI/4);
+  ctx.fillRect(-s/2,-5000,s,10000);
+  ctx.restore();
+}
+
+}
 
 
 function drawLogo(pos, show){
