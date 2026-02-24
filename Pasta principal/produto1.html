@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T6 Store | Uniforme Oficial</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --rosa:#e91e63;
+  --rosa-escuro:#880e4f;
+  --dourado:#d4af37;
+  --cinza:#f8f8f8;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Archivo',sans-serif;
+  background:#fff;
+  color:#222;
+}
+
+/* ================= HEADER ================= */
+
+.topo{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px 80px;
+  background:white;
+  box-shadow:0 2px 15px rgba(0,0,0,.05);
+  position:fixed;
+  width:100%;
+  top:0;
+  z-index:1000;
+}
+
+.topo__marca a{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  text-decoration:none;
+}
+
+.topo__marca img{height:60px;}
+
+.topo__marca h1{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700;
+  font-size:22px;
+  color:var(--rosa-escuro);
+}
+
+.menu{
+  display:flex;
+  gap:40px;
+}
+
+.menu a{
+  text-decoration:none;
+  font-weight:600;
+  color:#444;
+  transition:.3s;
+  position:relative;
+}
+
+.menu a:hover{
+  color:var(--rosa);
+}
+
+.menu a::after{
+  content:"";
+  position:absolute;
+  bottom:-6px;
+  left:0;
+  width:0%;
+  height:2px;
+  background:var(--rosa);
+  transition:.3s;
+}
+
+.menu a:hover::after{
+  width:100%;
+}
+
+/* ================= PRODUTO ================= */
+
+.produto-container{
+  display:flex;
+  gap:80px;
+  padding:160px 80px 80px 80px; /* espaço extra por causa do header fixo */
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+.galeria{
+  flex:1;
+  min-width:320px;
+  text-align:center;
+}
+
+.imagem-principal{
+  width:100%;
+  max-width:450px;
+  border-radius:20px;
+  box-shadow:0 15px 40px rgba(0,0,0,.15);
+}
+
+.thumb-container{
+  margin-top:20px;
+  display:flex;
+  justify-content:center;
+  gap:20px;
+}
+
+.thumb{
+  width:100px;
+  border-radius:10px;
+  cursor:pointer;
+  opacity:.6;
+  transition:.3s;
+}
+
+.thumb:hover{
+  opacity:1;
+  transform:scale(1.05);
+}
+
+.thumb.active{
+  opacity:1;
+  border:2px solid var(--rosa);
+}
+
+.info{
+  flex:1;
+  min-width:320px;
+  max-width:500px;
+}
+
+.info h2{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:32px;
+  margin-bottom:15px;
+}
+
+.preco{
+  font-size:28px;
+  color:var(--rosa);
+  font-weight:700;
+  margin:20px 0;
+}
+
+.descricao{
+  line-height:1.6;
+  color:#555;
+  margin-bottom:30px;
+}
+
+.select-group{
+  margin-bottom:20px;
+}
+
+label{
+  display:block;
+  font-weight:600;
+  margin-bottom:8px;
+}
+
+select, input{
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  font-size:16px;
+}
+
+button{
+  width:100%;
+  padding:15px;
+  border:none;
+  border-radius:40px;
+  font-size:18px;
+  font-weight:700;
+  cursor:pointer;
+  background:linear-gradient(90deg,var(--rosa),var(--rosa-escuro));
+  color:white;
+  transition:.3s;
+  margin-top:20px;
+}
+
+button:hover{
+  transform:scale(1.05);
+  background:var(--dourado);
+}
+
+/* ================= FOOTER ================= */
+
+footer{
+  background:var(--rosa-escuro);
+  color:white;
+  text-align:center;
+  padding:25px;
+}
+
+/* ================= RESPONSIVO ================= */
+
+@media(max-width:768px){
+
+  .topo{
+    padding:20px;
+    flex-direction:column;
+    gap:15px;
+  }
+
+  .menu{
+    gap:20px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+
+  .produto-container{
+    padding:140px 20px 60px 20px;
+    gap:40px;
+  }
+
+}
+</style>
+</head>
+
+<link rel="icon" href="/imagens/logot6.png.png" type="image/png">
+
+<body>
+
+<!-- HEADER -->
+<header class="topo">
+  <div class="topo__marca">
+    <a href="index.html">
+      <img src="/imagens/logot6.png.png" alt="Logo T6">
+      <h1>T6 Store</h1>
+    </a>
+  </div>
+
+  <nav class="menu">
+    <a href="index.html">Início</a>
+    <a href="produtos.html">Produtos</a>
+    <a href="simulador.html">Customizar</a>
+    <a href="dev.html">Desenvolvedor</a>
+  </nav>
+</header>
+
+<!-- PRODUTO -->
+<section class="produto-container">
+
+  <div class="galeria">
+    <img id="imagemPrincipal" 
+         src="/imagens/prod1f.jpg" 
+         class="imagem-principal">
+
+    <div class="thumb-container">
+      <img src="/imagens/prod1f.jpg" class="thumb active" onclick="trocarImagem(this)">
+      <img src="/imagens/prod2t.jpg" class="thumb" onclick="trocarImagem(this)">
+    </div>
+  </div>
+
+  <div class="info">
+    <h2>Uniforme Oficial T6 Medicina 2025</h2>
+
+    <div class="preco">R$ 00,90</div>
+
+    <div class="descricao">
+      Uniforme exclusivo da T6 Medicina. Modelo com nome personalizado,
+      tecido leve e respirável para máxima performance.
+    </div>
+
+    <div class="select-group">
+      <label>Tamanho</label>
+      <select>
+        <option>P</option>
+        <option>M</option>
+        <option>G</option>
+        <option>GG</option>
+      </select>
+    </div>
+
+    <div class="select-group">
+      <label>Nome Personalizado</label>
+      <input type="text" placeholder="Digite o nome">
+    </div>
+
+    <div class="select-group">
+      <label>Número</label>
+      <input type="number" min="1" max="99" placeholder="Ex: 10">
+    </div>
+
+    <button>Comprar Agora</button>
+  </div>
+
+</section>
+
+<footer>
+© 2025 - 2031 T6 Medicina | UNIRV
+</footer>
+
+<script>
+function trocarImagem(elemento){
+  document.getElementById("imagemPrincipal").src = elemento.src;
+
+  document.querySelectorAll(".thumb").forEach(img => {
+    img.classList.remove("active");
+  });
+
+  elemento.classList.add("active");
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,126 @@
+{
+   "HotspotFormatVersion": 1,
+   "Hotspots": [
+      {
+         "Group": "jersey",
+         "Name": "numberback",
+         "Bounds": {
+            "X": 0.5803,
+            "Y": 0.3621,
+            "Z": 0.4197,
+            "W": 0.2161
+         },
+         "Rotation": 0
+      },
+      {
+         "Group": "jersey",
+         "Name": "numberfront",
+         "Bounds": {
+            "X": 0.4709,
+            "Y": 0.6426,
+            "Z": 0.5291,
+            "W": 0.6953
+         },
+         "Rotation": 0
+      },
+      {
+         "Group": "jersey",
+         "Name": "name",
+         "Bounds": {
+            "X": 0.5671,
+            "Y": 0.4207,
+            "Z": 0.4329,
+            "W": 0.384
+         },
+         "Rotation": 0
+      },
+      {
+         "Group": "jersey",
+         "Name": "namearccenter",
+         "Bounds": {
+            "X": 0.5,
+            "Y": 0.2664,
+            "Z": 0.5,
+            "W": 0.2664
+         },
+         "Rotation": 0
+      },
+      {
+         "Group": "jersey",
+         "Name": "namearctangent",
+         "Bounds": {
+            "X": 0.5,
+            "Y": 0.4207,
+            "Z": 0.5,
+            "W": 0.4207
+         },
+         "Rotation": 0
+      },
+      {
+         "Group": "shorts",
+         "Name": "number",
+         "Bounds": {
+            "X": 0.5537,
+            "Y": 0.7969,
+            "Z": 0.6221,
+            "W": 0.9219
+         },
+         "Rotation": 0
+      },
+      {
+         "Group": "competition",
+         "Name": "LeftSleeveLong",
+         "Bounds": {
+            "X": 0.67431640625,
+            "Y": 0.4287109375,
+            "Z": 0.74267578125,
+            "W": 0.5498046875
+         },
+         "Rotation": 90
+      },
+      {
+         "Group": "competition",
+         "Name": "LeftSleeveShort",
+         "Bounds": {
+            "X": 0.67431640625,
+            "Y": 0.10595703125,
+            "Z": 0.74267578125,
+            "W": 0.22705078125
+         },
+         "Rotation": 90
+      },
+      {
+         "Group": "competition",
+         "Name": "RightSleeveLong",
+         "Bounds": {
+            "X": 0.25732421875,
+            "Y": 0.4287109375,
+            "Z": 0.32568359375,
+            "W": 0.5498046875
+         },
+         "Rotation": -90
+      },
+      {
+         "Group": "competition",
+         "Name": "RightSleeveShort",
+         "Bounds": {
+            "X": 0.25732421875,
+            "Y": 0.10595703125,
+            "Z": 0.32568359375,
+            "W": 0.22705078125
+         },
+         "Rotation": -90
+      },
+      {
+         "Group": "competition",
+         "Name": "Center",
+         "Bounds": {
+            "X": 0.471923828125,
+            "Y": 0.583740234375,
+            "Z": 0.528076171875,
+            "W": 0.639892578125
+         },
+         "Rotation": 0
+      }
+   ]
+}
