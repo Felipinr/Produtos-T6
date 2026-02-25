@@ -118,20 +118,26 @@ body{
   color:var(--rosa);
 }
 
-button{
-  margin-top:15px;
-  padding:10px 20px;
-  border:none;
-  border-radius:30px;
+/* BOTÃO NOVO ESTILIZADO */
+
+.btn-produto{
+  display:inline-block;
+  margin-top:18px;
+  padding:12px 28px;
+  border-radius:50px;
   background:linear-gradient(90deg,var(--rosa),var(--rosa-escuro));
   color:white;
   font-weight:600;
-  cursor:pointer;
-  transition:.3s;
+  text-decoration:none;
+  letter-spacing:.5px;
+  transition:.4s ease;
+  box-shadow:0 8px 20px rgba(233,30,99,.3);
 }
 
-button:hover{
-  background:var(--dourado);
+.btn-produto:hover{
+  background:linear-gradient(90deg,var(--dourado),#b8902e);
+  transform:translateY(-3px);
+  box-shadow:0 12px 25px rgba(212,175,55,.4);
 }
 
 /* FOOTER */
@@ -174,24 +180,128 @@ footer{
 
 <section class="produtos-container">
 
-<!-- PRODUTO 1 AO 12 -->
-<script>
-for(let i=1;i<=12;i++){
-  document.write(`
+  <!-- PRODUTOS 1 AO 12 -->
+  <!-- Basta duplicar padrão -->
+
   <div class="produto">
     <div class="imagem-box">
-      <img src="/imagens/prod${i}f.jpg" class="frente">
-      <img src="/imagens/prod${i}t.jpg" class="verso">
+      <img src="/imagens/prod1f.jpg" class="frente">
+      <img src="/imagens/prod1t.jpg" class="verso">
     </div>
-    <h3>Uniforme Oficial T6 2026 - Modelo ${i}</h3>
+    <h3>Camisa rosa interturmas - 1</h3>
     <div class="preco">R$ 00,90</div>
-    <button onclick="window.location.href='produto${i}.html'">
-      Ver Produto
-    </button>
+    <a href="produto1.html" class="btn-produto">Ver Produto</a>
   </div>
-  `);
-}
-</script>
+
+  <div class="produto">
+    <div class="imagem-box">
+      <img src="/imagens/prod2f.jpg" class="frente">
+      <img src="/imagens/prod2t.jpg" class="verso">
+    </div>
+    <h3>Camisa preta interturmas - 1</h3>
+    <div class="preco">R$ 00,90</div>
+    <a href="produto2.html" class="btn-produto">Ver Produto</a>
+  </div>
+
+  <div class="produto">
+    <div class="imagem-box">
+      <img src="/imagens/prod3f.jpg" class="frente">
+      <img src="/imagens/prod3t.jpg" class="verso">
+    </div>
+    <h3>Camisa branca interturmas - 1</h3>
+    <div class="preco">R$ 00,90</div>
+    <a href="produto3.html" class="btn-produto">Ver Produto</a>
+  </div>
+
+  <div class="produto">
+    <div class="imagem-box">
+      <img src="/imagens/prod4f.jpg" class="frente">
+      <img src="/imagens/prod4t.jpg" class="verso">
+    </div>
+    <h3>Camisa rosa interturmas - 2</h3>
+    <div class="preco">R$ 00,90</div>
+    <a href="produto4.html" class="btn-produto">Ver Produto</a>
+  </div>
+
+  <div class="produto">
+    <div class="imagem-box">
+      <img src="/imagens/prod5f.jpg" class="frente">
+      <img src="/imagens/prod5t.jpg" class="verso">
+    </div>
+    <h3>Camisa branca interturmas - 2</h3>
+    <div class="preco">R$ 00,90</div>
+    <a href="produto5.html" class="btn-produto">Ver Produto</a>
+  </div>
+
+  <div class="produto">
+    <div class="imagem-box">
+      <img src="/imagens/prod6f.jpg" class="frente">
+      <img src="/imagens/prod6t.jpg" class="verso">
+    </div>
+    <h3>Camisa preta interturmas - 2</h3>
+    <div class="preco">R$ 00,90</div>
+    <a href="produto6.html" class="btn-produto">Ver Produto</a>
+  </div>
+
+  <div class="produto">
+    <div class="imagem-box">
+      <img src="/imagens/mockeybody.png" class="frente">
+      <img src="/imagens/bodymono.png" class="verso">
+    </div>
+    <h3>Body Feminino | Rosa e preto</h3>
+    <div class="preco">R$ 00,90</div>
+    <a href="produto7.html" class="btn-produto">Ver Produto</a>
+  </div>
+
+  <div class="produto">
+    <div class="imagem-box">
+      <img src="/imagens/prod8f.jpg" class="frente">
+      <img src="/imagens/prod8t.jpg" class="verso">
+    </div>
+    <h3>Leque da t6</h3>
+    <div class="preco">R$ 00,90</div>
+    <a href="produto8.html" class="btn-produto">Ver Produto</a>
+  </div>
+
+  <div class="produto">
+    <div class="imagem-box">
+      <img src="/imagens/bodydfbranco.png" class="frente">
+      <img src="/imagens/bodydfrosaa.png" class="verso">
+    </div>
+    <h3>Body dupla face - Fem</h3>
+    <div class="preco">R$ 00,90</div>
+    <a href="produto9.html" class="btn-produto">Ver Produto</a>
+  </div>
+
+  <div class="produto">
+    <div class="imagem-box">
+      <img src="/imagens/prod10f.jpg" class="frente">
+      <img src="/imagens/prod10t.jpg" class="verso">
+    </div>
+    <h3>Produto 10</h3>
+    <div class="preco">R$ 00,90</div>
+    <a href="produto10.html" class="btn-produto">Ver Produto</a>
+  </div>
+
+  <div class="produto">
+    <div class="imagem-box">
+      <img src="/imagens/prod11f.jpg" class="frente">
+      <img src="/imagens/prod11t.jpg" class="verso">
+    </div>
+    <h3>Produto 11</h3>
+    <div class="preco">R$ 00,90</div>
+    <a href="produto11.html" class="btn-produto">Ver Produto</a>
+  </div>
+
+  <div class="produto">
+    <div class="imagem-box">
+      <img src="/imagens/prod12f.jpg" class="frente">
+      <img src="/imagens/prod12t.jpg" class="verso">
+    </div>
+    <h3>Produto 12</h3>
+    <div class="preco">R$ 00,90</div>
+    <a href="produto12.html" class="btn-produto">Ver Produto</a>
+  </div>
 
 </section>
 
