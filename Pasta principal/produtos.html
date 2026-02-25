@@ -3,234 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>T6 Medicina - Loja Oficial</title>
+<title>T6 Store | Produtos</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
 
 <style>
-:root {
-  --rosa-principal: #e91e63;
-  --rosa-escuro: #880e4f;
-  --dourado: #d4af37;
-  --cinza-header: #f4f4f4;
+:root{
+  --rosa:#e91e63;
+  --rosa-escuro:#880e4f;
+  --dourado:#d4af37;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  font-family:'Archivo',sans-serif;
+  background:#f9f9f9;
+  color:#222;
 }
 
-body {
-  background: linear-gradient(135deg, #fff0f5, #ffe4ec);
-  color: #333;
+/* HEADER */
+
+.topo{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px 80px;
+  background:white;
+  box-shadow:0 2px 15px rgba(0,0,0,.05);
 }
 
-/* ================= HEADER ================= */
-
-header {
-  background: var(--cinza-header);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+.topo h1{
+  font-family:'Space Grotesk',sans-serif;
+  color:var(--rosa-escuro);
 }
 
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 90px;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 40px;
+.menu{
+  display:flex;
+  gap:40px;
 }
 
-.logo-area {
-  display: flex;
-  align-items: center;
-  gap: 15px;
+.menu a{
+  text-decoration:none;
+  font-weight:600;
+  color:#444;
+  transition:.3s;
 }
 
-.logo-area img {
-  height: 70px;
+.menu a:hover{
+  color:var(--rosa);
 }
 
-.brand {
-  font-weight: 700;
-  font-size: 20px;
-  color: var(--rosa-escuro);
+/* VITRINE */
+
+.produtos-container{
+  padding:60px 80px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:40px;
 }
 
-.menu {
-  list-style: none;
-  display: flex;
-  gap: 40px;
+.produto{
+  background:white;
+  padding:20px;
+  border-radius:20px;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  transition:.3s;
 }
 
-.menu li a {
-  text-decoration: none;
-  font-weight: 600;
-  color: #444;
-  transition: 0.3s;
+.produto:hover{
+  transform:translateY(-8px);
+  box-shadow:0 15px 40px rgba(0,0,0,.15);
 }
 
-.menu li a:hover {
-  color: var(--rosa-principal);
+.imagem-box{
+  position:relative;
+  width:100%;
+  height:280px;
 }
 
-/* ================= PRODUTOS ================= */
-
-.produtos {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 60px;
-  padding: 100px 40px;
-  max-width: 1200px;
-  margin: 0 auto;
-  justify-items: center;
+.imagem-box img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  position:absolute;
+  top:0;
+  left:0;
+  transition:.4s;
 }
 
-.produto {
-  background: white;
-  width: 100%;
-  max-width: 340px;
-  border-radius: 30px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-  padding: 30px 25px 35px 25px;
-  text-align: center;
-  transition: 0.4s ease;
+.imagem-box img.verso{
+  opacity:0;
 }
 
-.produto:hover {
-  transform: translateY(-12px);
-  box-shadow: 0 30px 50px rgba(0,0,0,0.25);
+.produto:hover .frente{
+  opacity:0;
 }
 
-.produto img {
-  width: 220px;
-  height: auto;
-  margin-bottom: 20px;
-  transition: 0.4s ease;
+.produto:hover .verso{
+  opacity:1;
 }
 
-.produto:hover img {
-  transform: scale(1.08);
+.produto h3{
+  margin-top:15px;
+  font-family:'Space Grotesk',sans-serif;
+  font-size:18px;
 }
 
-.produto h2 {
-  color: var(--rosa-escuro);
-  margin-bottom: 15px;
-  font-size: 22px;
+.preco{
+  margin-top:10px;
+  font-size:18px;
+  font-weight:700;
+  color:var(--rosa);
 }
 
-.produto p {
-  color: #666;
-  font-size: 15px;
-  margin-bottom: 25px;
-  line-height: 1.5;
+button{
+  margin-top:15px;
+  padding:10px 20px;
+  border:none;
+  border-radius:30px;
+  background:linear-gradient(90deg,var(--rosa),var(--rosa-escuro));
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  transition:.3s;
 }
 
-/* BOTÃO PREMIUM */
-
-.botao-comprar {
-  display: inline-block;
-  padding: 14px 30px;
-  border-radius: 40px;
-  font-weight: 600;
-  text-decoration: none;
-  background: linear-gradient(135deg, var(--rosa-principal), var(--rosa-escuro));
-  color: white;
-  box-shadow: 0 10px 25px rgba(233,30,99,.35);
-  transition: 0.3s ease;
+button:hover{
+  background:var(--dourado);
 }
 
-.botao-comprar:hover {
-  transform: scale(1.05);
-  box-shadow: 0 15px 35px rgba(233,30,99,.5);
+/* FOOTER */
+
+footer{
+  text-align:center;
+  padding:30px;
+  background:var(--rosa-escuro);
+  color:white;
+  margin-top:60px;
 }
 
-/* ================= FOOTER ================= */
-
-footer {
-  text-align: center;
-  padding: 25px;
-  background: linear-gradient(135deg, #880e4f, #ad1457);
-  color: white;
-  margin-top: 60px;
-}
-
-/* ================= RESPONSIVO ================= */
-
-@media (max-width: 768px) {
-  .navbar {
-    padding: 0 20px;
+@media(max-width:768px){
+  .topo{
+    flex-direction:column;
+    gap:15px;
+    padding:20px;
   }
 
-  .menu {
-    gap: 20px;
-  }
-
-  .brand {
-    display: none;
-  }
-
-  .produtos {
-    padding: 60px 20px;
+  .produtos-container{
+    padding:40px 20px;
   }
 }
 </style>
 
 <link rel="icon" href="/imagens/logot6.png.png" type="image/png">
+<link rel="shortcut icon" href="/imagens/logot6.png.png" type="image/png">
 </head>
 
 <body>
 
-<header>
-  <nav class="navbar">
-    <div class="logo-area">
-      <a href="index.html">
-        <img src="/imagens/logot6.png.png" alt="Logo T6 Medicina">
-      </a>
-      <span class="brand">T6 Store</span>
-    </div>
-
-    <ul class="menu">
-      <li><a href="index.html">INÍCIO</a></li>
-      <li><a href="produtos.html">PRODUTOS</a></li>
-      <li><a href="dev.html">DESENVOLVEDOR</a></li>
-    </ul>
+<header class="topo">
+  <h1>T6 Store</h1>
+  <nav class="menu">
+    <a href="index.html">Início</a>
+    <a href="produtos.html">Produtos</a>
+    <a href="simulador.html">Customizar</a>
   </nav>
 </header>
 
-<section class="produtos">
+<section class="produtos-container">
 
-  <!-- PRODUTO 1 -->
+<!-- PRODUTO 1 AO 12 -->
+<script>
+for(let i=1;i<=12;i++){
+  document.write(`
   <div class="produto">
-    <img src="/imagens/prod1f.jpg" alt="Uniforme T6 Frente">
-
-    <h2>Produto 1</h2>
-    <p>Produto exclusivo da turma T6 Medicina. Qualidade premium e edição limitada.</p>
-
-    <a href="produto1.html" class="botao-comprar">
-      Comprar Agora
-    </a>
+    <div class="imagem-box">
+      <img src="/imagens/prod${i}f.jpg" class="frente">
+      <img src="/imagens/prod${i}t.jpg" class="verso">
+    </div>
+    <h3>Uniforme Oficial T6 2026 - Modelo ${i}</h3>
+    <div class="preco">R$ 00,90</div>
+    <button onclick="window.location.href='produto${i}.html'">
+      Ver Produto
+    </button>
   </div>
-
-  <!-- PRODUTO 2 -->
-  <div class="produto">
-    <img src="/imagens/prod2t.jpg" alt="Uniforme T6 Costas">
-
-    <h2>Produto 2</h2>
-    <p>Produto oficial da T6 UNIRV. Design sofisticado inspirado no brasão da turma.</p>
-
-    <a href="produto2.html" class="botao-comprar">
-      Comprar Agora
-    </a>
-  </div>
+  `);
+}
+</script>
 
 </section>
 
 <footer>
-  © 2025 - 2031 | T6 Medicina | UNIRV
+© 2025 - 2031 T6 Medicina | UNIRV
 </footer>
 
 </body>
