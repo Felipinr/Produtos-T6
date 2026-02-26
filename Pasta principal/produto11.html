@@ -90,7 +90,7 @@ body{
 .produto-container{
   display:flex;
   gap:80px;
-  padding:160px 80px 80px 80px;
+  padding:160px 80px 80px 80px; /* espaço extra por causa do header fixo */
   flex-wrap:wrap;
   justify-content:center;
 }
@@ -103,11 +103,13 @@ body{
 
 .imagem-principal{
   width:100%;
-  max-width:450px;
+  max-width:500px;
+  height:500px;
+  object-fit:contain;   /* mantém proporção */
+  background:#fff;      /* evita fundo estranho */
   border-radius:20px;
   box-shadow:0 15px 40px rgba(0,0,0,.15);
 }
-
 .thumb-container{
   margin-top:20px;
   display:flex;
@@ -226,15 +228,18 @@ footer{
   }
 
 }
-</style>
 
+
+</style>
 <link rel="icon" href="/imagens/logot6.png.png" type="image/png">
 <link rel="shortcut icon" href="/imagens/logot6.png.png" type="image/png">
-
 </head>
+
+<link rel="icon" href="/imagens/logot6.png.png" type="image/png">
 
 <body>
 
+<!-- HEADER -->
 <header class="topo">
   <div class="topo__marca">
     <a href="index.html">
@@ -251,26 +256,27 @@ footer{
   </nav>
 </header>
 
+<!-- PRODUTO -->
 <section class="produto-container">
 
   <div class="galeria">
     <img id="imagemPrincipal" 
-         src="/imagens/lequepant.png" 
+         src="/imagens/jerseyf.jpg" 
          class="imagem-principal">
 
     <div class="thumb-container">
-      <img src="/imagens/lequepant.png" class="thumb active" onclick="trocarImagem(this)">
-      <img src="/imagens/lequepant.png" class="thumb" onclick="trocarImagem(this)">
+      <img src="/imagens/jerseyf.jpg" class="thumb active" onclick="trocarImagem(this)">
+      <img src="/imagens/jerseyt.png" class="thumb" onclick="trocarImagem(this)">
     </div>
   </div>
 
   <div class="info">
-    <h2>Leque oficial da T6 -2026</h2>
+    <h2>Jersey Oficial T6 Medicina 2025</h2>
 
     <div class="preco">R$ 00,90</div>
 
     <div class="descricao">
-      Novo modelo de leque exclusivo da T6 Medicina. Design moderno, e acabamento profissional.
+      Jersey exclusiva da T6 Medicina. 
     </div>
 
     <div class="select-group">
