@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Experiência T6</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --rosa:#e91e63;
+  --rosa-escuro:#880e4f;
+  --dourado:#d4af37;
+  --cinza:#f8f8f8;
+  --escuro:#111;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  font-family:'Archivo',sans-serif;
+  background:#fff;
+  color:#222;
+  overflow-x:hidden;
+}
+
+/* HEADER PADRÃO */
+.topo{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px 80px;
+  background:white;
+  box-shadow:0 2px 15px rgba(0,0,0,.05);
+  position:fixed;
+  width:100%;
+  top:0;
+  z-index:1000;
+}
+
+.topo__marca a{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  text-decoration:none;
+}
+
+.topo__marca img{height:60px;}
+
+.topo__marca h1{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700;
+  font-size:22px;
+  color:var(--rosa-escuro);
+}
+
+.menu{
+  display:flex;
+  gap:40px;
+}
+
+.menu a{
+  text-decoration:none;
+  font-weight:600;
+  color:#444;
+  transition:.3s;
+}
+
+.menu a:hover{
+  color:var(--rosa);
+}
+
+/* HERO */
+.hero{
+  padding-top:160px;
+  height:90vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+}
+
+.hero h2{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:48px;
+  margin-bottom:20px;
+  color:var(--escuro);
+}
+
+.digitando{
+  font-size:22px;
+  color:var(--rosa);
+  height:30px;
+  margin-top:10px;
+}
+
+/* ECG SVG */
+.ecg{
+  margin-top:40px;
+  width:300px;
+}
+
+path{
+  fill:none;
+  stroke:var(--rosa);
+  stroke-width:3;
+  stroke-dasharray:1000;
+  stroke-dashoffset:1000;
+  animation:ecg 4s linear infinite;
+}
+
+@keyframes ecg{
+  to{
+    stroke-dashoffset:0;
+  }
+}
+
+/* LINHA DO TEMPO */
+.timeline{
+  background:var(--cinza);
+  padding:80px;
+  text-align:center;
+}
+
+.timeline h3{
+  font-family:'Space Grotesk',sans-serif;
+  margin-bottom:40px;
+  font-size:32px;
+}
+
+.etapas{
+  display:grid;
+  gap:20px;
+  max-width:800px;
+  margin:auto;
+}
+
+.etapa{
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  box-shadow:0 5px 20px rgba(0,0,0,.05);
+  transition:.3s;
+}
+
+.etapa:hover{
+  transform:translateY(-5px);
+}
+
+/* CONTADOR ORGULHO */
+.orgulho{
+  padding:80px;
+  text-align:center;
+}
+
+.orgulho h3{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:30px;
+}
+
+.numero{
+  font-size:60px;
+  margin:20px 0;
+  color:var(--dourado);
+}
+
+button{
+  padding:12px 30px;
+  border:none;
+  border-radius:30px;
+  background:var(--rosa);
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  transition:.3s;
+}
+
+button:hover{
+  background:var(--rosa-escuro);
+}
+
+footer{
+  background:var(--rosa-escuro);
+  color:white;
+  text-align:center;
+  padding:25px;
+}
+
+.etapa{
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  box-shadow:0 5px 20px rgba(0,0,0,.05);
+  transition:.3s;
+  cursor:pointer;
+}
+
+.etapa:hover{
+  transform:translateY(-5px);
+}
+
+.bloqueado{
+  opacity:.4;
+  cursor:not-allowed;
+  background:#eee;
+}
+
+.painel{
+  margin-top:30px;
+  max-width:700px;
+  margin-left:auto;
+  margin-right:auto;
+  background:white;
+  padding:25px;
+  border-radius:15px;
+  box-shadow:0 10px 25px rgba(0,0,0,.1);
+  display:none;
+}
+
+.conteudo-expansivel{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .6s ease;
+  margin-top:0;
+  color:#444;
+}
+
+.etapa.ativa{
+  cursor:pointer;
+}
+
+.etapa.ativa.aberto .conteudo-expansivel{
+  max-height:400px;
+  margin-top:15px;
+}
+
+.etapa.ativa.aberto{
+  transform:translateY(-5px);
+}
+</style>
+</head>
+
+<body>
+
+<header class="topo">
+  <div class="topo__marca">
+    <a href="index.html">
+      <img src="/imagens/logot6.png.png">
+      <h1>T6 Store</h1>
+    </a>
+  </div>
+  <nav class="menu">
+    <a href="index.html">Início</a>
+    <a href="produtos.html">Produtos</a>
+    <a href="experiencia.html">Experiência</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <h2>Não é só uma turma.</h2>
+  <div class="digitando" id="texto"></div>
+
+  <svg class="ecg" viewBox="0 0 500 100">
+    <path d="M0 50 L50 50 L70 20 L90 80 L110 50 L200 50 L220 30 L240 70 L260 50 L500 50"/>
+  </svg>
+</section>
+
+<section class="timeline">
+<section class="timeline">
+  <section class="timeline">
+  <h3>Nossa Jornada</h3>
+
+  <div class="etapas">
+
+    <div class="etapa ativa" onclick="toggleTexto(this)">
+      2025 — O início do sonho.
+      <div class="conteudo-expansivel">
+        <p>
+        Em 2025 tudo começou. Muitos deixaram suas casas,
+        suas famílias, suas cidades e vieram morar sozinhos,
+        longe de tudo que era seguro.
+        </p>
+
+        <p>
+        Foi difícil. Foi assustador. Mas foi necessário.
+        </p>
+
+        <p>
+        E no meio dessa mudança, nasceu algo maior:
+        a T6 deixou de ser apenas uma turma.
+        </p>
+
+        <p>
+        Virou uma nova família.
+        </p>
+      </div>
+    </div>
+
+    <div class="etapa bloqueado">
+      🔒 Ciclo Básico
+    </div>
+
+    <div class="etapa bloqueado">
+      🔒 Primeiras práticas
+    </div>
+
+    <div class="etapa bloqueado">
+      🔒 Internato
+    </div>
+
+    <div class="etapa bloqueado">
+      🔒 2031 — Médicos formados
+    </div>
+
+  </div>
+</section>
+
+  <div id="painelTexto" class="painel"></div>
+
+</section>
+
+<section class="orgulho">
+  <h3>Medidor de Orgulho T6</h3>
+  <div class="numero" id="contadorOrgulho">0</div>
+  <button onclick="aumentarOrgulho()">Eu tenho orgulho da T6</button>
+</section>
+
+<footer>
+© 2025 - 2031 T6 Medicina | UNIRV
+</footer>
+
+<script>
+
+function toggleTexto(elemento){
+  elemento.classList.toggle("aberto");
+}
+    function mostrarTexto(etapa){
+  const painel = document.getElementById("painelTexto");
+
+  if(etapa === "inicio"){
+    painel.innerHTML = `
+      <h4>2025 — O Início</h4>
+      <p>
+      Foi aqui que tudo começou. O primeiro dia de aula,
+      o jaleco ainda branco demais, a ansiedade no peito
+      e a certeza de que ninguém sairia igual daqui.
+      A T6 nasceu aqui.
+      </p>
+    `;
+  }
+
+  painel.style.display = "block";
+}
+// EFEITO DIGITANDO
+const frases = [
+  "É identidade.",
+  "É resistência.",
+  "É disciplina.",
+  "É a T6 Medicina."
+];
+
+let i = 0;
+let j = 0;
+let atual = "";
+let apagando = false;
+
+function digitar(){
+  if(!apagando && j <= frases[i].length){
+    atual = frases[i].substring(0,j++);
+  } else if(apagando && j >= 0){
+    atual = frases[i].substring(0,j--);
+  }
+
+  document.getElementById("texto").innerText = atual;
+
+  if(j === frases[i].length) apagando = true;
+  if(j === 0 && apagando){
+    apagando = false;
+    i = (i+1)%frases.length;
+  }
+}
+
+setInterval(digitar,100);
+
+// CONTADOR ORGULHO
+let orgulho = 0;
+
+function aumentarOrgulho(){
+  orgulho++;
+  document.getElementById("contadorOrgulho").innerText = orgulho;
+}
+
+
+</script>
+
+</body>
+</html>

@@ -16,7 +16,7 @@
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Archivo',sans-serif;background:#fff;color:#222;}
+body{font-family:'Archivo',sans-serif;background:#fff;color:#222;transition:.4s}
 
 /* HEADER */
 .topo{
@@ -80,7 +80,7 @@ body{font-family:'Archivo',sans-serif;background:#fff;color:#222;}
   width:100%;
 }
 
-/* HERO PRINCIPAL */
+/* HERO */
 .hero{
   height:100vh;
   background:linear-gradient(135deg,var(--rosa),var(--rosa-escuro));
@@ -92,9 +92,7 @@ body{font-family:'Archivo',sans-serif;background:#fff;color:#222;}
   padding:0 20px;
 }
 
-.hero__content{
-  max-width:800px;
-}
+.hero__content{max-width:800px;}
 
 .hero h2{
   font-family:'Space Grotesk',sans-serif;
@@ -125,6 +123,64 @@ body{font-family:'Archivo',sans-serif;background:#fff;color:#222;}
   color:white;
 }
 
+/* PORTAIS CRIATIVOS */
+.portais{
+  padding:120px 80px;
+  background:var(--cinza);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:40px;
+}
+
+.card{
+  background:white;
+  border-radius:20px;
+  padding:50px 30px;
+  text-align:center;
+  cursor:pointer;
+  transition:.4s;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  position:relative;
+  overflow:hidden;
+}
+
+.card:hover{
+  transform:translateY(-10px) scale(1.02);
+  box-shadow:0 20px 40px rgba(0,0,0,.15);
+}
+
+.card::after{
+  content:"";
+  position:absolute;
+  width:100%;
+  height:4px;
+  bottom:0;
+  left:0;
+  background:linear-gradient(to right,var(--rosa),var(--dourado));
+  transform:scaleX(0);
+  transform-origin:left;
+  transition:.4s;
+}
+
+.card:hover::after{
+  transform:scaleX(1);
+}
+
+.card h4{
+  font-family:'Space Grotesk';
+  font-size:22px;
+  margin-bottom:15px;
+  color:var(--rosa-escuro);
+}
+
+.card p{
+  font-size:15px;
+  color:#555;
+}
+
 /* SOBRE */
 .sobre{
   padding:120px 80px;
@@ -153,7 +209,6 @@ footer{
   padding:25px;
 }
 
-/* RESPONSIVO */
 @media(max-width:768px){
   .topo{
     padding:20px;
@@ -171,14 +226,15 @@ footer{
     font-size:34px;
   }
 
-  .sobre{
+  .portais,.sobre{
     padding:80px 20px;
   }
 }
 </style>
 </head>
+
 <link rel="icon" href="/imagens/logot6.png.png" type="image/png">
-<link rel="shortcut icon" href="/imagens/logot6.png.png" type="image/png">
+
 <body>
 
 <header class="topo">
@@ -202,11 +258,51 @@ footer{
     <h2>T6 Medicina</h2>
     <p>
       Identidade. União. Excelência. Somente pra atletas<br>
-      Loja não oficial da turma 6 | 2025 - 2031.
+      Loja oficial da turma 6 | 2025 - 2031.
     </p>
     <button onclick="window.location.href='produtos.html'">
       Ver Produtos
     </button>
+  </div>
+</section>
+
+<section class="portais">
+  <div class="grid">
+
+    <div class="card" onclick="ir('produtos.html')">
+      <h4>Produtos</h4>
+      <p>Clique para acessar a loja oficial da turma.</p>
+    </div>
+
+    <div class="card" onclick="ir('simulador.html')">
+      <h4>Customizar</h4>
+      <p>Monte sua peça exclusiva da T6.</p>
+    </div>
+
+    <div class="card" onclick="ir('orgulho.html')">
+      <h4>Orgulho T6</h4>
+      <p>Veja quantas pessoas já declararam orgulho da turma.</p>
+    </div>
+
+    <div class="card" onclick="ir('experiencia.html')">
+      <h4>Experiência</h4>
+      <p>Momentos, desafios e conquistas vividas pela turma.</p>
+    </div>
+
+    <div class="card" onclick="ir('plantao.html')">
+      <h4>T6</h4>
+      <p>Conheça a melhor turma da UNIRV de Luziânia</p>
+    </div>
+
+    <div class="card" onclick="ir('dev.html')">
+      <h4>Desenvolvedor</h4>
+      <p>Conheça quem criou o site da T6.</p>
+    </div>
+<div class="card" onclick="ir('materiais.html')">
+  <h4>Materiais & Estudos</h4>
+  <p>Central acadêmica da T6.</p>
+</div>
+
   </div>
 </section>
 
@@ -215,7 +311,7 @@ footer{
   <p>
     A T6 Medicina UNIRV é reconhecida como a melhor turma da faculdade — 
     destaque dentro e fora das salas de aula. Formada pelos melhores alunos, 
-    aqui só tem atleta. Este espaço foi criado para apresentar não oficialmente 
+    aqui só tem atleta. Este espaço foi criado para apresentar oficialmente 
     os produtos da turma.
   </p>
 </section>
@@ -223,6 +319,13 @@ footer{
 <footer>
 © 2025 - 2031 T6 Medicina | UNIRV
 </footer>
+
+<script>
+function ir(pagina){
+  document.body.style.opacity="0";
+  setTimeout(()=>{window.location.href=pagina},300);
+}
+</script>
 
 </body>
 </html>

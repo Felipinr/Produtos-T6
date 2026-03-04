@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Materiais & Estudos - T6</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --rosa:#e91e63;
+  --rosa-escuro:#880e4f;
+  --dourado:#d4af37;
+  --cinza:#f8f8f8;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Archivo',sans-serif;
+  background:var(--cinza);
+  color:#333;
+}
+
+/* HEADER PADRÃO */
+.topo{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px 80px;
+  background:white;
+  box-shadow:0 2px 15px rgba(0,0,0,.05);
+}
+
+.topo h1{
+  font-family:'Space Grotesk';
+  color:var(--rosa-escuro);
+}
+
+.topo a{
+  text-decoration:none;
+  margin-left:30px;
+  font-weight:600;
+  color:#444;
+}
+
+/* CONTEÚDO */
+.container{
+  padding:80px;
+}
+
+h2{
+  font-family:'Space Grotesk';
+  color:var(--rosa-escuro);
+  margin-bottom:40px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:30px;
+}
+
+.card{
+  background:white;
+  padding:30px;
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  transition:.3s;
+}
+
+.card:hover{
+  transform:translateY(-8px);
+}
+
+.card h3{
+  margin-bottom:15px;
+  color:var(--rosa-escuro);
+}
+
+.card p{
+  font-size:14px;
+  margin-bottom:20px;
+  color:#555;
+}
+
+button{
+  background:var(--rosa);
+  border:none;
+  color:white;
+  padding:10px 20px;
+  border-radius:30px;
+  cursor:pointer;
+  font-weight:600;
+}
+
+button:hover{
+  background:var(--dourado);
+}
+
+/* CRONOGRAMA */
+.cronograma{
+  margin-top:80px;
+  background:white;
+  padding:40px;
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+}
+
+.cronograma ul{
+  margin-top:20px;
+  line-height:1.8;
+}
+
+@media(max-width:768px){
+  .topo{
+    padding:20px;
+    flex-direction:column;
+    gap:15px;
+  }
+.btn-link{
+  display:inline-block;
+  margin-top:20px;
+  background:var(--rosa);
+  color:white;
+  padding:10px 20px;
+  border-radius:30px;
+  font-weight:600;
+  text-decoration:none;
+  transition:.3s;
+}
+
+.btn-link:hover{
+  background:var(--dourado);
+}
+  .container{
+    padding:40px 20px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header class="topo">
+  <h1>T6 Materiais</h1>
+  <div>
+    <a href="index.html">Início</a>
+    <a href="plantao.html">Plantão</a>
+    <a href="experiencia.html">Experiência</a>
+  </div>
+</header>
+
+<div class="container">
+
+<h2>Central de Estudos</h2>
+
+<div class="grid">
+
+  <div class="card">
+    <h3>Anatomia</h3>
+    <p>Resumos, atlas e mapas mentais da disciplina.</p>
+    <a class="btn-link" href="https://anatomylearning.com/browser/" target="_blank">
+      Acessar Atlas
+    </a>
+  </div>
+
+  <div class="card">
+    <h3>Histologia</h3>
+    <p>Lâminas importantes e revisões práticas.</p>
+    <a class="btn-link" href="https://www.uesc.br/projetos/atlas-histologia/index.php?item=conteudo_links.php" target="_blank">
+      Acessar Atlas
+    </a>
+  </div>
+
+  <div class="card">
+    <h3>Microbiologia</h3>
+    <p>Agentes infecciosos, revisões e casos clínicos.</p>
+    <a class="btn-link" href="https://www.jaleko.com.br/sala-de-aula/cpb-microbio/introducao-a-microbiologia/Introducao-a-Microbiologia/introducao-43" target="_blank">
+      Acessar Conteúdo
+    </a>
+  </div>
+
+  <div class="card">
+    <h3>Parasitologia</h3>
+    <p>Principais parasitas e ciclos biológicos.</p>
+    <a class="btn-link" href="http://atlasparasitologia.sites.uff.br" target="_blank">
+      Acessar Atlas
+    </a>
+  </div>
+
+</div>
+
+<div class="cronograma">
+  <h3>Cronograma da Semana</h3>
+  <ul>
+    <li>Segunda: Anatomia - Sistema Cardiovascular</li>
+    <li>Terça: Histologia - Tecido Epitelial</li>
+    <li>Quarta: Microbiologia - Endocardite</li>
+    <li>Quinta: Parasitologia - Protozoários</li>
+    <li>Sexta: Revisão Geral</li>
+  </ul>
+</div>
+
+</div>
+
+</body>
+</html>
