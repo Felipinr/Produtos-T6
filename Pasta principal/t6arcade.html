@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T6 ARCADE | Premium Medical Gaming</title>
+
+<style>
+    /* -----------------------------------------------------------
+       1. FONTES E VARIAVEIS (Base Profissional)
+       ----------------------------------------------------------- */
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap');
+
+    :root {
+        --primary-pink: #ff1493; /* Rosa Choque */
+        --light-pink: #ffb6c1;
+        --dark-bg: #0a0a0c;
+        --card-bg: rgba(20, 20, 25, 0.8);
+        --text-white: #ffffff;
+        --text-gray: #a0a0a0;
+        --transition-fast: 0.2s ease;
+        --transition-smooth: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    /* -----------------------------------------------------------
+       2. RESET E ESTILOS GERAIS
+       ----------------------------------------------------------- */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Montserrat', sans-serif;
+        background-color: var(--dark-bg);
+        color: var(--text-white);
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow-x: hidden;
+        position: relative;
+    }
+
+    /* Fundo de Partículas (Visual Profissional) */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-image: 
+            radial-gradient(var(--primary-pink) 1px, transparent 1px),
+            radial-gradient(var(--primary-pink) 1px, transparent 1px);
+        background-size: 50px 50px;
+        background-position: 0 0, 25px 25px;
+        opacity: 0.03; /* Muito sutil */
+        z-index: -1;
+    }
+
+    /* -----------------------------------------------------------
+       3. HEADER (Cabeçalho)
+       ----------------------------------------------------------- */
+    header {
+        text-align: center;
+        padding: 80px 20px 40px 20px;
+        position: relative;
+    }
+
+    h1 {
+        font-size: 4rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 8px;
+        background: linear-gradient(to right, #fff 20%, var(--primary-pink) 40%, var(--light-pink) 60%, #fff 80%);
+        background-size: 200% auto;
+        color: #000;
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shine 4s linear infinite;
+        text-shadow: 0 0 15px rgba(255, 20, 147, 0.5);
+    }
+
+    @keyframes shine {
+        to { background-position: 200% center; }
+    }
+
+    .subtitle {
+        font-size: 1rem;
+        font-weight: 300;
+        color: var(--text-gray);
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        margin-top: 10px;
+    }
+
+    h1 span.t6 {
+        color: var(--primary-pink);
+        -webkit-text-fill-color: var(--primary-pink);
+    }
+
+    /* -----------------------------------------------------------
+       4. CONTAINER E CARDS DE JOGO
+       ----------------------------------------------------------- */
+    .container {
+        flex: 1; /* Empurra o footer para baixo */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 40px;
+        padding: 40px 20px;
+        flex-wrap: wrap;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .game {
+        background-color: var(--card-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        padding: 50px 30px;
+        border-radius: 24px;
+        cursor: pointer;
+        width: 320px;
+        position: relative;
+        transition: var(--transition-smooth);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    /* Efeito de Borda Neon no Hover */
+    .game::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 24px;
+        padding: 2px; /* Espessura da borda */
+        background: linear-gradient(135deg, var(--primary-pink), var(--light-pink));
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        transition: var(--transition-smooth);
+    }
+
+    .game:hover {
+        transform: translateY(-10px) scale(1.02);
+        background-color: rgba(30, 30, 35, 0.9);
+        box-shadow: 0 20px 50px rgba(255, 20, 147, 0.2);
+    }
+
+    .game:hover::after {
+        opacity: 1;
+    }
+
+    /* Estilização Interna do Card */
+    .icon-container {
+        font-size: 4.5rem;
+        margin-bottom: 25px;
+        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
+        transition: var(--transition-fast);
+    }
+
+    .game:hover .icon-container {
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 15px var(--primary-pink));
+    }
+
+    .game h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text-white);
+        margin-bottom: 10px;
+    }
+
+    .game p {
+        font-size: 0.95rem;
+        color: var(--text-gray);
+        font-weight: 300;
+        margin-bottom: 30px;
+        min-height: 50px; /* Mantém alinhamento */
+    }
+
+    /* Botão Play Fake */
+    .play-btn {
+        background: transparent;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 10px 30px;
+        border-radius: 50px;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 2px;
+        font-size: 0.8rem;
+        transition: var(--transition-fast);
+    }
+
+    .game:hover .play-btn {
+        background: var(--primary-pink);
+        border-color: var(--primary-pink);
+        box-shadow: 0 0 15px var(--primary-pink);
+    }
+
+    /* -----------------------------------------------------------
+       5. FOOTER (Rodapé Profissional)
+       ----------------------------------------------------------- */
+    footer {
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 30px 20px;
+        text-align: center;
+        border-top: 1px solid rgba(255, 20, 147, 0.1);
+        margin-top: 50px;
+    }
+
+    footer p {
+        font-size: 0.85rem;
+        color: var(--text-gray);
+        font-weight: 300;
+    }
+
+    footer .developer {
+        margin-top: 5px;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    footer .developer strong {
+        color: var(--light-pink);
+        font-weight: 700;
+    }
+
+    /* -----------------------------------------------------------
+       6. RESPONSIVIDADE (Mobile)
+       ----------------------------------------------------------- */
+    @media (max-width: 768px) {
+        h1 { font-size: 2.5rem; letter-spacing: 4px; }
+        .subtitle { font-size: 0.8rem; letter-spacing: 2px; }
+        .container { gap: 20px; }
+        .game { width: 100%; max-width: 400px; padding: 40px 20px; }
+    }
+
+</style>
+<link rel="icon" href="/imagens/logot6.png.png" type="image/png">
+</head>
+
+<body>
+
+    <header>
+        <h1><span class="t6">T6</span> ARCADE</h1>
+        <p class="subtitle">JOGOS MÉDICOS</p>
+    </header>
+
+    <div class="container">
+
+        <div class="game" onclick="abrir('cardiorush.html')">
+            <div class="icon-container">🫀</div>
+            <h2>Cardio Rush</h2>
+            <p>Navegue pelo sistema arterial desviando de placas de ateroma.</p>
+            <div class="play-btn">Jogar</div>
+        </div>
+
+        <div class="game" onclick="abrir('pandemic.html')">
+            <div class="icon-container">🦠</div>
+            <h2>Pandemic</h2>
+            <p>Simulador estratégico de patógenos. Evolua e domine.</p>
+            <div class="play-btn">Jogar</div>
+        </div>
+
+        <div class="game" onclick="abrir('immuneio.html')">
+            <div class="icon-container">⚔️</div>
+            <h2> T6 Immune </h2>
+            <p>Batalha celular em tempo real. Defenda o organismo.</p>
+            <div class="play-btn">Jogar</div>
+        </div>
+
+      <div class="game" onclick="abrir('medsim.html')">
+            <div class="icon-container">🩺</div>
+            <h2> MEDSIM</h2>
+            <p>Simulador médico, medique o paciente.</p>
+            <div class="play-btn">Jogar</div>
+        </div>
+
+        <div class="game" onclick="abrir('neurosurge.html')">
+            <div class="icon-container">🧠</div>
+            <h2> Neurosurge </h2>
+            <p>Remova um tumor sem gerar complicações</p>
+            <div class="play-btn">Jogar</div>
+        </div>
+
+         <div class="game" onclick="abrir('nano.html')">
+            <div class="icon-container">☣</div>
+            <h2> Nano-Imunidade </h2>
+            <p>Proteja uma célula-tronco central contra ondas de vírus e bactérias.</p>
+            <div class="play-btn">Jogar</div>
+        </div>
+
+         <div class="game" onclick="abrir('redcode.html')">
+            <div class="icon-container">🚨</div>
+            <h2> Código vermelho </h2>
+            <p>Arrume o fluxo de pacientes nessa unidade</p>
+            <div class="play-btn">Jogar</div>
+        </div>
+
+        
+         <div class="game" onclick="abrir('sincronia.html')">
+            <div class="icon-container">⚡</div>
+            <h2> Sincronia neural </h2>
+            <p>Restaure o fluxo neural</p>
+            <div class="play-btn">Jogar</div>
+        </div>
+
+        
+         <div class="game" onclick="abrir('bio.html')">
+            <div class="icon-container">🩹</div>
+            <h2> Bio-Arch </h2>
+            <p>Clicker médico</p>
+            <div class="play-btn">Jogar</div>
+        </div>
+
+
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Turma de Medicina T6. Todos os direitos reservados.</p>
+        <p class="developer">Desenvolvido por <strong>Felipe (@felipemts0_) </strong></p>
+    </footer>
+
+    <script>
+        function abrir(jogo){
+            // Feedback visual suave antes de transicionar
+            document.body.style.transition = 'opacity 0.3s ease';
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                window.location = jogo;
+            }, 300);
+        }
+    </script>
+
+</body>
+</html>

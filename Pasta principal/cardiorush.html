@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cardio Rush: T6 Overdrive</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Orbitron:wght@400;900&display=swap');
+
+    body { 
+        margin: 0; 
+        overflow: hidden; 
+        background: #000; 
+        font-family: 'Orbitron', sans-serif; 
+    }
+    canvas { display: block; }
+
+    /* UI Layer */
+    #hud {
+        position: absolute;
+        top: 25px; left: 25px;
+        color: white; pointer-events: none; z-index: 10;
+        width: 300px;
+    }
+
+    .bar-container {
+        width: 100%; height: 10px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 5px; margin: 8px 0;
+        border: 1px solid rgba(255,255,255,0.1);
+        overflow: hidden;
+    }
+
+    #lifeBar { 
+        background: linear-gradient(90deg, #ff1493, #fff); 
+        box-shadow: 0 0 15px #ff1493; 
+        height: 100%; width: 100%;
+        transition: width 0.3s ease;
+    }
+
+    #energyBar { 
+        background: linear-gradient(90deg, #00f2ff, #fff); 
+        box-shadow: 0 0 15px #00f2ff; 
+        height: 100%; width: 0%;
+        transition: width 0.1s linear;
+    }
+
+    #scoreDisplay { 
+        font-family: 'Syncopate'; 
+        font-size: 32px; 
+        font-weight: 700; 
+        color: #fff; 
+        text-shadow: 0 0 20px #ff1493; 
+    }
+
+    #overlay {
+        position: absolute; inset: 0; 
+        background: radial-gradient(circle, rgba(40,0,10,0.95) 0%, #000 100%);
+        display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100;
+    }
+
+    .glitch-text {
+        font-size: clamp(2rem, 8vw, 4rem); 
+        color: #fff; text-transform: uppercase;
+        text-shadow: 3px 3px #ff1493, -3px -3px #00f2ff;
+        font-weight: 900;
+        letter-spacing: 5px;
+    }
+
+    button {
+        padding: 18px 50px; background: none; border: 2px solid #fff; color: #fff;
+        font-family: 'Syncopate'; cursor: pointer; transition: 0.4s; margin-top: 30px;
+        letter-spacing: 2px; font-weight: 700;
+    }
+
+    button:hover { 
+        background: #fff; color: #ff1493; 
+        box-shadow: 0 0 50px #fff; 
+        transform: scale(1.1); 
+    }
+
+    .dev-footer {
+        position: absolute; bottom: 20px; color: rgba(255,255,255,0.4);
+        font-size: 12px; letter-spacing: 2px;
+    }
+</style>
+<link rel="icon" href="/imagens/logot6.png.png" type="image/png">
+</head>
+<body>
+
+<div id="hud">
+    <div id="scoreDisplay">000000</div>
+    <div style="font-size: 10px; letter-spacing: 2px; opacity: 0.7; margin-top: 10px;">ESTABILIDADE CELULAR</div>
+    <div class="bar-container"><div id="lifeBar"></div></div>
+    <div style="font-size: 10px; letter-spacing: 2px; opacity: 0.7;">ADRENALINA (OVERDRIVE)</div>
+    <div class="bar-container"><div id="energyBar"></div></div>
+</div>
+
+<div id="overlay">
+    <h1 class="glitch-text">T6 Cardio RUSH</h1>
+    <p style="color: #ffb6c1; letter-spacing: 8px; font-size: 14px;">MEDICAL SYSTEM ONLINE</p>
+    <button id="playBtn">START MISSION</button>
+    <div class="dev-footer">DESENVOLVIDO POR FELIPE</div>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// Configurações Iniciais
+let width, height;
+function resize() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+// Estado do Jogo
+let score = 0;
+let life = 100;
+let energy = 0;
+let overdrive = false;
+let gameSpeed = 7;
+let frame = 0;
+let shake = 0;
+let isPlaying = false;
+
+// Entidades
+let player = { x: 150, y: height / 2, size: 22, targetY: height / 2, shield: 0 };
+let objects = [];
+let particles = [];
+
+// Input Mouse
+window.addEventListener('mousemove', (e) => {
+    player.targetY = e.clientY;
+});
+
+// Start Game
+document.getElementById('playBtn').onclick = () => {
+    document.getElementById('overlay').style.display = 'none';
+    isPlaying = true;
+    requestAnimationFrame(gameLoop);
+};
+
+// Funções de Criação
+function createParticle(x, y, color) {
+    for(let i = 0; i < 8; i++) {
+        particles.push({
+            x, y,
+            vx: (Math.random() - 0.5) * 10,
+            vy: (Math.random() - 0.5) * 10,
+            size: Math.random() * 4,
+            life: 1,
+            color: color
+        });
+    }
+}
+
+class GameObject {
+    constructor() {
+        this.x = width + 100;
+        this.y = Math.random() * height;
+        let rand = Math.random();
+        
+        if (rand < 0.7) {
+            this.type = 'obs';
+            this.size = 30 + Math.random() * 40;
+            this.color = '#eec600'; // Colesterol
+            this.speed = gameSpeed * (0.8 + Math.random() * 0.5);
+        } else if (rand < 0.9) {
+            this.type = 'heal';
+            this.size = 15;
+            this.color = '#ffffff'; // Glóbulo Branco
+            this.speed = gameSpeed;
+        } else {
+            this.type = 'shield';
+            this.size = 18;
+            this.color = '#00f2ff'; // Stent
+            this.speed = gameSpeed * 1.2;
+        }
+    }
+
+    update() {
+        this.x -= this.speed;
+    }
+
+    draw() {
+        ctx.save();
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = this.color;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        if (this.type === 'obs') {
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        } else {
+            ctx.rect(this.x - this.size, this.y - this.size, this.size * 2, this.size * 2);
+        }
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
+function update() {
+    frame++;
+    score += Math.floor(gameSpeed / 2);
+    document.getElementById('scoreDisplay').innerText = score.toString().padStart(6, '0');
+
+    // Suavização do Player
+    player.y += (player.targetY - player.y) * 0.12;
+
+    // Gerar objetos
+    if (frame % (Math.max(15, 40 - Math.floor(gameSpeed))) === 0) {
+        objects.push(new GameObject());
+    }
+
+    // Gerenciar Overdrive
+    if (energy >= 100 && !overdrive) {
+        overdrive = true;
+        gameSpeed *= 1.8;
+        setTimeout(() => {
+            overdrive = false;
+            energy = 0;
+            gameSpeed /= 1.8;
+        }, 6000);
+    }
+
+    // Dificuldade progressiva
+    gameSpeed += 0.001;
+
+    // Shake Decay
+    if (shake > 0) shake *= 0.9;
+}
+
+function draw() {
+    ctx.save();
+    if (shake > 1) {
+        ctx.translate(Math.random() * shake - shake/2, Math.random() * shake - shake/2);
+    }
+
+    // Fundo Artéria
+    let grd = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width);
+    grd.addColorStop(0, "#2a000a");
+    grd.addColorStop(1, "#000000");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, width, height);
+
+    // Partículas
+    particles.forEach((p, i) => {
+        p.x += p.vx; p.y += p.vy; p.life -= 0.02;
+        ctx.fillStyle = `rgba(255, 20, 147, ${p.life})`;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+    });
+    particles = particles.filter(p => p.life > 0);
+
+    // Objetos e Colisões
+    objects.forEach((obj, i) => {
+        obj.update();
+        obj.draw();
+
+        let dx = player.x - obj.x;
+        let dy = player.y - obj.y;
+        let distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < player.size + obj.size) {
+            if (obj.type === 'obs') {
+                if (!overdrive && player.shield <= 0) {
+                    life -= 15;
+                    shake = 25;
+                    createParticle(player.x, player.y, '#ff1493');
+                } else if (overdrive) {
+                    score += 1000;
+                    createParticle(obj.x, obj.y, '#fff');
+                } else if (player.shield > 0) {
+                    player.shield--;
+                    shake = 10;
+                }
+            } else if (obj.type === 'heal') {
+                life = Math.min(100, life + 20);
+                energy = Math.min(100, energy + 15);
+                createParticle(obj.x, obj.y, '#fff');
+            } else if (obj.type === 'shield') {
+                player.shield = 2;
+            }
+            objects.splice(i, 1);
+        }
+    });
+    objects = objects.filter(obj => obj.x > -100);
+
+    // Desenhar Player
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = overdrive ? "#00f2ff" : "#ff1493";
+    ctx.fillStyle = overdrive ? "#fff" : "#ff1493";
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Shield Visual
+    if (player.shield > 0) {
+        ctx.strokeStyle = "#00f2ff";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, player.size + 12, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+
+    ctx.restore();
+
+    // HUD Update
+    document.getElementById('lifeBar').style.width = life + "%";
+    document.getElementById('energyBar').style.width = energy + "%";
+
+    if (life <= 0) {
+        isPlaying = false;
+        alert("🚨 FALÊNCIA SISTÊMICA 🚨\nScore: " + score + "\n\nO paciente não resistiu.");
+        location.reload();
+    }
+}
+
+function gameLoop() {
+    if (!isPlaying) return;
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+</script>
+</body>
+</html>

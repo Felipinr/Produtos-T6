@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Código Vermelho | Gestão de Trauma</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        body {
+            margin: 0;
+            background: #0a0c10;
+            color: #e0e6ed;
+            font-family: 'JetBrains Mono', monospace;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Header de Monitor Médico */
+        header {
+            background: #14181f;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #2d333b;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .hospital-brand {
+            color: #ff4d4d;
+            font-weight: 700;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 30px;
+        }
+
+        .stat-item {
+            text-align: right;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #8b949e;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            color: #58a6ff;
+        }
+
+        /* Área de Jogo */
+        #game-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            padding: 20px;
+            background: radial-gradient(circle at center, #161b22 0%, #0d1117 100%);
+        }
+
+        /* Lista de Espera (Triagem) */
+        #triage-area {
+            background: rgba(22, 27, 34, 0.8);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            gap: 10px;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 12px;
+            color: #f0f6fc;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #30363d;
+        }
+
+        /* Macas do Hospital */
+        #wards-area {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-auto-rows: 180px;
+            gap: 20px;
+        }
+
+        .bed {
+            background: #161b22;
+            border: 2px dashed #30363d;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        .bed.occupied {
+            border-style: solid;
+            border-color: #58a6ff;
+            background: #1c2128;
+        }
+
+        .bed-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 10px;
+            color: #8b949e;
+        }
+
+        /* Card do Paciente */
+        .patient {
+            background: #21262d;
+            border-radius: 6px;
+            padding: 12px;
+            cursor: grab;
+            border-left: 5px solid #3fb950;
+            animation: slideIn 0.3s ease-out;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .patient.critical { border-left-color: #f85149; animation: blink 1s infinite; }
+        .patient.urgent { border-left-color: #d29922; }
+
+        @keyframes blink {
+            50% { border-left-color: transparent; }
+        }
+
+        .patient-id { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+        .patient-vitals { font-size: 11px; color: #8b949e; }
+
+        .bed .patient {
+            width: 80%;
+            cursor: default;
+        }
+
+        /* Progress Bar de Cura */
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background: #0d1117;
+            margin-top: 10px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #58a6ff;
+            width: 0%;
+        }
+
+        /* Overlays */
+        #overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .btn {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-family: inherit;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .btn:hover { background: #2ea043; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="hospital-brand">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-1.99.9-1.99 2L3 19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z"/></svg>
+        CENTRO DE TRAUMA T6
+    </div>
+    <div class="stats-container">
+        <div class="stat-item">
+            <div class="stat-label">Vidas Salvas</div>
+            <div class="stat-value" id="saved-count">0</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Capacidade</div>
+            <div class="stat-value" id="capacity-val">0/8</div>
+        </div>
+    </div>
+</header>
+
+<div id="game-container">
+    <div id="triage-area" ondragover="allowDrop(event)">
+        <div class="section-title">Triagem (Arraste para Macas)</div>
+        <!-- Pacientes surgem aqui -->
+    </div>
+
+    <div id="wards-area">
+        <div class="bed" id="bed-1" ondrop="drop(event)" ondragover="allowDrop(event)"><span class="bed-label">MACA 01</span></div>
+        <div class="bed" id="bed-2" ondrop="drop(event)" ondragover="allowDrop(event)"><span class="bed-label">MACA 02</span></div>
+        <div class="bed" id="bed-3" ondrop="drop(event)" ondragover="allowDrop(event)"><span class="bed-label">MACA 03</span></div>
+        <div class="bed" id="bed-4" ondrop="drop(event)" ondragover="allowDrop(event)"><span class="bed-label">MACA 04</span></div>
+        <div class="bed" id="bed-5" ondrop="drop(event)" ondragover="allowDrop(event)"><span class="bed-label">MACA 05</span></div>
+        <div class="bed" id="bed-6" ondrop="drop(event)" ondragover="allowDrop(event)"><span class="bed-label">MACA 06</span></div>
+        <div class="bed" id="bed-7" ondrop="drop(event)" ondragover="allowDrop(event)"><span class="bed-label">MACA 07</span></div>
+        <div class="bed" id="bed-8" ondrop="drop(event)" ondragover="allowDrop(event)"><span class="bed-label">MACA 08</span></div>
+    </div>
+</div>
+
+<div id="overlay">
+    <h1 id="modal-title" style="font-size: 3rem; margin: 0;">CÓDIGO VERMELHO</h1>
+    <p id="modal-desc" style="color: #8b949e; max-width: 500px;">Assuma o controlo da triagem. Não deixe os pacientes críticos esperarem demasiado tempo na fila.</p>
+    <button class="btn" onclick="startGame()">Iniciar Turno</button>
+</div>
+
+<script>
+    let saved = 0;
+    let gameActive = false;
+    let patientsInQueue = [];
+    let bedsOccupied = 0;
+    const MAX_BEDS = 8;
+    let spawnRate = 3000;
+    let ticker;
+
+    function startGame() {
+        saved = 0;
+        bedsOccupied = 0;
+        gameActive = true;
+        document.getElementById('overlay').classList.add('hidden');
+        document.getElementById('saved-count').innerText = "0";
+        document.getElementById('triage-area').innerHTML = '<div class="section-title">Triagem (Arraste para Macas)</div>';
+        
+        // Limpar macas
+        document.querySelectorAll('.bed').forEach(bed => {
+            bed.classList.remove('occupied');
+            const label = bed.querySelector('.bed-label');
+            bed.innerHTML = '';
+            bed.appendChild(label);
+        });
+
+        gameLoop();
+    }
+
+    function createPatient() {
+        if (!gameActive) return;
+        
+        const types = [
+            { class: 'critical', label: 'CRÍTICO', time: 8000, color: '#f85149' },
+            { class: 'urgent', label: 'URGENTE', time: 15000, color: '#d29922' },
+            { class: 'stable', label: 'ESTÁVEL', time: 25000, color: '#3fb950' }
+        ];
+        
+        const type = types[Math.floor(Math.random() * 3)];
+        const id = "PAC-" + Math.floor(Math.random() * 9000 + 1000);
+        
+        const patientEl = document.createElement('div');
+        patientEl.className = `patient ${type.class}`;
+        patientEl.id = id;
+        patientEl.draggable = true;
+        patientEl.dataset.treatmentTime = type.time;
+        patientEl.dataset.severity = type.class;
+        patientEl.dataset.entryTime = Date.now();
+        
+        patientEl.innerHTML = `
+            <div class="patient-id">${id}</div>
+            <div class="patient-vitals">${type.label} | ESTADO: AGUARDANDO</div>
+        `;
+
+        patientEl.ondragstart = (e) => {
+            e.dataTransfer.setData("text", e.target.id);
+        };
+
+        document.getElementById('triage-area').appendChild(patientEl);
+        
+        // Se ficar muito tempo na fila, o paciente morre (Game Over)
+        setTimeout(() => {
+            if (document.getElementById(id) && document.getElementById(id).parentElement.id === 'triage-area') {
+                gameOver("Um paciente crítico não foi atendido a tempo.");
+            }
+        }, type.time + 5000);
+    }
+
+    function allowDrop(e) {
+        e.preventDefault();
+    }
+
+    function drop(e) {
+        e.preventDefault();
+        const data = e.dataTransfer.getData("text");
+        const patient = document.getElementById(data);
+        const bed = e.target.closest('.bed');
+
+        if (bed && !bed.classList.contains('occupied')) {
+            bed.classList.add('occupied');
+            bed.appendChild(patient);
+            startTreatment(patient, bed);
+            updateCapacity(1);
+        }
+    }
+
+    function startTreatment(patient, bed) {
+        const time = parseInt(patient.dataset.treatmentTime);
+        patient.draggable = false;
+        patient.querySelector('.patient-vitals').innerText = "EM TRATAMENTO...";
+        
+        const progressCont = document.createElement('div');
+        progressCont.className = 'progress-container';
+        const progressBar = document.createElement('div');
+        progressBar.className = 'progress-bar';
+        progressCont.appendChild(progressBar);
+        patient.appendChild(progressCont);
+
+        let start = null;
+        function animate(timestamp) {
+            if (!start) start = timestamp;
+            let progress = timestamp - start;
+            let percent = Math.min((progress / time) * 100, 100);
+            progressBar.style.width = percent + "%";
+
+            if (percent < 100 && gameActive) {
+                requestAnimationFrame(animate);
+            } else if (gameActive) {
+                completeTreatment(patient, bed);
+            }
+        }
+        requestAnimationFrame(animate);
+    }
+
+    function completeTreatment(patient, bed) {
+        if (!patient.parentElement) return;
+        patient.remove();
+        bed.classList.remove('occupied');
+        saved++;
+        document.getElementById('saved-count').innerText = saved;
+        updateCapacity(-1);
+        
+        // Aumentar dificuldade
+        if (saved % 5 === 0) spawnRate = Math.max(1000, spawnRate - 200);
+    }
+
+    function updateCapacity(val) {
+        bedsOccupied += val;
+        document.getElementById('capacity-val').innerText = `${bedsOccupied}/${MAX_BEDS}`;
+    }
+
+    function gameOver(reason) {
+        gameActive = false;
+        document.getElementById('overlay').classList.remove('hidden');
+        document.getElementById('modal-title').innerText = "TURNO ENCERRADO";
+        document.getElementById('modal-desc').innerText = `${reason} \n Vidas Salvas: ${saved}`;
+        document.querySelector('.btn').innerText = "Tentar Novo Turno";
+    }
+
+    function gameLoop() {
+        if (!gameActive) return;
+        createPatient();
+        setTimeout(gameLoop, spawnRate);
+    }
+</script>
+
+</body>
+</html>

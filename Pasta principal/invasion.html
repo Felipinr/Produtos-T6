@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bio-Invasion | High Density</title>
+    <style>
+        :root {
+            --neon-green: #00ff41;
+            --neon-red: #ff3131;
+            --neon-blue: #00ccff;
+            --neon-amber: #ffcc00;
+            --neon-purple: #bc13fe;
+            --neon-pink: #ff00ff;
+            --bg-dark: #020802;
+            --panel-bg: rgba(5, 15, 5, 0.9);
+            --terminal-font: 'Share Tech Mono', monospace;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--bg-dark); color: var(--neon-green); font-family: var(--terminal-font); overflow: hidden; display: flex; height: 100vh; }
+
+        #sidebar {
+            width: 360px;
+            border-right: 2px solid rgba(0, 255, 65, 0.2);
+            padding: 15px;
+            background: var(--panel-bg);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+            box-shadow: 10px 0 40px rgba(0,0,0,0.8);
+        }
+
+        #game-container { flex: 1; position: relative; background: radial-gradient(circle at 50% 50%, #0a1a0a 0%, #000 100%); }
+        canvas { display: block; cursor: crosshair; }
+
+        .stat-group {
+            border: 1px solid rgba(0, 255, 65, 0.2);
+            padding: 10px;
+            background: rgba(0, 10, 0, 0.6);
+            border-radius: 4px;
+        }
+
+        .stat-label { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 2px; }
+
+        .strain-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 6px; 
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .strain-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+            border-radius: 4px;
+        }
+
+        .strain-card.active { border-color: var(--neon-green); background: rgba(0, 255, 65, 0.1); }
+        .shape-preview { width: 20px; height: 20px; margin: 0 auto; }
+
+        #cure-meter { position: absolute; top: 0; left: 0; width: 100%; height: 6px; background: #111; }
+        #cure-progress { height: 100%; width: 0%; background: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); transition: 0.3s; }
+
+        .btn-action {
+            background: none; border: 1px solid var(--neon-amber); color: var(--neon-amber);
+            padding: 8px; font-family: inherit; cursor: pointer; width: 100%;
+            text-transform: uppercase; font-size: 11px; margin-top: 4px;
+            border-radius: 4px;
+        }
+        .btn-action:hover:not(:disabled) { background: var(--neon-amber); color: #000; box-shadow: 0 0 10px var(--neon-amber); }
+        .btn-action:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        #log { flex: 1; font-size: 10px; color: rgba(0, 255, 65, 0.5); overflow: hidden; border-top: 1px solid rgba(0, 255, 65, 0.1); padding-top: 8px; line-height: 1.4; }
+
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .window { border: 2px solid var(--neon-green); padding: 40px; text-align: center; background: #000; box-shadow: 0 0 30px rgba(0, 255, 65, 0.2); }
+    </style>
+</head>
+<body>
+
+<div id="overlay">
+    <div class="window">
+        <h1 style="color: var(--neon-green); letter-spacing: 4px;">BIO-INVASION: SATURATION</h1>
+        <p style="color: #fff; opacity: 0.8;">O hospedeiro está repleto de células. Sature o sistema.</p>
+        <button class="btn-action" style="padding: 15px 30px; color: var(--neon-green); border-color: var(--neon-green);" onclick="start()">INICIAR PROTOCOLO</button>
+    </div>
+</div>
+
+<aside id="sidebar">
+    <div class="stat-group" style="border-color: var(--neon-purple); background: rgba(188, 19, 254, 0.05);">
+        <div class="stat-label">Pesquisa (PP)</div>
+        <div id="rp-val" style="font-size: 28px; color: var(--neon-purple); text-shadow: 0 0 10px var(--neon-purple);">0</div>
+        <div style="font-size: 10px; opacity: 0.8;">Bónus de Dano: +<span id="mult-val">0</span>%</div>
+    </div>
+
+    <div class="stat-group">
+        <div class="stat-label">DNA Extraído</div>
+        <div id="dna-val" style="font-size: 28px; color: var(--neon-amber); text-shadow: 0 0 10px var(--neon-amber);">0</div>
+        <button class="btn-action" id="prestige-btn" onclick="prestige()" style="border-color: var(--neon-purple); color: var(--neon-purple);">
+            EXTRAIR NÚCLEO (+0 PP)
+        </button>
+    </div>
+
+    <div class="stat-group">
+        <div class="stat-label">Estirpes Virais</div>
+        <div class="strain-grid" id="strains"></div>
+    </div>
+
+    <div class="stat-group">
+        <div class="stat-label">Laboratório de Mutação</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+            <button class="btn-action" onclick="buy('size')">EXPANSÃO (200)</button>
+            <button class="btn-action" onclick="buy('ammo')">SÍNTESE (400)</button>
+            <button class="btn-action" id="up-res" style="grid-column: span 2; border-color: var(--neon-blue); color: var(--neon-blue);" onclick="buy('res')">IMUNIDADE À CURA (1 PP)</button>
+        </div>
+    </div>
+
+    <div id="log"></div>
+</aside>
+
+<div id="game-container">
+    <div id="cure-meter"><div id="cure-progress"></div></div>
+    <div style="position: absolute; top: 20px; right: 25px; text-align: right; pointer-events: none;">
+        <div class="stat-label" style="font-size: 12px;">Carga Viral</div>
+        <div id="ammo-val" style="font-size: 44px; color: var(--neon-green); text-shadow: 0 0 15px var(--neon-green);">35</div>
+    </div>
+    <canvas id="canvas"></canvas>
+</div>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const STRAINS = [
+        { name: "α", color: "#00ff41", shape: "circle", speed: 11, grav: 0.22, bounce: 0.8 },
+        { name: "δ", color: "#00ccff", shape: "triangle", speed: 15, grav: 0.16, bounce: 0.9 },
+        { name: "ω", color: "#bc13fe", shape: "square", speed: 10, grav: 0.45, bounce: 0.4 },
+        { name: "σ", color: "#ffcc00", shape: "pentagon", speed: 13, grav: 0.19, bounce: 1.1 },
+        { name: "γ", color: "#ff00ff", shape: "line", speed: 20, grav: 0.10, bounce: 0.3 },
+        { name: "ζ", color: "#ff3131", shape: "hexagon", speed: 12, grav: 0.25, bounce: 0.7 },
+        { name: "ε", color: "#ffffff", shape: "star", speed: 18, grav: 0.12, bounce: 1.2 },
+        { name: "β", color: "#0066ff", shape: "cross", speed: 14, grav: 0.30, bounce: 0.6 }
+    ];
+
+    let state = {
+        running: false, 
+        dna: 0, 
+        rp: 0, 
+        multiplier: 1.0,
+        ammo: 35, 
+        cure: 0, 
+        resLevel: 0,
+        selected: 0, 
+        pegs: [], 
+        balls: [], 
+        particles: [],
+        config: { radius: 10, baseRes: 0.015 }
+    };
+
+    function start() {
+        document.getElementById('overlay').style.display = 'none';
+        state.running = true;
+        initStrains();
+        resize();
+        spawn();
+        animate();
+        msg("PROTOCOLO INICIADO. Saturação celular detectada.");
+    }
+
+    function initStrains() {
+        const grid = document.getElementById('strains');
+        grid.innerHTML = '';
+        STRAINS.forEach((s, i) => {
+            const card = document.createElement('div');
+            card.className = `strain-card ${i === state.selected ? 'active' : ''}`;
+            card.id = `sc-${i}`;
+            card.onclick = () => selectStrain(i);
+            card.innerHTML = `<div class="shape-preview" id="sp-${i}"></div><div style="font-size:10px; margin-top:2px; color:${s.color}">${s.name}</div>`;
+            grid.appendChild(card);
+            drawPreview(i);
+        });
+    }
+
+    function selectStrain(i) {
+        state.selected = i;
+        document.querySelectorAll('.strain-card').forEach(c => c.classList.remove('active'));
+        document.getElementById(`sc-${i}`).classList.add('active');
+    }
+
+    function drawPreview(idx) {
+        const s = STRAINS[idx];
+        document.getElementById(`sp-${idx}`).innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${s.color}" stroke-width="3">${getSVG(s.shape)}</svg>`;
+    }
+
+    function getSVG(shape) {
+        const svgs = {
+            circle: '<circle cx="12" cy="12" r="8"/>',
+            triangle: '<path d="M12 4 L20 20 L4 20 Z"/>',
+            square: '<rect x="6" y="6" width="12" height="12"/>',
+            pentagon: '<path d="M12 2 L22 9 L18 21 L6 21 L2 9 Z"/>',
+            line: '<line x1="4" y1="12" x2="20" y2="12"/>',
+            hexagon: '<path d="M12 2 L20 7 L20 17 L12 22 L4 17 L4 7 Z"/>',
+            star: '<path d="M12 2 L15 9 L22 9 L17 14 L19 21 L12 17 L5 21 L7 14 L2 9 L9 9 Z"/>',
+            cross: '<path d="M12 4 L12 20 M4 12 L20 12"/>'
+        };
+        return svgs[shape];
+    }
+
+    function resize() {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+        if(state.running) spawn();
+    }
+
+    function spawn() {
+        state.pegs = [];
+        // Aumentado: de 9x10 para 13x14 para um tabuleiro muito mais denso
+        const rows = 13, cols = 14;
+        const sx = canvas.width / (cols + 1);
+        const sy = (canvas.height * 0.78) / (rows + 1);
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const ox = (r % 2 === 0) ? sx/2 : 0;
+                const x = sx * (c + 1) - ox;
+                const y = 150 + (r * sy);
+                
+                // Margens para as bolas não ficarem presas
+                if(x < 30 || x > canvas.width - 30) continue;
+                
+                let type = 'cell';
+                let rand = Math.random();
+                if(rand > 0.97) type = 'dna';
+                else if(rand > 0.94) type = 'cure';
+                
+                state.pegs.push({ 
+                    x, y, 
+                    r: 7 + Math.random()*5, 
+                    type, 
+                    active: true, 
+                    rot: Math.random()*Math.PI 
+                });
+            }
+        }
+        msg(`TEALHADO SATURADO: ${state.pegs.length} células identificadas.`);
+    }
+
+    function checkRegen() {
+        const activeCount = state.pegs.filter(p => p.active).length;
+        // Se menos de 20% das células restarem, regenera o tabuleiro
+        if (activeCount < state.pegs.length * 0.2) {
+            msg("ALERTA: Regeneração celular detetada. O sistema está a recompor-se.");
+            spawn();
+        }
+    }
+
+    function prestige() {
+        const reward = Math.floor(state.dna / 1200);
+        if(reward < 1) {
+            msg("ERRO: Dados genéticos insuficientes para extração.");
+            return;
+        }
+
+        state.rp += reward;
+        state.dna = 0;
+        state.ammo = 35 + (state.rp * 3);
+        state.cure = 0;
+        state.balls = [];
+        state.multiplier = 1.0 + (state.rp * 0.15);
+        
+        spawn();
+        update();
+        msg(`EXTRAÇÃO COMPLETA: +${reward} PP. Multiplicador atualizado.`);
+    }
+
+    function msg(text) {
+        const d = document.createElement('div');
+        d.innerHTML = `> ${text}`;
+        const log = document.getElementById('log');
+        log.prepend(d);
+        if(log.children.length > 25) log.lastChild.remove();
+    }
+
+    function drawObj(x, y, size, shape, color, rot = 0, glow = false) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rot);
+        if(glow) { 
+            ctx.shadowBlur = 12; 
+            ctx.shadowColor = color; 
+        }
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2.5;
+
+        if(shape === 'circle') ctx.arc(0, 0, size, 0, Math.PI*2);
+        else if(shape === 'triangle') { ctx.moveTo(0, -size); ctx.lineTo(size, size); ctx.lineTo(-size, size); ctx.closePath(); }
+        else if(shape === 'square') ctx.rect(-size, -size, size*2, size*2);
+        else if(shape === 'pentagon') { for(let i=0; i<5; i++) ctx.lineTo(Math.cos(i*0.4*Math.PI-Math.PI/2)*size, Math.sin(i*0.4*Math.PI-Math.PI/2)*size); ctx.closePath(); }
+        else if(shape === 'line') { ctx.moveTo(-size, 0); ctx.lineTo(size, 0); }
+        else if(shape === 'hexagon') { for(let i=0; i<6; i++) ctx.lineTo(Math.cos(i*Math.PI/3)*size, Math.sin(i*Math.PI/3)*size); ctx.closePath(); }
+        else if(shape === 'star') { for(let i=0; i<10; i++) { let r = i%2==0?size:size/2; ctx.lineTo(Math.cos(i*Math.PI/5-Math.PI/2)*r, Math.sin(i*Math.PI/5-Math.PI/2)*r); } ctx.closePath(); }
+        else if(shape === 'cross') { ctx.moveTo(-size, 0); ctx.lineTo(size, 0); ctx.moveTo(0, -size); ctx.lineTo(0, size); }
+
+        ctx.stroke();
+        ctx.restore();
+    }
+
+    function animate() {
+        if(!state.running) return;
+
+        ctx.fillStyle = 'rgba(2, 8, 2, 0.3)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Progresso da cura com resistência
+        const resistance = 1 / (1 + state.resLevel * 0.45);
+        state.cure += state.config.baseRes * resistance;
+        document.getElementById('cure-progress').style.width = state.cure + "%";
+        
+        if(state.cure >= 100) {
+            state.running = false;
+            msg("FALHA CRÍTICA: O hospedeiro desenvolveu imunidade total.");
+            setTimeout(() => { if(confirm("A cura venceu. Deseja tentar uma nova mutação?")) location.reload(); }, 500);
+            return;
+        }
+
+        // Desenhar Células (Pegs)
+        state.pegs.forEach(p => {
+            if(!p.active) return;
+            let col = 'rgba(0, 255, 65, 0.15)';
+            if(p.type === 'dna') col = 'var(--neon-amber)';
+            if(p.type === 'cure') col = 'var(--neon-blue)';
+            
+            drawObj(p.x, p.y, p.r, (p.type==='cell'?'hexagon':'circle'), col, p.rot, p.type !== 'cell');
+        });
+
+        // Vírions em movimento
+        for (let i = state.balls.length - 1; i >= 0; i--) {
+            let b = state.balls[i];
+            const s = STRAINS[b.tIdx];
+            b.x += b.vx; b.y += b.vy; b.vy += s.grav; b.rot += 0.15;
+
+            // Colisões com paredes
+            if(b.x < 12 || b.x > canvas.width - 12) { 
+                b.vx *= -s.bounce; 
+                b.x = b.x < 12 ? 12 : canvas.width - 12; 
+            }
+
+            // Colisões com células
+            state.pegs.forEach(p => {
+                if(p.active && Math.hypot(b.x - p.x, b.y - p.y) < (p.r + state.config.radius)) {
+                    p.active = false;
+                    if(s.shape !== 'line') b.vy *= -s.bounce;
+                    b.vx += (Math.random()-0.5)*4;
+
+                    let gain = (p.type === 'dna' ? 200 : 35) * state.multiplier;
+                    if(p.type === 'cure') state.cure = Math.max(0, state.cure - 8);
+                    state.dna += gain;
+
+                    for(let k=0; k<8; k++) state.particles.push({ 
+                        x: p.x, y: p.y, vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10, 
+                        life: 1, color: s.color 
+                    });
+                    
+                    checkRegen();
+                    update();
+                }
+            });
+
+            drawObj(b.x, b.y, state.config.radius, s.shape, s.color, b.rot, true);
+            if(b.y > canvas.height + 60) state.balls.splice(i, 1);
+        }
+
+        // Partículas de impacto
+        for (let i = state.particles.length - 1; i >= 0; i--) {
+            let p = state.particles[i];
+            p.x += p.vx; p.y += p.vy; p.life -= 0.05;
+            ctx.fillStyle = p.color; ctx.globalAlpha = p.life;
+            ctx.fillRect(p.x, p.y, 2, 2);
+            if(p.life <= 0) state.particles.splice(i, 1);
+        }
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(animate);
+    }
+
+    function update() {
+        document.getElementById('dna-val').innerText = Math.floor(state.dna);
+        document.getElementById('rp-val').innerText = state.rp;
+        document.getElementById('ammo-val').innerText = state.ammo;
+        document.getElementById('mult-val').innerText = Math.round((state.multiplier - 1) * 100);
+        
+        const possiblePP = Math.floor(state.dna / 1200);
+        const pBtn = document.getElementById('prestige-btn');
+        pBtn.innerText = `EXTRAIR NÚCLEO (+${possiblePP} PP)`;
+        pBtn.disabled = possiblePP < 1;
+    }
+
+    function buy(type) {
+        if(type === 'size' && state.dna >= 200) { 
+            state.dna -= 200; state.config.radius += 1.2; msg("MUTAÇÃO: Membrana viral expandida."); 
+        }
+        else if(type === 'ammo' && state.dna >= 400) { 
+            state.dna -= 400; state.ammo += 12; msg("MUTAÇÃO: Replicação viral acelerada."); 
+        }
+        else if(type === 'res' && state.rp >= 1) {
+            state.rp -= 1; state.resLevel++; msg("PESQUISA: Proteína de evasão imunológica sintetizada.");
+        }
+        update();
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+        if(!state.running || state.ammo <= 0) return;
+        const rect = canvas.getBoundingClientRect();
+        const tx = e.clientX - rect.left, ty = e.clientY - rect.top;
+        const s = STRAINS[state.selected];
+        
+        const angle = Math.atan2(ty - 60, tx - (canvas.width/2));
+        state.balls.push({ 
+            x: canvas.width/2, y: 60, 
+            vx: Math.cos(angle)*s.speed, vy: Math.sin(angle)*s.speed, 
+            tIdx: state.selected, rot: 0 
+        });
+        state.ammo--;
+        update();
+    });
+
+    window.onresize = resize;
+</script>
+</body>
+</html>

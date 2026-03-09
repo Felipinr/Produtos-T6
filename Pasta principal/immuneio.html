@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>IMMUNE WARFARE</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Segoe UI, Arial;
+            background: radial-gradient(circle at center, #04122a, #000814);
+            color: white;
+        }
+        canvas {
+            display: block;
+        }
+        #menu {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #020617;
+        }
+        #menu h1 {
+            font-size: 60px;
+            background: linear-gradient(90deg, #22c55e, #06b6d4, #60a5fa);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        #menu input {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 8px;
+            border: none;
+        }
+        #menu button {
+            padding: 12px 25px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 10px;
+            background: #06b6d4;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #instructions {
+            width: 400px;
+            margin-top: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        #hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        #upgrade {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #020617;
+            padding: 30px;
+            display: none;
+            border-radius: 10px;
+        }
+        #upgrade button {
+            display: block;
+            margin: 8px;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        #leaderboard {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+    </style>
+    <link rel="icon" href="/imagens/logot6.png.png" type="image/png">
+</head>
+<body>
+    <div id="menu">
+        <h1>T6 IMMUNE WARFARE</h1>
+        <input id="name" placeholder="Nome da célula">
+        <input id="color" type="color" value="#00ffff">
+        <h3>Escolha sua Classe</h3>
+
+<select id="classSelect">
+<option value="defender">🛡 Defensor (+Absorção)</option>
+<option value="speed">⚡ Velocista (+Velocidade)</option>
+<option value="absorber">🧬 Absorvedor (+Massa)</option>
+<option value="attacker">🔥 Atacante (+Ataque)</option>
+</select>
+        <button onclick="startGame()">Entrar no corpo</button>
+        <div id="instructions">
+            Você é uma célula do sistema imune.<br><br>
+            Coma bactérias e vírus para crescer.<br><br>
+            Regras:<br>
+            • Células maiores comem menores<br>
+            • Células menores devem fugir<br>
+            • Suba de nível para evoluir<br><br>
+            Controles:<br>
+            Mover mouse → mover célula<br>
+            Espaço → dividir célula<br>
+            Shift → sprint
+        </div>
+    </div>
+    <div id="hud"></div>
+    <div id="leaderboard"></div>
+    <div id="upgrade">
+        <h2>Evolução</h2>
+        <button onclick="upgrade('speed')">Velocidade</button>
+        <button onclick="upgrade('attack')">Ataque</button>
+        <button onclick="upgrade('absorb')">Absorção</button>
+        <button onclick="upgrade('vision')">Visão</button>
+    </div>
+    <canvas id="game"></canvas>
+    <script>
+        const canvas = document.getElementById("game");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const MAP = 5000;
+
+        let camera = { x: 0, y: 0 };
+        let mouseX = 0;
+        let mouseY = 0;
+        document.addEventListener("mousemove", e => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function rand(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        const names = [
+            "Linfócito", "Macrófago", "Neutrófilo", "Basófilo",
+            "Eosinófilo", "NK", "T-Helper", "T-Killer",
+            "Monócito", "Dendrítica", "Fagócito", "Plasmócito", "ANA", "CD4", "CD8", "Interferon", "Citoquina", "Quimiocina", "Anticorpo", "Complemento", "Mastócito", "Granulócito", "Leucócito", "Eritrócito", "Plaqueta", "Giuseppe Cafina"
+        ];
+
+        function randomName() {
+            return names[Math.floor(Math.random() * names.length)];
+        }
+
+        let foods = [];
+        let players = [];
+        let particles = [];
+        let damages = [];
+
+        let player = null;
+        let level = 1;
+        let xp = 0;
+
+        // Partículas de sangue no fundo
+        for (let i = 0; i < 2000; i++) {
+            particles.push({
+                x: rand(0, MAP),
+                y: rand(0, MAP),
+                size: rand(1, 3)
+            });
+        }
+        
+
+        class Food {
+            constructor() {
+                this.x = rand(0, MAP);
+                this.y = rand(0, MAP);
+                this.value = rand(2, 6);
+                this.size = this.value + 2;
+                this.color = ["#22c55e", "#f97316", "#facc15"][Math.floor(rand(0, 3))];
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.fillStyle = this.color;
+                ctx.arc(this.x - camera.x, this.y - camera.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        class Cell {
+            constructor(x, y, color, name, isPlayer = false) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.name = name;
+                this.isPlayer = isPlayer;
+                this.mass = 50;
+                this.speed = 2;
+                this.attack = 1;
+                this.absorb = 1;
+                this.vision = 400;
+                this.vx = 0;
+                this.vy = 0;
+                this.form = "normal";
+                this.baseSpeed = this.speed;
+                // habilidades
+this.skill={
+speed:1,
+attack:1,
+absorb:1,
+vision:400
+}
+            }
+
+            radius() {
+                return Math.sqrt(this.mass) * 4;
+            }
+
+            move() {
+                if (this.isPlayer) {
+                    let dx = mouseX - canvas.width / 2;
+                    let dy = mouseY - canvas.height / 2;
+                    let d = Math.hypot(dx, dy);
+                    if (d > 1) {
+                        this.vx = dx / d * this.speed;
+                        this.vy = dy / d * this.speed;
+                    }
+                }
+                this.x += this.vx;
+                this.y += this.vy;
+
+                this.x = Math.max(0, Math.min(MAP, this.x));
+                this.y = Math.max(0, Math.min(MAP, this.y));
+            }
+
+            draw() {
+                let r = this.radius();
+                ctx.save();
+                ctx.translate(this.x - camera.x, this.y - camera.y);
+                ctx.beginPath();
+                if (this.form === "spike") {
+                    for (let i = 0; i < 10; i++) {
+                        let a = i * Math.PI * 2 / 10;
+                        let spike = r + (i % 2 ? 10 : 0);
+                        ctx.lineTo(Math.cos(a) * spike, Math.sin(a) * spike);
+                    }
+                    ctx.closePath();
+                } else if (this.form === "blob") {
+                    ctx.ellipse(0, 0, r * 1.2, r * 0.8, 0, 0, Math.PI * 2);
+                } else {
+                    ctx.arc(0, 0, r, 0, Math.PI * 2);
+                }
+                let g = ctx.createRadialGradient(0, 0, r * 0.2, 0, 0, r);
+                g.addColorStop(0, "white");
+                g.addColorStop(1, this.color);
+                ctx.fillStyle = g;
+                ctx.fill();
+                ctx.fillStyle = "white";
+                ctx.textAlign = "center";
+                ctx.font = "12px Arial";
+                ctx.fillText(this.name, 0, 0);
+                ctx.restore();
+            }
+        }
+
+        class AI extends Cell {
+            constructor() {
+                super(rand(0, MAP), rand(0, MAP), `hsl(${Math.random() * 360},70%,60%)`, randomName());
+                this.mass = rand(40, 120);
+                // Bots começam com habilidades aleatórias
+this.skill={
+speed:rand(0.8,2),
+attack:rand(0.8,2),
+absorb:rand(0.8,2),
+vision:400
+}
+
+this.speed=this.skill.speed
+this.absorb=this.skill.absorb
+            }
+
+            move() {
+                let target = null;
+                let threat = null;
+                players.forEach(p => {
+                    if (p === this) return;
+                    let d = Math.hypot(this.x - p.x, this.y - p.y);
+                    if (p.mass < this.mass && (!target || d < target.d)) {
+                        target = { p, d };
+                    }
+                    if (p.mass > this.mass && (!threat || d < threat.d)) {
+                        threat = { p, d };
+                    }
+                });
+
+                if (threat && threat.d < 300) {
+                    let dx = this.x - threat.p.x;
+                    let dy = this.y - threat.p.y;
+                    let d = Math.hypot(dx, dy);
+                    this.vx = dx / d * this.speed;
+                    this.vy = dy / d * this.speed;
+                } else if (target) {
+                    let dx = target.p.x - this.x;
+                    let dy = target.p.y - this.y;
+                    let d = Math.hypot(dx, dy);
+                    this.vx = dx / d * this.speed;
+                    this.vy = dy / d * this.speed;
+                } else {
+                    this.vx += rand(-0.3, 0.3);
+                    this.vy += rand(-0.3, 0.3);
+                }
+                this.x += this.vx;
+                this.y += this.vy;
+            }
+        }
+
+        function startGame() {
+            document.getElementById("menu").style.display = "none";
+            player = new Cell(MAP / 2, MAP / 2, document.getElementById("color").value, document.getElementById("name").value, true);
+            players.push(player);
+          // Bots normais
+for(let i=0;i<40;i++){
+let bot=new AI()
+bot.mass=rand(40,120)
+
+// Todos bots começam com habilidades aleatórias
+bot.speed=rand(1.5,3)
+bot.absorb=rand(0.8,1.5)
+bot.attack=rand(1,3)
+
+players.push(bot)
+}
+for (let i = 0; i < 1000; i++) {
+                foods.push(new Food());
+            }
+            loop();
+        }
+
+      function upgrade(type){
+
+document.getElementById("upgrade").style.display="none"
+
+if(type==="speed"){
+player.speed+=0.8
+player.form="spike"
+player.skill.speed+=0.5
+}
+
+if(type==="attack"){
+player.attack+=1
+player.form="spike"
+player.skill.attack+=0.7
+}
+
+if(type==="absorb"){
+player.absorb+=0.6
+player.form="blob"
+player.skill.absorb+=0.5
+}
+
+if(type==="vision"){
+player.vision+=200
+player.skill.vision+=200
+}
+
+}
+
+        function checkLevel() {
+            if (xp >= level * 120) {
+                xp = 0;
+                level++;
+                document.getElementById("upgrade").style.display = "block";
+            }
+        }
+
+        function handleCollisions() {
+            players.forEach(p => {
+                foods.forEach((f, i) => {
+                    let d = Math.hypot(p.x - f.x, p.y - f.y);
+                    if (d < p.radius()) {
+                        p.mass += f.value * p.absorb;
+                        if (p.isPlayer) xp += f.value;
+                        foods.splice(i, 1);
+                        foods.push(new Food());
+                        // Bots evoluem automaticamente
+players.forEach(p=>{
+if(!p.isPlayer && p.mass>200){
+
+p.speed+=0.3
+p.absorb+=0.2
+p.attack+=0.3
+
+p.mass-=50 // equilíbrio
+
+}
+})
+                    }
+                });
+            });
+            players.forEach(a => {
+players.forEach(b => {
+
+if(a===b) return;
+
+let d=Math.hypot(a.x-b.x,a.y-b.y);
+
+if(d < a.radius() && d < b.radius()){
+
+// 🔥 COMBATE REAL BASEADO EM ATAQUE
+b.mass -= a.attack;
+a.mass -= b.attack * 0.3;
+// DANO FLUTUANTE
+damages.push({
+x:b.x,
+y:b.y,
+value:Math.floor(a.attack),
+life:60
+});
+
+damages.push({
+x:a.x,
+y:a.y,
+value:Math.floor(b.attack*0.3),
+life:60
+});
+
+// Se alguém morrer
+if(b.mass <= 0){
+
+a.mass += 40;
+
+if(b === player){
+alert("Você morreu!");
+location.reload();
+}
+
+b.mass=50;
+b.x=rand(0,MAP);
+b.y=rand(0,MAP);
+
+}
+
+if(a.mass <= 0){
+
+b.mass += 40;
+
+if(a === player){
+alert("Você morreu!");
+location.reload();
+}
+
+a.mass=50;
+a.x=rand(0,MAP);
+a.y=rand(0,MAP);
+
+}
+
+}
+
+});
+});
+                    }
+
+        function drawParticles() {
+            particles.forEach(p => {
+                ctx.fillStyle = "rgba(255,0,0,0.15)";
+                ctx.fillRect(p.x - camera.x, p.y - camera.y, p.size, p.size);
+            });
+        }
+        function drawDamage(){
+
+damages.forEach((d,i)=>{
+
+ctx.fillStyle="red";
+ctx.font="bold 16px Arial";
+ctx.textAlign="center";
+
+ctx.fillText(
+"-"+d.value,
+d.x-camera.x,
+d.y-camera.y - (60-d.life)
+);
+
+d.life--;
+
+if(d.life<=0){
+damages.splice(i,1);
+}
+
+});
+
+}
+
+        function drawHUD() {
+            document.getElementById("hud").innerHTML =
+                `<b>${player.name}</b><br>
+                Massa: ${Math.floor(player.mass)}<br>
+                Nível: ${level}<br>
+                XP: ${xp}`;
+        }
+
+        function drawLeaderboard() {
+            let list = [...players].sort((a, b) => b.mass - a.mass);
+            let html = "<b>Leaderboard</b><br>";
+            for (let i = 0; i < 5; i++) {
+                if (!list[i]) continue;
+                html += `${i + 1}. ${list[i].name} (${Math.floor(list[i].mass)})<br>`;
+            }
+            document.getElementById("leaderboard").innerHTML = html;
+        }
+
+        document.addEventListener("keydown", e => {
+            if (e.code === "Space") {
+                if (player.mass < 80) return;
+                let newMass = player.mass / 2;
+                player.mass = newMass;
+                let angle = Math.atan2(mouseY - canvas.height / 2, mouseX - canvas.width / 2);
+                let c = new Cell(
+                    player.x + Math.cos(angle) * 50,
+                    player.y + Math.sin(angle) * 50,
+                    player.color,
+                    player.name
+                );
+                c.mass = newMass;
+                c.vx = Math.cos(angle) * 15;
+                c.vy = Math.sin(angle) * 15;
+                players.push(c);
+            }
+            if (e.code === "ShiftLeft") {
+    player.speed = player.baseSpeed * 2;
+}
+        });
+
+        document.addEventListener("keyup", e => {
+if (e.code === "ShiftLeft") {
+player.speed = player.baseSpeed;
+}
+        });
+
+        function loop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            camera.x = player.x - canvas.width / 2;
+            camera.y = player.y - canvas.height / 2;
+            drawParticles();
+            foods.forEach(f => f.draw());
+            players.forEach(p => {
+                p.move();
+                p.draw();
+            });
+            handleCollisions();
+            checkLevel();
+            drawHUD();
+           drawLeaderboard();
+
+drawMapBorder();
+
+requestAnimationFrame(loop);
+
+}
+
+/* BORDA DO MAPA */
+
+function drawMapBorder(){
+
+ctx.strokeStyle="rgba(255,255,255,0.3)";
+ctx.lineWidth=6;
+
+ctx.strokeRect(
+-camera.x,
+-camera.y,
+MAP,
+MAP
+);
+
+}
+
+/* LEADERBOARD */
+
+function drawLeaderboard(){
+
+let sorted=[...players].sort((a,b)=>b.mass-a.mass);
+
+let html="<b>Ranking</b><br>";
+
+for(let i=0;i<5;i++){
+
+if(!sorted[i]) continue;
+
+html+=`${i+1}. ${sorted[i].name} (${Math.floor(sorted[i].mass)})<br>`;
+
+}
+
+document.getElementById("leaderboard").innerHTML=html;
+
+}
+
+/* AJUSTE VISUAL DO NOME */
+
+Cell.prototype.drawName=function(){
+
+let r=this.radius();
+
+ctx.fillStyle="rgba(0,0,0,0.6)";
+ctx.fillRect(
+this.x-camera.x-r/1.5,
+this.y-camera.y-8,
+r*1.3,
+16
+);
+
+ctx.fillStyle="white";
+ctx.textAlign="center";
+ctx.font="bold 12px Arial";
+
+ctx.fillText(
+this.name,
+this.x-camera.x,
+this.y-camera.y+4
+);
+
+};
+
+/* SOBRESCREVE O DRAW PARA MELHOR VISIBILIDADE */
+
+const oldDraw=Cell.prototype.draw;
+
+Cell.prototype.draw=function(){
+
+oldDraw.call(this);
+// BARRA DE VIDA
+let r = this.radius();
+let maxHealth = 200;
+let hpPercent = this.mass / maxHealth;
+
+ctx.fillStyle="red";
+ctx.fillRect(
+this.x-camera.x - r,
+this.y-camera.y - r - 15,
+r*2,
+5
+);
+
+ctx.fillStyle="lime";
+ctx.fillRect(
+this.x-camera.x - r,
+this.y-camera.y - r - 15,
+r*2 * hpPercent,
+5
+);
+this.drawName();
+
+
+};
+
+/* IA MAIS NATURAL */
+
+AI.prototype.move=function(){
+
+let nearestFood=null;
+let nearestEnemy=null;
+let threat=null;
+
+let bestFood=Infinity;
+let bestEnemy=Infinity;
+
+foods.forEach(f=>{
+
+let d=Math.hypot(this.x-f.x,this.y-f.y);
+
+if(d<bestFood){
+
+bestFood=d;
+nearestFood=f;
+
+}
+
+});
+
+players.forEach(p=>{
+
+if(p===this) return;
+
+let d=Math.hypot(this.x-p.x,this.y-p.y);
+
+if(p.mass<this.mass*0.8 && d<bestEnemy){
+
+bestEnemy=d;
+nearestEnemy=p;
+
+}
+
+if(p.mass>this.mass*1.3){
+
+threat=p;
+
+}
+
+});
+
+if(threat && Math.hypot(this.x-threat.x,this.y-threat.y)<250){
+
+let dx=this.x-threat.x;
+let dy=this.y-threat.y;
+
+let d=Math.hypot(dx,dy);
+
+this.vx=dx/d*this.speed;
+this.vy=dy/d*this.speed;
+
+}
+
+else if(nearestEnemy){
+
+let dx=nearestEnemy.x-this.x;
+let dy=nearestEnemy.y-this.y;
+
+let d=Math.hypot(dx,dy);
+
+this.vx=dx/d*this.speed;
+this.vy=dy/d*this.speed;
+
+}
+
+else if(nearestFood){
+
+let dx=nearestFood.x-this.x;
+let dy=nearestFood.y-this.y;
+
+let d=Math.hypot(dx,dy);
+
+this.vx=dx/d*this.speed;
+this.vy=dy/d*this.speed;
+
+}
+
+else{
+
+this.vx+=rand(-0.2,0.2);
+this.vy+=rand(-0.2,0.2);
+
+}
+
+this.x+=this.vx;
+this.y+=this.vy;
+
+};
+
+/* BORDA FÍSICA DO MAPA */
+
+function keepInsideMap(entity){
+
+entity.x=Math.max(entity.radius(),Math.min(MAP-entity.radius(),entity.x));
+entity.y=Math.max(entity.radius(),Math.min(MAP-entity.radius(),entity.y));
+
+}
+
+/* ATUALIZA LOOP PARA LIMITE */
+
+const oldLoop=loop;
+
+loop=function(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+camera.x=player.x-canvas.width/2;
+camera.y=player.y-canvas.height/2;
+
+drawParticles();
+drawDamage();
+
+foods.forEach(f=>f.draw());
+
+players.forEach(p=>{
+
+p.move();
+
+keepInsideMap(p);
+
+p.draw();
+
+});
+
+handleCollisions();
+
+checkLevel();
+
+drawHUD();
+
+drawLeaderboard();
+
+drawMapBorder();
+
+requestAnimationFrame(loop);
+
+};
+
+</script>
+
+</body>
+</html>

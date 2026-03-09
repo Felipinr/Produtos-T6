@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Doações | T6 Medicina</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+<link rel="icon" href="/imagens/logot6.png.png" type="image/png">
+
+<style>
+
+/* RESET */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+/* CORES */
+
+:root{
+--rosa:#ff2d75;
+--rosa2:#ff5c8a;
+--roxo:#7b2ff7;
+--dourado:#f5c542;
+--fundo:#fafafa;
+}
+
+/* BODY */
+
+body{
+font-family:'Archivo',sans-serif;
+background:linear-gradient(160deg,#ffffff,#f4f4f4);
+color:#222;
+overflow-x:hidden;
+}
+
+/* HEADER */
+
+.topo{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px 80px;
+background:rgba(255,255,255,.7);
+backdrop-filter:blur(10px);
+position:fixed;
+width:100%;
+top:0;
+z-index:1000;
+border-bottom:1px solid rgba(0,0,0,.05);
+}
+
+.topo__marca a{
+display:flex;
+align-items:center;
+gap:15px;
+text-decoration:none;
+}
+
+.topo__marca img{
+height:55px;
+}
+
+.topo__marca h1{
+font-family:'Space Grotesk';
+font-size:22px;
+color:#111;
+}
+
+.menu{
+display:flex;
+gap:35px;
+}
+
+.menu a{
+text-decoration:none;
+font-weight:600;
+color:#444;
+position:relative;
+}
+
+.menu a::after{
+content:"";
+position:absolute;
+width:0;
+height:2px;
+background:var(--rosa);
+left:0;
+bottom:-4px;
+transition:.3s;
+}
+
+.menu a:hover::after{
+width:100%;
+}
+
+/* HERO */
+
+.hero{
+height:50vh;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+background:linear-gradient(135deg,#ff2d75,#7b2ff7);
+color:white;
+padding-top:80px;
+position:relative;
+overflow:hidden;
+}
+
+.hero h2{
+font-family:'Space Grotesk';
+font-size:52px;
+letter-spacing:1px;
+animation:fadeUp 1s ease;
+}
+
+@keyframes fadeUp{
+from{
+opacity:0;
+transform:translateY(40px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+/* DOAÇÃO */
+
+.doacao{
+padding:120px 20px;
+display:flex;
+justify-content:center;
+}
+
+/* CARD PRINCIPAL */
+
+.box{
+background:rgba(255,255,255,.75);
+backdrop-filter:blur(14px);
+padding:60px;
+border-radius:25px;
+max-width:700px;
+width:100%;
+text-align:center;
+box-shadow:0 25px 70px rgba(0,0,0,.1);
+transition:.4s;
+}
+
+.box:hover{
+transform:translateY(-6px);
+}
+
+/* META */
+
+.meta h3{
+font-family:'Space Grotesk';
+font-size:26px;
+margin-bottom:8px;
+}
+
+#textoMeta{
+font-size:15px;
+opacity:.7;
+margin-bottom:15px;
+}
+
+/* BARRA */
+
+.barra{
+width:100%;
+height:18px;
+background:#eee;
+border-radius:40px;
+overflow:hidden;
+}
+
+.progresso{
+height:100%;
+width:0%;
+background:linear-gradient(90deg,var(--rosa),var(--dourado));
+border-radius:40px;
+transition:width 1.5s ease;
+}
+
+/* VALORES */
+
+.valores{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:15px;
+margin:30px 0;
+}
+
+.valor-btn{
+padding:16px;
+border-radius:14px;
+border:2px solid var(--rosa);
+cursor:pointer;
+font-weight:600;
+background:white;
+transition:.25s;
+}
+
+.valor-btn:hover{
+background:linear-gradient(135deg,var(--rosa),var(--roxo));
+color:white;
+transform:scale(1.08);
+box-shadow:0 10px 25px rgba(0,0,0,.15);
+}
+
+/* AVISO */
+
+.aviso-doacao{
+background:linear-gradient(135deg,#fff0f5,#ffe6f0);
+border:1px solid #ffd3e6;
+padding:22px;
+border-radius:15px;
+margin-top:20px;
+font-size:15px;
+text-align:left;
+}
+
+.aviso-doacao h3{
+margin-bottom:8px;
+font-family:'Space Grotesk';
+}
+
+/* PIX */
+
+.pix-box{
+margin-top:25px;
+background:white;
+padding:25px;
+border-radius:15px;
+font-size:13px;
+word-break:break-all;
+border:1px solid #eee;
+box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+
+/* BOTÃO */
+
+button{
+background:linear-gradient(135deg,var(--rosa),var(--roxo));
+color:white;
+border:none;
+padding:16px 40px;
+border-radius:50px;
+font-weight:700;
+cursor:pointer;
+transition:.3s;
+margin-top:15px;
+font-size:15px;
+}
+
+button:hover{
+transform:translateY(-2px);
+box-shadow:0 15px 35px rgba(0,0,0,.25);
+}
+
+/* FOOTER */
+
+footer{
+background:#111;
+color:white;
+text-align:center;
+padding:25px;
+margin-top:50px;
+font-size:14px;
+}
+
+/* RESPONSIVO */
+
+@media(max-width:768px){
+
+.topo{
+padding:20px;
+flex-direction:column;
+gap:10px;
+}
+
+.menu{
+flex-wrap:wrap;
+justify-content:center;
+gap:15px;
+}
+
+.hero h2{
+font-size:36px;
+}
+
+.valores{
+grid-template-columns:repeat(2,1fr);
+}
+
+.box{
+padding:40px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header class="topo">
+
+<div class="topo__marca">
+<a href="index.html">
+<img src="/imagens/logot6.png.png">
+<h1>T6 Store</h1>
+</a>
+</div>
+
+<nav class="menu">
+<a href="index.html">Início</a>
+<a href="produtos.html">Produtos</a>
+<a href="simulador.html">Customizar</a>
+<a href="dev.html">Desenvolvedor</a>
+</nav>
+
+</header>
+
+<section class="hero">
+<h2>Apoie a Turma T6</h2>
+</section>
+
+<section class="doacao">
+
+<div class="box">
+
+<div class="meta">
+<h3>Meta da Formatura</h3>
+<p id="textoMeta">R$0 arrecadados de R$ 50.000</p>
+
+<div class="barra">
+<div class="progresso" id="barra"></div>
+</div>
+</div>
+
+<h3>Valores sugeridos</h3>
+
+<div class="valores">
+<div class="valor-btn">R$10</div>
+<div class="valor-btn">R$20</div>
+<div class="valor-btn">R$50</div>
+<div class="valor-btn">R$100</div>
+</div>
+
+<div class="aviso-doacao">
+
+<h3>Identificação da Doação</h3>
+
+<p>
+Para conseguirmos identificar sua doação, pedimos que você adicione <b>R$0,01</b> ao valor escolhido.
+</p>
+
+<p>
+Exemplos:<br>
+R$10 → <b>R$10,01</b><br>
+R$20 → <b>R$20,01</b><br>
+R$50 → <b>R$50,01</b>
+</p>
+
+<p>
+Assim conseguimos identificar que o valor recebido foi uma doação para a <b>Turma T6 de Medicina</b>.
+</p>
+
+</div>
+
+<h3 style="margin-top:25px;">Pagamento via PIX</h3>
+
+<p>Copie o código abaixo e cole no aplicativo do seu banco.</p>
+
+<div class="pix-box" id="pixCode">
+
+00020126580014BR.GOV.BCB.PIX0136d8c9b3ea-2bcf-4fce-b721-8e8df81eef705204000053039865802BR5919Felipe Matos Duarte6009SAO PAULO62140510ppbgp6JZlp63040232
+
+</div>
+
+<button onclick="copiarPix()">Copiar código PIX</button>
+
+</div>
+
+</section>
+
+<footer>
+© 2025 - 2031 T6 Medicina | UNIRV
+</footer>
+
+<script>
+
+const meta = 50000;
+let arrecadado = 0;
+
+let progresso = (arrecadado/meta)*100;
+
+document.getElementById("barra").style.width = progresso+"%";
+
+function copiarPix(){
+
+let texto = document.getElementById("pixCode").innerText;
+
+navigator.clipboard.writeText(texto);
+
+alert("Código PIX copiado! Agora cole no app do seu banco.");
+
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroSurge 2.0 | Gráficos Absurdos</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Share+Tech+Mono&display=swap');
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #020608;
+            font-family: 'Rajdhani', sans-serif;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            user-select: none;
+        }
+
+        /* Efeito de Scanlines de Monitor Médico */
+        body::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        canvas {
+            display: block;
+            cursor: none;
+            z-index: 1;
+        }
+
+        /* HUD SUPERIOR */
+        #ui-top {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: calc(100% - 40px);
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .stat-box {
+            text-align: left;
+            background: linear-gradient(135deg, rgba(0, 242, 255, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
+            padding: 15px 25px;
+            border-radius: 4px;
+            border-left: 4px solid #00f2ff;
+            border-right: 1px solid rgba(0, 242, 255, 0.3);
+            border-bottom: 1px solid rgba(0, 242, 255, 0.3);
+            border-top: 1px solid rgba(0, 242, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+            min-width: 180px;
+            backdrop-filter: blur(4px);
+            position: relative;
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 10px; height: 10px;
+            border-top: 2px solid #00f2ff; border-left: 2px solid #00f2ff;
+        }
+
+        .stat-val {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 32px;
+            color: #fff;
+            text-shadow: 0 0 10px #00f2ff, 0 0 20px #00f2ff;
+            margin-top: 5px;
+        }
+
+        .stat-val.danger {
+            color: #ff003c;
+            text-shadow: 0 0 10px #ff003c, 0 0 20px #ff003c;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: #b3ecff;
+            text-transform: uppercase;
+        }
+
+        /* PAINEL LATERAL DE UPGRADES */
+        #side-panel {
+            position: absolute;
+            right: 20px;
+            top: 130px;
+            bottom: 20px;
+            width: 300px;
+            background: linear-gradient(to bottom, rgba(0, 15, 20, 0.9), rgba(0, 0, 0, 0.95));
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 20;
+            overflow-y: auto;
+            box-shadow: inset 0 0 20px rgba(0, 242, 255, 0.05);
+        }
+
+        #side-panel::-webkit-scrollbar { width: 4px; }
+        #side-panel::-webkit-scrollbar-thumb { background: #00f2ff; }
+
+        .upgrade-card {
+            background: rgba(0, 242, 255, 0.03);
+            padding: 15px;
+            border-left: 3px solid #00f2ff;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            pointer-events: auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upgrade-card::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(0, 242, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .upgrade-card:hover::after { left: 100%; }
+        .upgrade-card:hover {
+            background: rgba(0, 242, 255, 0.1);
+            transform: scale(1.02) translateX(-5px);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+        }
+
+        .upgrade-card h3 { margin: 0; font-size: 14px; color: #fff; letter-spacing: 1px; }
+        .upgrade-card p { margin: 6px 0; font-size: 11px; color: #8aa; line-height: 1.4; }
+        .upgrade-card .cost {
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: 700; color: #ff0055; font-size: 14px;
+            text-shadow: 0 0 5px rgba(255, 0, 85, 0.5);
+        }
+
+        .upgrade-card.disabled {
+            opacity: 0.3; cursor: not-allowed; border-left-color: #333; filter: grayscale(100%);
+        }
+
+        /* TELA DE INÍCIO E FIM */
+        #overlay {
+            position: absolute; inset: 0; background: rgba(2, 6, 8, 0.85);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 100; backdrop-filter: blur(10px);
+        }
+
+        .glitch-title {
+            font-size: 5rem; font-weight: 700; letter-spacing: 15px; margin-bottom: 0;
+            color: #fff; text-shadow: 0 0 20px #00f2ff, 2px 2px #ff003c, -2px -2px #00f2ff;
+            position: relative; animation: pulseGlow 2s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { text-shadow: 0 0 20px #00f2ff, 2px 2px #ff003c; }
+            100% { text-shadow: 0 0 40px #00f2ff, 4px 4px #ff003c, -4px -4px #00f2ff; }
+        }
+
+        .btn-main {
+            padding: 15px 60px; margin-top: 40px; background: transparent;
+            border: 2px solid #00f2ff; color: #00f2ff; font-family: 'Rajdhani';
+            font-weight: 700; font-size: 1.5rem; letter-spacing: 4px;
+            cursor: pointer; text-transform: uppercase; transition: 0.3s;
+            box-shadow: inset 0 0 10px rgba(0,242,255,0.2), 0 0 20px rgba(0,242,255,0.2);
+        }
+
+        .btn-main:hover { background: #00f2ff; color: #000; box-shadow: 0 0 40px #00f2ff; }
+
+        #final-message { margin-top: 30px; font-size: 2rem; display: none; text-align: center; }
+        .scanner-line {
+            position: absolute; width: 100%; height: 2px; background: rgba(0, 242, 255, 0.5);
+            box-shadow: 0 0 20px #00f2ff; top: 0; left: 0;
+            animation: scan 4s linear infinite; opacity: 0.3; pointer-events: none;
+        }
+
+        @keyframes scan { 0% { top: -10%; } 100% { top: 110%; } }
+    </style>
+</head>
+<body>
+
+<div class="scanner-line"></div>
+
+<div id="ui-top">
+    <div class="stat-box">
+        <div class="stat-label">ORÇAMENTO CIRÚRGICO</div>
+        <div class="stat-val" id="funds-display">0 M€</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-label">ESTRESSE NEUROLÓGICO</div>
+        <div class="stat-val" id="stress-display">0%</div>
+    </div>
+    <div class="stat-box">
+        <div class="stat-label">MASSA TUMORAL RESTANTE</div>
+        <div class="stat-val" id="layers-display">5</div>
+    </div>
+</div>
+
+<div id="side-panel">
+    <h2 style="font-size: 16px; color: #00f2ff; text-align: center; margin-bottom: 5px; letter-spacing: 2px;">ARSENAL MÉDICO</h2>
+    <div style="height: 1px; background: #00f2ff; margin-bottom: 15px; opacity: 0.3;"></div>
+    
+    <div class="upgrade-card" id="upgrade-bisturi" onclick="buyUpgrade('bisturi')">
+        <h3>FEIXE DE PLASMA</h3>
+        <p>Expande a matriz do laser. Maior alcance de excisão.</p>
+        <div class="cost" id="cost-bisturi">100 M€</div>
+    </div>
+
+    <div class="upgrade-card" id="upgrade-sedativo" onclick="buyUpgrade('sedativo')">
+        <h3>NANO-SEDATIVOS</h3>
+        <p>Injeção automatizada. Reduz o pico de estresse em erros.</p>
+        <div class="cost" id="cost-sedativo">150 M€</div>
+    </div>
+
+    <div class="upgrade-card" id="upgrade-camera" onclick="buyUpgrade('camera')">
+        <h3>LENTE QUÂNTICA</h3>
+        <p>Reduz a zona de colisão crítica, permitindo cortes rasos.</p>
+        <div class="cost" id="cost-camera">200 M€</div>
+    </div>
+
+    <div class="upgrade-card" id="upgrade-estabilizador" onclick="buyUpgrade('estabilizador')">
+        <h3>BLOQUEADOR SINÁPTICO</h3>
+        <p>Inibe contrações espasmódicas. O tumor move-se mais devagar.</p>
+        <div class="cost" id="cost-estabilizador">250 M€</div>
+    </div>
+</div>
+
+<div id="overlay">
+    <h1 class="glitch-title">NEUROSURGE</h1>
+    <p style="letter-spacing: 8px; opacity: 0.8; margin-top: 10px; font-size: 1.2rem; color: #00f2ff;">PROTOCOLO DE EXCÍSÃO</p>
+    <button class="btn-main" onclick="startGame()">INICIAR INCISÃO</button>
+    <p id="final-message"></p>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // --- VARIÁVEIS DE ESTADO DO JOGO ---
+    let funds = 0;
+    let patientStress = 0;
+    let tumorLayers = 5;
+    let currentTumorRadius = 130;
+    let tumorInitialRadius = 130;
+    let tumorSpeed = 0.8;
+    let tumorX, tumorY;
+    let tumorVX, tumorVY;
+    let time = 0; // Para animações orgânicas
+
+    let gameRunning = false;
+    let mouseDown = false;
+    let isCutting = false;
+    let mouseX = 0;
+    let mouseY = 0;
+
+    // --- UPGRADES ---
+    let upgradeLevels = { bisturi: 0, sedativo: 0, camera: 0, estabilizador: 0 };
+    let upgradeCosts = { bisturi: 100, sedativo: 150, camera: 200, estabilizador: 250 };
+    
+    // Status derivados
+    let bisturiRadius = 15;
+    let stressIncreaseRate = 0.6;
+    let errorMargin = 15;
+
+    // --- SISTEMA DE PARTÍCULAS ---
+    let particles = [];
+    class Particle {
+        constructor(x, y, color) {
+            this.x = x;
+            this.y = y;
+            this.vx = (Math.random() - 0.5) * 8;
+            this.vy = (Math.random() - 0.5) * 8;
+            this.life = 1.0;
+            this.decay = Math.random() * 0.03 + 0.02;
+            this.color = color;
+            this.size = Math.random() * 3 + 1;
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.life -= this.decay;
+            this.size *= 0.95;
+        }
+        draw(ctx) {
+            ctx.globalAlpha = Math.max(0, this.life);
+            ctx.fillStyle = this.color;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1.0;
+            ctx.shadowBlur = 0;
+        }
+    }
+
+    // --- REDE NEURAL (FUNDO) ---
+    let neurons = [];
+    class Neuron {
+        constructor() {
+            this.x = Math.random() * window.innerWidth;
+            this.y = Math.random() * window.innerHeight;
+            this.vx = (Math.random() - 0.5) * 0.5;
+            this.vy = (Math.random() - 0.5) * 0.5;
+            this.size = Math.random() * 2 + 1;
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        }
+        draw(ctx) {
+            ctx.fillStyle = 'rgba(0, 242, 255, 0.5)';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    function initGame() {
+        resizeCanvas();
+        tumorX = canvas.width / 2;
+        tumorY = canvas.height / 2;
+        tumorVX = (Math.random() - 0.5) * tumorSpeed * 3;
+        tumorVY = (Math.random() - 0.5) * tumorSpeed * 3;
+
+        funds = 0; patientStress = 0; tumorLayers = 5;
+        currentTumorRadius = tumorInitialRadius;
+        gameRunning = true; time = 0; particles = [];
+
+        // Inicializar Fundo Neural
+        neurons = [];
+        for(let i=0; i<60; i++) neurons.push(new Neuron());
+
+        // Resets
+        upgradeLevels = { bisturi: 0, sedativo: 0, camera: 0, estabilizador: 0 };
+        upgradeCosts = { bisturi: 100, sedativo: 150, camera: 200, estabilizador: 250 };
+        bisturiRadius = 15; stressIncreaseRate = 0.6; errorMargin = 15; tumorSpeed = 0.8;
+
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('final-message').style.display = 'none';
+        updateUI();
+        requestAnimationFrame(gameLoop);
+    }
+
+    function startGame() { initGame(); }
+
+    function endGame(success) {
+        gameRunning = false;
+        const msg = document.getElementById('final-message');
+        if (success) {
+            msg.innerHTML = `EXCISÃO CONCLUÍDA<br><span style="font-size:1rem; color:#fff">Orçamento final: ${Math.floor(funds)} M€</span>`;
+            msg.style.color = '#00f2ff';
+            msg.style.textShadow = '0 0 20px #00f2ff';
+        } else {
+            msg.innerHTML = `FALHA CRÍTICA<br><span style="font-size:1rem; color:#fff">Colapso Neurológico Atingido</span>`;
+            msg.style.color = '#ff003c';
+            msg.style.textShadow = '0 0 20px #ff003c';
+        }
+        document.getElementById('overlay').style.display = 'flex';
+        msg.style.display = 'block';
+    }
+
+    function buyUpgrade(item) {
+        if (!gameRunning || funds < upgradeCosts[item]) return;
+        funds -= upgradeCosts[item];
+        upgradeLevels[item]++;
+
+        if (item === 'bisturi') {
+            bisturiRadius += 6;
+            upgradeCosts.bisturi = Math.floor(upgradeCosts.bisturi * 1.8);
+        } else if (item === 'sedativo') {
+            stressIncreaseRate *= 0.75;
+            upgradeCosts.sedativo = Math.floor(upgradeCosts.sedativo * 1.8);
+        } else if (item === 'camera') {
+            errorMargin = Math.max(3, errorMargin - 3);
+            upgradeCosts.camera = Math.floor(upgradeCosts.camera * 2.0);
+        } else if (item === 'estabilizador') {
+            tumorSpeed = Math.max(0.2, tumorSpeed * 0.7);
+            upgradeCosts.estabilizador = Math.floor(upgradeCosts.estabilizador * 1.7);
+        }
+        updateUI();
+    }
+
+    function updateUI() {
+        document.getElementById('funds-display').innerText = `${Math.floor(funds)} M€`;
+        
+        const stressElem = document.getElementById('stress-display');
+        stressElem.innerText = `${Math.floor(patientStress)}%`;
+        if(patientStress > 75) stressElem.classList.add('danger');
+        else stressElem.classList.remove('danger');
+
+        document.getElementById('layers-display').innerText = tumorLayers;
+
+        for (const item in upgradeCosts) {
+            const costElement = document.getElementById(`cost-${item}`);
+            const cardElement = document.getElementById(`upgrade-${item}`);
+            if (costElement) costElement.innerText = `${upgradeCosts[item]} M€`;
+            if (cardElement) {
+                if (funds >= upgradeCosts[item]) cardElement.classList.remove('disabled');
+                else cardElement.classList.add('disabled');
+            }
+        }
+    }
+
+    function drawNeuralBackground() {
+        // Conectar neurónios
+        ctx.lineWidth = 1;
+        for (let i = 0; i < neurons.length; i++) {
+            neurons[i].update();
+            neurons[i].draw(ctx);
+            for (let j = i + 1; j < neurons.length; j++) {
+                let dx = neurons[i].x - neurons[j].x;
+                let dy = neurons[i].y - neurons[j].y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 120) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(0, 242, 255, ${1 - dist/120})`;
+                    ctx.moveTo(neurons[i].x, neurons[i].y);
+                    ctx.lineTo(neurons[j].x, neurons[j].y);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+
+    function drawOrganicTumor() {
+        ctx.save();
+        ctx.translate(tumorX, tumorY);
+        
+        // Efeito de Glow do Tumor
+        ctx.shadowBlur = 40;
+        ctx.shadowColor = '#ff0055';
+        ctx.fillStyle = 'rgba(255, 0, 85, 0.8)';
+        ctx.strokeStyle = '#ffb3c6';
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        let numPoints = 40;
+        for (let i = 0; i <= numPoints; i++) {
+            let angle = (i / numPoints) * Math.PI * 2;
+            // Magia Trigonométrica para fazer pulsar
+            let deformation = Math.sin(angle * 6 + time * 0.05) * 10 + Math.cos(angle * 3 - time * 0.03) * 15;
+            let r = currentTumorRadius + deformation;
+            
+            let x = Math.cos(angle) * r;
+            let y = Math.sin(angle) * r;
+
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        
+        // Núcleo interno (Camadas)
+        ctx.fillStyle = 'rgba(100, 0, 30, 0.5)';
+        ctx.shadowBlur = 0;
+        ctx.beginPath();
+        ctx.arc(0, 0, currentTumorRadius * 0.6, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.restore();
+    }
+
+    function drawLaserScalpel() {
+        // Desenhar Braço do Robô vindo do canto inferior direito
+        ctx.beginPath();
+        ctx.moveTo(canvas.width, canvas.height);
+        ctx.lineTo(mouseX, mouseY);
+        ctx.strokeStyle = 'rgba(50, 50, 50, 0.8)';
+        ctx.lineWidth = 8;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(canvas.width, canvas.height);
+        ctx.lineTo(mouseX, mouseY);
+        ctx.strokeStyle = '#00f2ff';
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#00f2ff';
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // O Anel do Bisturi (Mira)
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.beginPath();
+        ctx.arc(mouseX, mouseY, bisturiRadius, 0, Math.PI * 2);
+        ctx.strokeStyle = isCutting ? '#ff0055' : '#00f2ff';
+        ctx.lineWidth = 3;
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = isCutting ? '#ff0055' : '#00f2ff';
+        ctx.stroke();
+        
+        // Retículo interno
+        ctx.beginPath();
+        ctx.moveTo(mouseX - bisturiRadius + 5, mouseY);
+        ctx.lineTo(mouseX + bisturiRadius - 5, mouseY);
+        ctx.moveTo(mouseX, mouseY - bisturiRadius + 5);
+        ctx.lineTo(mouseX, mouseY + bisturiRadius - 5);
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.globalCompositeOperation = 'source-over';
+    }
+
+    function gameLoop() {
+        if (!gameRunning) return;
+        time++;
+
+        // Limpar frame com leve rastro (trail effect) para o laser
+        ctx.fillStyle = 'rgba(2, 6, 8, 0.4)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        drawNeuralBackground();
+
+        // Lógica de Movimento do Tumor
+        tumorX += tumorVX * tumorSpeed;
+        tumorY += tumorVY * tumorSpeed;
+        const margin = currentTumorRadius + 50;
+        if (tumorX < margin || tumorX > canvas.width - margin - 300) tumorVX *= -1; // -300 por causa da UI
+        if (tumorY < margin || tumorY > canvas.height - margin) tumorVY *= -1;
+
+        if (!isCutting && currentTumorRadius < tumorInitialRadius + 5) {
+            currentTumorRadius += 0.08; // Crescimento agressivo
+        }
+
+        drawOrganicTumor();
+
+        // Lógica de Corte e Partículas
+        if (isCutting) {
+            let distToTumorCenter = Math.hypot(mouseX - tumorX, mouseY - tumorY);
+
+            if (distToTumorCenter < currentTumorRadius) {
+                // Sucesso no corte
+                currentTumorRadius = Math.max(0, currentTumorRadius - 0.2 * (bisturiRadius / 15));
+                funds += 0.5;
+                
+                // Gerar faíscas de corte (plasma)
+                for(let i=0; i<3; i++) {
+                    particles.push(new Particle(mouseX + (Math.random()-0.5)*20, mouseY + (Math.random()-0.5)*20, '#ff0055'));
+                    particles.push(new Particle(mouseX, mouseY, '#00f2ff'));
+                }
+
+                // Lógica de Camadas
+                let threshold = tumorInitialRadius * ((tumorLayers - 1) / 5);
+                if (currentTumorRadius <= threshold && tumorLayers > 1) {
+                    tumorLayers--;
+                    currentTumorRadius = threshold;
+                    funds += 200;
+                    // Explosão visual na mudança de camada
+                    for(let i=0; i<50; i++) particles.push(new Particle(tumorX, tumorY, '#ffffff'));
+                } else if (tumorLayers === 1 && currentTumorRadius <= 10) {
+                    tumorLayers = 0;
+                    endGame(true);
+                    return;
+                }
+            } else if (distToTumorCenter > currentTumorRadius + errorMargin) {
+                // Erro - cortando tecido saudável
+                patientStress = Math.min(100, patientStress + stressIncreaseRate);
+                // Faíscas de erro (Vermelho intenso)
+                particles.push(new Particle(mouseX, mouseY, '#ff0000'));
+            }
+        }
+
+        // Atualizar e Desenhar Partículas
+        ctx.globalCompositeOperation = 'lighter';
+        for (let i = particles.length - 1; i >= 0; i--) {
+            particles[i].update();
+            particles[i].draw(ctx);
+            if (particles[i].life <= 0) particles.splice(i, 1);
+        }
+        ctx.globalCompositeOperation = 'source-over';
+
+        drawLaserScalpel();
+
+        if (time % 10 === 0) updateUI(); // Atualizar UI esporadicamente para performance
+
+        if (patientStress >= 100) {
+            endGame(false);
+            return;
+        }
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    // --- INTERAÇÕES ---
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouseX = e.clientX - rect.left;
+        mouseY = e.clientY - rect.top;
+    });
+
+    canvas.addEventListener('mousedown', (e) => { if(e.button === 0 && gameRunning) isCutting = true; });
+    window.addEventListener('mouseup', () => { isCutting = false; });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,3266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+<title>MEDSIM EXTREME</title>
+
+<style>
+
+body{
+margin:0;
+background:#020617;
+color:white;
+font-family:Arial;
+}
+
+header{
+background:#111827;
+padding:20px;
+font-size:32px;
+text-align:center;
+font-weight:bold;
+}
+
+.container{
+max-width:1200px;
+margin:auto;
+padding:20px;
+}
+
+.grid{
+
+display:grid;
+
+grid-template-columns:1fr 1fr;
+
+gap:20px;
+
+}
+
+.card{
+
+background:#111827;
+
+padding:20px;
+
+border-radius:10px;
+
+box-shadow:0 0 20px rgba(0,0,0,0.5);
+
+}
+
+.monitor{
+
+background:black;
+
+height:220px;
+
+border-radius:8px;
+
+position:relative;
+
+}
+
+button{
+
+padding:12px 20px;
+
+border:none;
+
+border-radius:6px;
+
+cursor:pointer;
+
+margin:5px;
+
+font-weight:bold;
+
+}
+
+.start{
+
+background:#22c55e;
+
+color:white;
+
+font-size:22px;
+
+}
+
+.btn{
+
+background:#ef4444;
+
+color:white;
+
+}
+
+.btn2{
+
+background:#3b82f6;
+
+color:white;
+
+}
+
+.score{
+
+font-size:22px;
+
+margin-top:10px;
+
+}
+
+#paciente{
+
+font-size:18px;
+
+line-height:1.6;
+
+}
+
+#log{
+
+height:160px;
+
+overflow:auto;
+
+background:black;
+
+padding:10px;
+
+font-size:14px;
+
+}
+
+.ranking{
+
+background:#0f172a;
+
+padding:10px;
+
+border-radius:6px;
+
+}
+
+</style>
+<link rel="icon" href="/imagens/logot6.png.png" type="image/png">
+</head>
+
+<body>
+
+<header>
+
+🩺 MEDSIM EXTREME – Plantão Médico
+
+</header>
+
+<div class="container">
+
+<div id="menu">
+
+<h2>Simulador Médico Avançado</h2>
+
+<p>
+
+Diagnostique pacientes, trate emergências e sobreviva ao plantão.
+
+</p>
+
+<button class="start" onclick="startGame()">Iniciar Plantão</button>
+
+</div>
+
+<div id="game" style="display:none">
+
+<div class="grid">
+
+<div class="card">
+
+<h2>Paciente</h2>
+
+<div id="paciente"></div>
+
+</div>
+
+<div class="card">
+
+<h2>Monitor Cardíaco</h2>
+
+<canvas id="ecg" width="500" height="200"></canvas>
+
+</div>
+
+<div class="card">
+
+<h2>Ações</h2>
+
+<button class="btn" onclick="diagnosticar('infarto')">Infarto</button>
+
+<button class="btn" onclick="diagnosticar('sepse')">Sepse</button>
+
+<button class="btn" onclick="diagnosticar('pneumonia')">Pneumonia</button>
+
+<button class="btn" onclick="diagnosticar('parasito')">Parasito</button>
+
+<button class="btn" onclick="diagnosticar('ansiedade')">Ansiedade</button>
+
+</div>
+
+<div class="card">
+
+<h2>Emergência</h2>
+
+<button class="btn2" onclick="rcp()">RCP</button>
+
+<button class="btn2" onclick="choque()">Desfibrilar</button>
+
+<button class="btn2" onclick="medicar()">Medicar</button>
+
+</div>
+
+<div class="card">
+
+<h2>Log Médico</h2>
+
+<div id="log"></div>
+
+</div>
+
+<div class="card">
+
+<h2>Pontuação</h2>
+
+<div class="score">
+
+Score: <span id="score">0</span>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+let pacienteAtual
+
+let score=0
+
+let tempo=0
+
+let ritmo="sinusal"
+
+const doencas=[
+
+{
+
+nome:"infarto",
+
+sintomas:["dor no peito","sudorese","náusea"],
+
+fc:[100,140],
+
+temp:[36,37],
+
+sat:[85,94],
+
+ritmo:"taquicardia"
+
+},
+
+{
+
+nome:"sepse",
+
+sintomas:["febre","confusão","calafrios"],
+
+fc:[120,150],
+
+temp:[38,40],
+
+sat:[85,92],
+
+ritmo:"taquicardia"
+
+},
+
+{
+
+nome:"pneumonia",
+
+sintomas:["tosse","febre","dispneia"],
+
+fc:[100,120],
+
+temp:[38,39],
+
+sat:[88,94],
+
+ritmo:"sinusal"
+
+},
+
+{
+
+nome:"parasito",
+
+sintomas:["diarreia","anemia","dor abdominal"],
+
+fc:[80,100],
+
+temp:[37,38],
+
+sat:[95,99],
+
+ritmo:"sinusal"
+
+},
+
+{
+
+nome:"ansiedade",
+
+sintomas:["palpitação","tremor","medo"],
+
+fc:[110,130],
+
+temp:[36,37],
+
+sat:[97,100],
+
+ritmo:"taquicardia"
+
+}
+
+]
+
+function startGame(){
+
+document.getElementById("menu").style.display="none"
+
+document.getElementById("game").style.display="block"
+
+novoPaciente()
+
+loopECG()
+
+}
+
+function novoPaciente(){
+
+pacienteAtual=
+
+doencas[Math.floor(Math.random()*doencas.length)]
+
+ritmo=pacienteAtual.ritmo
+
+let fc=random(pacienteAtual.fc)
+
+let temp=random(pacienteAtual.temp)
+
+let sat=random(pacienteAtual.sat)
+
+document.getElementById("paciente").innerHTML=
+
+"Sintomas: "+pacienteAtual.sintomas.join(", ")
+
++"<br>FC "+fc
+
++" bpm"
+
++"<br>Temp "+temp
+
++"°C"
+
++"<br>Sat "+sat+"%"
+
+log("Paciente chegou")
+
+}
+
+function diagnosticar(d){
+
+if(d==pacienteAtual.nome){
+
+score+=10
+
+log("Diagnóstico correto")
+
+}else{
+
+score-=5
+
+log("Diagnóstico errado")
+
+}
+
+updateScore()
+
+setTimeout(novoPaciente,2000)
+
+}
+
+function rcp(){
+
+score+=5
+
+log("RCP realizada")
+
+updateScore()
+
+}
+
+function choque(){
+
+score+=7
+
+log("Choque aplicado")
+
+updateScore()
+
+}
+
+function medicar(){
+
+score+=3
+
+log("Medicação administrada")
+
+updateScore()
+
+}
+
+function updateScore(){
+
+document.getElementById("score").innerText=score
+
+}
+
+function log(t){
+
+let l=document.getElementById("log")
+
+l.innerHTML+=t+"<br>"
+
+l.scrollTop=l.scrollHeight
+
+}
+
+function random(arr){
+
+return Math.floor(Math.random()*(arr[1]-arr[0]))+arr[0]
+
+}
+/* =========================
+   SISTEMA DE ECG AVANÇADO
+========================= */
+
+let canvas = document.getElementById("ecg")
+let ctx = canvas.getContext("2d")
+
+let x=0
+
+function loopECG(){
+
+setInterval(()=>{
+
+desenharECG()
+
+},40)
+
+}
+
+/* =========================
+   DESENHAR ECG
+========================= */
+
+function desenharECG(){
+
+ctx.fillStyle="black"
+
+ctx.fillRect(0,0,500,200)
+
+ctx.strokeStyle="#00ff00"
+
+ctx.lineWidth=2
+
+ctx.beginPath()
+
+let yBase=100
+
+ctx.moveTo(0,yBase)
+
+for(let i=0;i<500;i+=8){
+
+let y=yBase
+
+if(ritmo=="sinusal"){
+
+y=yBase+ondaSinusal(i)
+
+}
+
+if(ritmo=="taquicardia"){
+
+y=yBase+ondaTaquicardia(i)
+
+}
+
+if(ritmo=="bradicardia"){
+
+y=yBase+ondaBradicardia(i)
+
+}
+
+if(ritmo=="fibrilacao"){
+
+y=yBase+ondaFibrilacao(i)
+
+}
+
+if(ritmo=="assistolia"){
+
+y=yBase
+
+}
+
+ctx.lineTo(i,y)
+
+}
+
+ctx.stroke()
+
+}
+
+/* =========================
+   ONDAS ECG
+========================= */
+
+function ondaSinusal(i){
+
+return Math.sin((x+i)/15)*10
+
+}
+
+function ondaTaquicardia(i){
+
+return Math.sin((x+i)/7)*18
+
+}
+
+function ondaBradicardia(i){
+
+return Math.sin((x+i)/30)*10
+
+}
+
+function ondaFibrilacao(i){
+
+return (Math.random()*40)-20
+
+}
+
+x+=4
+
+/* =========================
+   DETERIORAÇÃO DO PACIENTE
+========================= */
+
+setInterval(()=>{
+
+tempo++
+
+if(tempo>20){
+
+if(Math.random()<0.25){
+
+ritmo="fibrilacao"
+
+log("⚠ Paciente entrou em fibrilação ventricular!")
+
+}
+
+}
+
+if(tempo>40){
+
+if(Math.random()<0.30){
+
+ritmo="assistolia"
+
+log("💀 Assistolia detectada!")
+
+}
+
+}
+
+},3000)
+
+/* =========================
+   TRATAMENTO DE RITMOS
+========================= */
+
+function choque(){
+
+if(ritmo=="fibrilacao"){
+
+ritmo="sinusal"
+
+score+=20
+
+log("⚡ Desfibrilação bem sucedida!")
+
+}else{
+
+score-=3
+
+log("Choque desnecessário")
+
+}
+
+updateScore()
+
+}
+
+function rcp(){
+
+if(ritmo=="assistolia"){
+
+ritmo="sinusal"
+
+score+=25
+
+log("🫀 RCP bem sucedida!")
+
+}else{
+
+score+=2
+
+log("Compressões realizadas")
+
+}
+
+updateScore()
+
+}
+
+/* =========================
+   IA DE GERAÇÃO DE PACIENTES
+========================= */
+
+const nomes = [
+"João","Maria","Carlos","Ana","Felipe","Lucas","Juliana","Ricardo","Camila","Pedro"
+]
+
+const comorbidades = [
+"hipertensão",
+"diabetes",
+"DPOC",
+"obesidade",
+"tabagismo",
+"insuficiência cardíaca",
+"doença renal",
+"nenhuma"
+]
+
+const sintomasExtras = [
+"cefaleia",
+"fadiga",
+"palidez",
+"tontura",
+"náusea",
+"vômito",
+"calafrios",
+"perda de apetite"
+]
+
+const exames = [
+"hemograma",
+"PCR",
+"gasometria",
+"lactato",
+"creatinina",
+"leucócitos"
+]
+
+let pacienteIA = {}
+
+/* =========================
+   GERAR PACIENTE COMPLETO
+========================= */
+
+function gerarPacienteIA(){
+
+let nome = nomes[Math.floor(Math.random()*nomes.length)]
+
+let idade = Math.floor(Math.random()*80)+18
+
+let comorb = comorbidades[Math.floor(Math.random()*comorbidades.length)]
+
+let sintExtra = sintomasExtras[Math.floor(Math.random()*sintomasExtras.length)]
+
+let base = doencas[Math.floor(Math.random()*doencas.length)]
+
+pacienteIA = {
+
+nome:nome,
+
+idade:idade,
+
+doenca:base.nome,
+
+sintomas:[...base.sintomas,sintExtra],
+
+comorbidade:comorb,
+
+fc:random(base.fc),
+
+temp:random(base.temp),
+
+sat:random(base.sat)
+
+}
+
+mostrarPacienteIA()
+
+}
+
+/* =========================
+   MOSTRAR PACIENTE
+========================= */
+
+function mostrarPacienteIA(){
+
+let texto = ""
+
+texto += "Nome: "+pacienteIA.nome+"<br>"
+
+texto += "Idade: "+pacienteIA.idade+" anos<br>"
+
+texto += "Comorbidade: "+pacienteIA.comorbidade+"<br><br>"
+
+texto += "Sintomas: "+pacienteIA.sintomas.join(", ")+"<br><br>"
+
+texto += "FC: "+pacienteIA.fc+" bpm<br>"
+
+texto += "Temp: "+pacienteIA.temp+" °C<br>"
+
+texto += "Sat: "+pacienteIA.sat+" %<br>"
+
+document.getElementById("paciente").innerHTML = texto
+
+}
+
+/* =========================
+   SUBSTITUIR SISTEMA ANTIGO
+========================= */
+
+function novoPaciente(){
+
+gerarPacienteIA()
+
+tempo=0
+
+ritmo="sinusal"
+
+log("Novo paciente gerado pela IA")
+
+}
+
+/* =========================
+   EXAMES LABORATORIAIS
+========================= */
+
+function pedirExame(){
+
+let exame = exames[Math.floor(Math.random()*exames.length)]
+
+let resultado = ""
+
+if(exame=="hemograma"){
+
+resultado="Leucócitos: "+(Math.floor(Math.random()*8000)+4000)
+
+}
+
+if(exame=="PCR"){
+
+resultado="PCR: "+(Math.random()*20).toFixed(1)
+
+}
+
+if(exame=="gasometria"){
+
+resultado="pH: "+(7.1+Math.random()*0.4).toFixed(2)
+
+}
+
+if(exame=="lactato"){
+
+resultado="Lactato: "+(Math.random()*5).toFixed(2)
+
+}
+
+if(exame=="creatinina"){
+
+resultado="Creatinina: "+(0.7+Math.random()*2).toFixed(2)
+
+}
+
+if(exame=="leucócitos"){
+
+resultado="Leucócitos: "+(Math.floor(Math.random()*12000)+3000)
+
+}
+
+log("🧪 Exame solicitado: "+exame)
+
+log("Resultado: "+resultado)
+
+}
+
+/* =========================
+   BOTÃO DE EXAMES
+========================= */
+
+let acoes = document.querySelector(".card:nth-child(3)")
+
+let botaoExame = document.createElement("button")
+
+botaoExame.innerText="Pedir Exame"
+
+botaoExame.className="btn2"
+
+botaoExame.onclick=pedirExame
+
+acoes.appendChild(botaoExame)
+
+/* =========================
+   RISCO CLÍNICO
+========================= */
+
+setInterval(()=>{
+
+if(!pacienteIA.nome) return
+
+if(pacienteIA.comorbidade!="nenhuma"){
+
+if(Math.random()<0.20){
+
+ritmo="taquicardia"
+
+log("⚠ paciente piorando por comorbidade")
+
+}
+
+}
+
+},6000)
+
+/* =========================
+   BANCO DE MICROORGANISMOS
+========================= */
+
+const bacterias = [
+{
+nome:"Staphylococcus aureus",
+tratamento:"oxacilina",
+descricao:"cocos gram positivos em cachos"
+},
+
+{
+nome:"Escherichia coli",
+tratamento:"ceftriaxona",
+descricao:"bacilos gram negativos"
+},
+
+{
+nome:"Streptococcus pneumoniae",
+tratamento:"penicilina",
+descricao:"diplococos gram positivos"
+},
+
+{
+nome:"Pseudomonas aeruginosa",
+tratamento:"piperacilina",
+descricao:"bacilo gram negativo oxidase positivo"
+}
+]
+
+const parasitas = [
+
+{
+nome:"Plasmodium",
+tratamento:"artemisinina",
+descricao:"parasita intracelular em hemácias"
+},
+
+{
+nome:"Giardia lamblia",
+tratamento:"metronidazol",
+descricao:"protozoário flagelado intestinal"
+},
+
+{
+nome:"Entamoeba histolytica",
+tratamento:"metronidazol",
+descricao:"ameba invasiva intestinal"
+},
+
+{
+nome:"Ascaris lumbricoides",
+tratamento:"albendazol",
+descricao:"helminto intestinal"
+}
+
+]
+
+let infeccaoAtual=null
+
+/* =========================
+   GERAR INFECÇÃO
+========================= */
+
+function gerarInfeccao(){
+
+if(Math.random()<0.5){
+
+infeccaoAtual = bacterias[Math.floor(Math.random()*bacterias.length)]
+
+log("🦠 Suspeita de infecção bacteriana")
+
+}else{
+
+infeccaoAtual = parasitas[Math.floor(Math.random()*parasitas.length)]
+
+log("🪱 Suspeita de infecção parasitária")
+
+}
+
+}
+
+/* =========================
+   CULTURA MICROBIOLÓGICA
+========================= */
+
+function pedirCultura(){
+
+if(!infeccaoAtual){
+
+log("Nenhuma infecção detectada")
+
+return
+
+}
+
+log("🧫 Cultura em andamento...")
+
+setTimeout(()=>{
+
+log("Resultado da cultura:")
+
+log(infeccaoAtual.descricao)
+
+},2000)
+
+}
+
+/* =========================
+   TRATAMENTO
+========================= */
+
+function tratarInfeccao(){
+
+if(!infeccaoAtual){
+
+log("Nenhuma infecção para tratar")
+
+return
+
+}
+
+let tratamentoEscolhido = prompt("Digite o antibiótico ou antiparasitário:")
+
+if(tratamentoEscolhido==infeccaoAtual.tratamento){
+
+score+=15
+
+log("💊 Tratamento correto!")
+
+infeccaoAtual=null
+
+}else{
+
+score-=5
+
+log("Tratamento incorreto!")
+
+}
+
+updateScore()
+
+}
+
+/* =========================
+   BOTÕES DE MICROBIOLOGIA
+========================= */
+
+let botaoCultura = document.createElement("button")
+
+botaoCultura.innerText="Cultura"
+
+botaoCultura.className="btn2"
+
+botaoCultura.onclick=pedirCultura
+
+acoes.appendChild(botaoCultura)
+
+let botaoTratamento = document.createElement("button")
+
+botaoTratamento.innerText="Tratar Infecção"
+
+botaoTratamento.className="btn2"
+
+botaoTratamento.onclick=tratarInfeccao
+
+acoes.appendChild(botaoTratamento)
+
+/* =========================
+   INFECÇÃO PODE SURGIR
+========================= */
+
+setInterval(()=>{
+
+if(Math.random()<0.25){
+
+gerarInfeccao()
+
+}
+
+},15000)
+
+/* =========================
+   INFECÇÃO PIORA PACIENTE
+========================= */
+
+setInterval(()=>{
+
+if(infeccaoAtual){
+
+if(Math.random()<0.30){
+
+ritmo="taquicardia"
+
+log("⚠ infecção piorando paciente")
+
+}
+
+}
+
+},8000)
+
+/* =========================
+   ECG COM ONDA P-QRS-T
+========================= */
+
+function ondaECGReal(i){
+
+let ciclo = (x+i)%120
+
+if(ciclo<10) return -5
+
+if(ciclo<20) return -15
+
+if(ciclo<25) return 40   // QRS
+
+if(ciclo<35) return -10
+
+if(ciclo<50) return 10   // T
+
+return 0
+
+}
+
+/* substituir ritmo sinusal pelo real */
+
+function ondaSinusal(i){
+
+return ondaECGReal(i)
+
+}
+
+/* =========================
+   PRESSÃO ARTERIAL
+========================= */
+
+let pressaoSistolica = 120
+let pressaoDiastolica = 80
+
+function atualizarPressao(){
+
+if(ritmo=="taquicardia"){
+
+pressaoSistolica+=2
+
+}
+
+if(ritmo=="bradicardia"){
+
+pressaoSistolica-=2
+
+}
+
+if(ritmo=="assistolia"){
+
+pressaoSistolica=0
+pressaoDiastolica=0
+
+}
+
+}
+
+setInterval(atualizarPressao,2000)
+
+/* =========================
+   MOSTRAR PRESSÃO
+========================= */
+
+let painel = document.createElement("div")
+
+painel.style.marginTop="10px"
+painel.style.color="#0f0"
+painel.style.fontSize="14px"
+
+document.querySelector(".monitor").appendChild(painel)
+
+setInterval(()=>{
+
+painel.innerHTML =
+"PA: "+pressaoSistolica+"/"+pressaoDiastolica+" mmHg"
+
+},1000)
+
+/* =========================
+   DESFIBRILADOR
+========================= */
+
+let carga = 0
+
+function carregarChoque(){
+
+carga+=50
+
+if(carga>200) carga=200
+
+log("⚡ Desfibrilador carregado: "+carga+"J")
+
+}
+
+function aplicarChoque(){
+
+if(carga<100){
+
+log("Carga insuficiente")
+
+return
+
+}
+
+if(ritmo=="fibrilacao"){
+
+ritmo="sinusal"
+
+score+=30
+
+log("⚡ Ritmo restaurado!")
+
+}else{
+
+log("Choque sem efeito")
+
+}
+
+carga=0
+
+updateScore()
+
+}
+
+/* BOTÕES */
+
+let btnCarga = document.createElement("button")
+btnCarga.innerText="Carregar Choque"
+btnCarga.className="btn2"
+btnCarga.onclick=carregarChoque
+acoes.appendChild(btnCarga)
+
+let btnChoque = document.createElement("button")
+btnChoque.innerText="Aplicar Choque"
+btnChoque.className="btn2"
+btnChoque.onclick=aplicarChoque
+acoes.appendChild(btnChoque)
+
+/* =========================
+   MEDICAÇÕES
+========================= */
+
+const medicamentos = [
+
+{
+nome:"adrenalina",
+efeito:()=>{
+
+if(ritmo=="assistolia"){
+
+ritmo="sinusal"
+score+=15
+log("💉 adrenalina reverteu assistolia")
+
+}
+
+}
+},
+
+{
+nome:"amiodarona",
+efeito:()=>{
+
+if(ritmo=="fibrilacao"){
+
+ritmo="sinusal"
+score+=15
+log("💉 amiodarona estabilizou ritmo")
+
+}
+
+}
+},
+
+{
+nome:"atropina",
+efeito:()=>{
+
+if(ritmo=="bradicardia"){
+
+ritmo="sinusal"
+score+=10
+log("💉 atropina aumentou FC")
+
+}
+
+}
+}
+
+]
+
+function darMedicacao(){
+
+let nome = prompt("Digite medicamento:")
+
+let med = medicamentos.find(m=>m.nome==nome)
+
+if(!med){
+
+log("medicação desconhecida")
+
+return
+
+}
+
+med.efeito()
+
+updateScore()
+
+}
+
+let btnMed = document.createElement("button")
+
+btnMed.innerText="Dar Medicação"
+
+btnMed.className="btn2"
+
+btnMed.onclick=darMedicacao
+
+acoes.appendChild(btnMed)
+
+/* =========================
+   VENTILAÇÃO MECÂNICA
+========================= */
+
+let ventilando=false
+
+function ventilacao(){
+
+ventilando=!ventilando
+
+if(ventilando){
+
+log("🫁 ventilação mecânica ativada")
+
+pacienteIA.sat+=5
+
+}else{
+
+log("ventilação desligada")
+
+}
+
+}
+
+let btnVent = document.createElement("button")
+
+btnVent.innerText="Ventilar"
+
+btnVent.className="btn2"
+
+btnVent.onclick=ventilacao
+
+acoes.appendChild(btnVent)
+
+/* =========================
+   ALERTAS DO MONITOR
+========================= */
+
+setInterval(()=>{
+
+if(pacienteIA.sat<85){
+
+log("🚨 dessaturação crítica")
+
+}
+
+if(pressaoSistolica<80){
+
+log("🚨 hipotensão")
+
+}
+
+},4000)
+
+/* =========================================
+   PARTE 6 — RANKING DA TURMA
+========================================= */
+
+let playerName = "";
+let savedPatients = 0;
+let lostPatients = 0;
+
+function askPlayerName(){
+
+    playerName = prompt("Digite seu nome para o ranking da turma:");
+
+    if(playerName === null || playerName.trim() === ""){
+        playerName = "Interno_" + Math.floor(Math.random()*1000);
+    }
+
+}
+
+askPlayerName();
+
+function updateScore(points){
+
+    score += points;
+
+    if(score < 0){
+        score = 0;
+    }
+
+    document.getElementById("score").innerText = score;
+
+}
+
+function patientSaved(){
+
+    savedPatients++;
+
+    updateScore(100);
+
+    saveRanking();
+
+}
+
+function patientLost(){
+
+    lostPatients++;
+
+    updateScore(-50);
+
+    saveRanking();
+
+}
+
+function saveRanking(){
+
+    let ranking = JSON.parse(localStorage.getItem("medRanking")) || [];
+
+    let existing = ranking.find(p => p.name === playerName);
+
+    if(existing){
+
+        existing.score = score;
+        existing.saved = savedPatients;
+        existing.lost = lostPatients;
+
+    } else {
+
+        ranking.push({
+            name: playerName,
+            score: score,
+            saved: savedPatients,
+            lost: lostPatients
+        });
+
+    }
+
+    ranking.sort((a,b)=> b.score - a.score);
+
+    localStorage.setItem("medRanking", JSON.stringify(ranking));
+
+    renderRanking();
+
+}
+
+function renderRanking(){
+
+    let ranking = JSON.parse(localStorage.getItem("medRanking")) || [];
+
+    let board = document.getElementById("rankingBoard");
+
+    if(!board) return;
+
+    board.innerHTML = "";
+
+    ranking.slice(0,10).forEach((p,i)=>{
+
+        let row = document.createElement("div");
+
+        row.className = "rankRow";
+
+        row.innerHTML = `
+            <span>#${i+1}</span>
+            <span>${p.name}</span>
+            <span>${p.score} pts</span>
+            <span>🩺 ${p.saved}</span>
+            <span>💀 ${p.lost}</span>
+        `;
+
+        board.appendChild(row);
+
+    });
+
+}
+
+renderRanking();
+
+/* =========================================
+   ELEMENTOS VISUAIS DO RANKING
+========================================= */
+
+function createRankingUI(){
+
+    const panel = document.createElement("div");
+
+    panel.id = "rankingPanel";
+
+    panel.innerHTML = `
+
+        <h2>🏆 Ranking da Turma</h2>
+
+        <div id="rankingBoard"></div>
+
+    `;
+
+    document.body.appendChild(panel);
+
+}
+
+createRankingUI();
+
+/* =========================================
+   ESTILO VISUAL DO RANKING
+========================================= */
+
+const style = document.createElement("style");
+
+style.innerHTML = `
+
+#rankingPanel{
+
+position:fixed;
+right:20px;
+top:120px;
+width:260px;
+
+background:#111;
+border:2px solid #00ff9c;
+
+border-radius:10px;
+
+padding:15px;
+
+color:white;
+
+font-family:monospace;
+
+box-shadow:0 0 20px #00ff9c;
+
+}
+
+#rankingPanel h2{
+
+text-align:center;
+margin-bottom:10px;
+
+}
+
+.rankRow{
+
+display:flex;
+justify-content:space-between;
+
+padding:4px 0;
+
+border-bottom:1px solid #333;
+
+font-size:13px;
+
+}
+
+`;
+
+document.head.appendChild(style);
+
+/* =========================================
+   PARTE 7 — SISTEMA DE SONS MÉDICOS
+========================================= */
+
+const sounds = {
+
+monitor: new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg"),
+
+alarm: new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"),
+
+shock: new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg"),
+
+flatline: new Audio("https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg")
+
+};
+
+sounds.monitor.volume = 0.2;
+sounds.alarm.volume = 0.4;
+sounds.shock.volume = 0.7;
+sounds.flatline.volume = 0.5;
+
+/* =========================================
+   RITMOS CARDÍACOS
+========================================= */
+
+let heartRhythms = {
+
+normal:{
+bpm:75,
+survivalChance:0.9
+},
+
+tachycardia:{
+bpm:140,
+survivalChance:0.7
+},
+
+bradycardia:{
+bpm:40,
+survivalChance:0.6
+},
+
+vfib:{
+bpm:0,
+survivalChance:0.3
+},
+
+asystole:{
+bpm:0,
+survivalChance:0.1
+}
+
+};
+
+let currentRhythm = "normal";
+
+/* =========================================
+   SISTEMA DE BATIMENTO
+========================================= */
+
+let heartInterval = null;
+
+function startHeartMonitor(){
+
+if(heartInterval) clearInterval(heartInterval);
+
+let bpm = heartRhythms[currentRhythm].bpm;
+
+if(bpm === 0){
+
+sounds.flatline.play();
+
+return;
+
+}
+
+let interval = 60000 / bpm;
+
+heartInterval = setInterval(()=>{
+
+sounds.monitor.currentTime = 0;
+
+sounds.monitor.play();
+
+pulseAnimation();
+
+}, interval);
+
+}
+
+/* =========================================
+   ANIMAÇÃO DO PULSO
+========================================= */
+
+function pulseAnimation(){
+
+const monitor = document.getElementById("ecgLine");
+
+if(!monitor) return;
+
+monitor.classList.remove("pulse");
+
+void monitor.offsetWidth;
+
+monitor.classList.add("pulse");
+
+}
+
+/* =========================================
+   TROCAR RITMO CARDÍACO
+========================================= */
+
+function changeRhythm(){
+
+const rhythms = Object.keys(heartRhythms);
+
+currentRhythm = rhythms[Math.floor(Math.random()*rhythms.length)];
+
+updateRhythmDisplay();
+
+startHeartMonitor();
+
+}
+
+/* =========================================
+   DISPLAY DO RITMO
+========================================= */
+
+function updateRhythmDisplay(){
+
+let display = document.getElementById("rhythmDisplay");
+
+if(!display){
+
+display = document.createElement("div");
+
+display.id = "rhythmDisplay";
+
+display.style.position = "fixed";
+display.style.left = "20px";
+display.style.bottom = "20px";
+display.style.background = "#111";
+display.style.color = "#00ff9c";
+display.style.padding = "10px";
+display.style.border = "2px solid #00ff9c";
+display.style.borderRadius = "8px";
+display.style.fontFamily = "monospace";
+
+document.body.appendChild(display);
+
+}
+
+display.innerHTML = `
+
+Ritmo cardíaco: <b>${currentRhythm.toUpperCase()}</b><br>
+BPM: ${heartRhythms[currentRhythm].bpm}
+
+`;
+
+}
+
+/* =========================================
+   DESFIBRILADOR
+========================================= */
+
+function defibrillate(){
+
+if(currentRhythm === "vfib"){
+
+sounds.shock.play();
+
+currentRhythm = "normal";
+
+updateScore(200);
+
+patientSaved();
+
+showMessage("⚡ Desfibrilação bem sucedida!");
+
+startHeartMonitor();
+
+}else{
+
+sounds.alarm.play();
+
+showMessage("⚠ Desfibrilação desnecessária!");
+
+updateScore(-30);
+
+}
+
+updateRhythmDisplay();
+
+}
+
+/* =========================================
+   BOTÃO DE DESFIBRILADOR
+========================================= */
+
+function createDefibButton(){
+
+const btn = document.createElement("button");
+
+btn.innerText = "⚡ DESFIBRILAR";
+
+btn.style.position = "fixed";
+btn.style.bottom = "100px";
+btn.style.right = "20px";
+
+btn.style.background = "#ff0033";
+btn.style.color = "white";
+
+btn.style.border = "none";
+btn.style.padding = "15px";
+
+btn.style.fontSize = "16px";
+btn.style.borderRadius = "8px";
+
+btn.style.cursor = "pointer";
+
+btn.onclick = defibrillate;
+
+document.body.appendChild(btn);
+
+}
+
+createDefibButton();
+
+/* =========================================
+   MENSAGENS NA TELA
+========================================= */
+
+function showMessage(text){
+
+let msg = document.getElementById("gameMessage");
+
+if(!msg){
+
+msg = document.createElement("div");
+
+msg.id = "gameMessage";
+
+msg.style.position = "fixed";
+msg.style.top = "30px";
+msg.style.left = "50%";
+msg.style.transform = "translateX(-50%)";
+
+msg.style.background = "#000";
+msg.style.color = "#00ff9c";
+
+msg.style.padding = "15px";
+
+msg.style.border = "2px solid #00ff9c";
+msg.style.borderRadius = "8px";
+
+msg.style.fontFamily = "monospace";
+
+document.body.appendChild(msg);
+
+}
+
+msg.innerText = text;
+
+setTimeout(()=>{
+
+msg.innerText = "";
+
+},3000);
+
+}
+
+/* =========================================
+   EVENTOS AUTOMÁTICOS
+========================================= */
+
+setInterval(()=>{
+
+changeRhythm();
+
+},15000);
+
+/* =========================================
+   INICIAR MONITOR
+========================================= */
+
+updateRhythmDisplay();
+
+startHeartMonitor();
+
+/* =========================================
+   PARTE 8 — SISTEMA DE PARADA CARDÍACA
+========================================= */
+
+let patientAlive = true;
+let cardiacArrest = false;
+
+let cprQuality = 0;
+let ventilationQuality = 0;
+
+let arrestTimer = 0;
+
+/* =========================================
+   DISPARAR PARADA CARDÍACA
+========================================= */
+
+function triggerCardiacArrest(){
+
+if(cardiacArrest) return;
+
+cardiacArrest = true;
+
+currentRhythm = "asystole";
+
+updateRhythmDisplay();
+
+startHeartMonitor();
+
+showMessage("💀 PARADA CARDÍACA! INICIAR RCP!");
+
+sounds.alarm.play();
+
+startArrestTimer();
+
+}
+
+/* =========================================
+   TIMER DE PARADA
+========================================= */
+
+function startArrestTimer(){
+
+arrestTimer = 0;
+
+const timerBox = document.createElement("div");
+
+timerBox.id = "arrestTimer";
+
+timerBox.style.position = "fixed";
+timerBox.style.top = "100px";
+timerBox.style.right = "20px";
+
+timerBox.style.background = "#111";
+timerBox.style.color = "#ff3b3b";
+
+timerBox.style.padding = "12px";
+
+timerBox.style.border = "2px solid #ff3b3b";
+timerBox.style.borderRadius = "8px";
+
+timerBox.style.fontFamily = "monospace";
+
+document.body.appendChild(timerBox);
+
+const interval = setInterval(()=>{
+
+if(!cardiacArrest){
+
+clearInterval(interval);
+
+timerBox.remove();
+
+return;
+
+}
+
+arrestTimer++;
+
+timerBox.innerText = `Tempo de parada: ${arrestTimer}s`;
+
+if(arrestTimer >= 40){
+
+patientDeath();
+
+clearInterval(interval);
+
+}
+
+},1000);
+
+}
+
+/* =========================================
+   COMPRESSÕES TORÁCICAS
+========================================= */
+
+function performCPR(){
+
+if(!cardiacArrest) return;
+
+cprQuality += Math.random()*10;
+
+updateScore(5);
+
+showMessage("💪 Compressões torácicas");
+
+}
+
+/* =========================================
+   VENTILAÇÃO
+========================================= */
+
+function ventilatePatient(){
+
+if(!cardiacArrest) return;
+
+ventilationQuality += Math.random()*10;
+
+updateScore(5);
+
+showMessage("🫁 Ventilação realizada");
+
+}
+
+/* =========================================
+   CHECAR RETORNO DA CIRCULAÇÃO
+========================================= */
+
+function checkROSC(){
+
+let survivalChance = (cprQuality + ventilationQuality)/200;
+
+if(Math.random() < survivalChance){
+
+returnOfCirculation();
+
+}else{
+
+showMessage("⚠ Continue RCP!");
+
+}
+
+}
+
+/* =========================================
+   RETORNO DA CIRCULAÇÃO
+========================================= */
+
+function returnOfCirculation(){
+
+cardiacArrest = false;
+
+currentRhythm = "normal";
+
+updateRhythmDisplay();
+
+startHeartMonitor();
+
+updateScore(500);
+
+patientSaved();
+
+showMessage("🫀 RETORNO DA CIRCULAÇÃO!");
+
+}
+
+/* =========================================
+   MORTE DO PACIENTE
+========================================= */
+
+function patientDeath(){
+
+patientAlive = false;
+
+sounds.flatline.play();
+
+showMessage("☠ Paciente morreu");
+
+updateScore(-500);
+
+}
+
+/* =========================================
+   BOTÕES MÉDICOS
+========================================= */
+
+function createCPRButtons(){
+
+const cprBtn = document.createElement("button");
+
+cprBtn.innerText = "💪 Compressão";
+
+cprBtn.style.position = "fixed";
+cprBtn.style.bottom = "160px";
+cprBtn.style.right = "20px";
+
+cprBtn.style.padding = "12px";
+cprBtn.style.background = "#0066ff";
+cprBtn.style.color = "white";
+
+cprBtn.style.border = "none";
+cprBtn.style.borderRadius = "8px";
+
+cprBtn.onclick = performCPR;
+
+document.body.appendChild(cprBtn);
+
+
+
+const ventBtn = document.createElement("button");
+
+ventBtn.innerText = "🫁 Ventilar";
+
+ventBtn.style.position = "fixed";
+ventBtn.style.bottom = "210px";
+ventBtn.style.right = "20px";
+
+ventBtn.style.padding = "12px";
+ventBtn.style.background = "#00aa88";
+ventBtn.style.color = "white";
+
+ventBtn.style.border = "none";
+ventBtn.style.borderRadius = "8px";
+
+ventBtn.onclick = ventilatePatient;
+
+document.body.appendChild(ventBtn);
+
+
+
+const checkBtn = document.createElement("button");
+
+checkBtn.innerText = "🩺 Checar Pulso";
+
+checkBtn.style.position = "fixed";
+checkBtn.style.bottom = "260px";
+checkBtn.style.right = "20px";
+
+checkBtn.style.padding = "12px";
+checkBtn.style.background = "#ffaa00";
+checkBtn.style.color = "white";
+
+checkBtn.style.border = "none";
+checkBtn.style.borderRadius = "8px";
+
+checkBtn.onclick = checkROSC;
+
+document.body.appendChild(checkBtn);
+
+}
+
+createCPRButtons();
+
+/* =========================================
+   EVENTO ALEATÓRIO DE PARADA
+========================================= */
+
+setInterval(()=>{
+
+if(Math.random() < 0.08){
+
+triggerCardiacArrest();
+
+}
+
+},20000);
+
+
+/* =========================================
+   PARTE 9 — IA GERADORA DE PACIENTES
+========================================= */
+
+let currentPatient = null;
+
+/* =========================================
+   BANCO DE DOENÇAS
+========================================= */
+
+const diseaseDatabase = [
+
+{
+nome:"Endocardite Infecciosa",
+area:"cardiologia",
+microbio:"Staphylococcus aureus",
+sintomas:[
+"febre",
+"sopro cardíaco",
+"fadiga",
+"petéquias"
+],
+tratamento:"antibiótico IV"
+},
+
+{
+nome:"Choque Séptico",
+area:"emergência",
+microbio:"Escherichia coli",
+sintomas:[
+"hipotensão",
+"febre alta",
+"confusão mental",
+"taquicardia"
+],
+tratamento:"antibiótico + vasopressor"
+},
+
+{
+nome:"Malária",
+area:"parasitologia",
+microbio:"Plasmodium falciparum",
+sintomas:[
+"febre intermitente",
+"calafrios",
+"sudorese",
+"anemia"
+],
+tratamento:"antimalárico"
+},
+
+{
+nome:"Leishmaniose",
+area:"parasitologia",
+microbio:"Leishmania",
+sintomas:[
+"febre prolongada",
+"aumento do baço",
+"perda de peso"
+],
+tratamento:"anfotericina B"
+},
+
+{
+nome:"Tuberculose",
+area:"microbiologia",
+microbio:"Mycobacterium tuberculosis",
+sintomas:[
+"tosse crônica",
+"hemoptise",
+"febre baixa",
+"perda de peso"
+],
+tratamento:"rifampicina + isoniazida"
+},
+
+{
+nome:"Infarto Agudo do Miocárdio",
+area:"cardiologia",
+microbio:"não infeccioso",
+sintomas:[
+"dor torácica",
+"sudorese",
+"náusea",
+"irradiação para braço esquerdo"
+],
+tratamento:"cateterismo"
+}
+
+];
+
+/* =========================================
+   GERADOR DE PACIENTE
+========================================= */
+
+function generatePatient(){
+
+let disease = diseaseDatabase[Math.floor(Math.random()*diseaseDatabase.length)];
+
+currentPatient = {
+
+idade: Math.floor(Math.random()*80)+10,
+
+doenca:disease.nome,
+
+area:disease.area,
+
+microbio:disease.microbio,
+
+sintomas:disease.sintomas,
+
+tratamento:disease.tratamento
+
+};
+
+showPatient();
+
+}
+
+/* =========================================
+   EXIBIR PACIENTE
+========================================= */
+
+function showPatient(){
+
+let panel = document.getElementById("patientPanel");
+
+if(!panel){
+
+panel = document.createElement("div");
+
+panel.id="patientPanel";
+
+panel.style.position="fixed";
+panel.style.left="20px";
+panel.style.top="120px";
+
+panel.style.background="#111";
+panel.style.color="#00ff9c";
+
+panel.style.padding="20px";
+panel.style.border="2px solid #00ff9c";
+
+panel.style.borderRadius="10px";
+
+panel.style.fontFamily="monospace";
+
+panel.style.width="300px";
+
+document.body.appendChild(panel);
+
+}
+
+panel.innerHTML = `
+
+<h3>🧍 Paciente</h3>
+
+Idade: ${currentPatient.idade}<br><br>
+
+<b>Sintomas:</b><br>
+${currentPatient.sintomas.join("<br>")}
+
+<br><br>
+
+<b>Área médica:</b> ${currentPatient.area}
+
+`;
+
+}
+
+/* =========================================
+   SISTEMA DE DIAGNÓSTICO
+========================================= */
+
+function diagnose(diagnosis){
+
+if(!currentPatient) return;
+
+if(diagnosis === currentPatient.doenca){
+
+showMessage("✅ Diagnóstico correto!");
+
+updateScore(300);
+
+}else{
+
+showMessage("❌ Diagnóstico errado!");
+
+updateScore(-100);
+
+}
+
+generatePatient();
+
+}
+
+/* =========================================
+   BOTÕES DE DIAGNÓSTICO
+========================================= */
+
+function createDiagnosisButtons(){
+
+const container = document.createElement("div");
+
+container.style.position="fixed";
+container.style.bottom="20px";
+container.style.left="20px";
+
+container.style.display="grid";
+container.style.gridTemplateColumns="1fr 1fr";
+container.style.gap="10px";
+
+diseaseDatabase.forEach(d =>{
+
+const btn = document.createElement("button");
+
+btn.innerText = d.nome;
+
+btn.style.padding="10px";
+
+btn.style.background="#222";
+btn.style.color="#00ff9c";
+
+btn.style.border="1px solid #00ff9c";
+
+btn.style.borderRadius="6px";
+
+btn.onclick = ()=>diagnose(d.nome);
+
+container.appendChild(btn);
+
+});
+
+document.body.appendChild(container);
+
+}
+
+createDiagnosisButtons();
+
+/* =========================================
+   NOVO PACIENTE AUTOMÁTICO
+========================================= */
+
+generatePatient();
+
+setInterval(()=>{
+
+generatePatient();
+
+},60000);
+
+/* =========================================
+   PARTE 10 — MODO PLANTÃO INFINITO
+========================================= */
+
+let plantaoAtivo = false;
+let pacientesAtivos = [];
+let maxPacientes = 3;
+
+/* =========================================
+   INICIAR PLANTÃO
+========================================= */
+
+function iniciarPlantao(){
+
+plantaoAtivo = true;
+
+showMessage("🏥 Plantão iniciado!");
+
+spawnPaciente();
+
+setInterval(()=>{
+
+if(plantaoAtivo){
+
+if(pacientesAtivos.length < maxPacientes){
+
+spawnPaciente();
+
+}
+
+}
+
+},15000);
+
+}
+
+/* =========================================
+   GERAR PACIENTE DO PLANTÃO
+========================================= */
+
+function spawnPaciente(){
+
+let disease = diseaseDatabase[Math.floor(Math.random()*diseaseDatabase.length)];
+
+let paciente = {
+
+id: Date.now(),
+
+doenca:disease.nome,
+
+sintomas:disease.sintomas,
+
+tempo:60,
+
+estado:"estável"
+
+};
+
+pacientesAtivos.push(paciente);
+
+renderPacientes();
+
+}
+
+/* =========================================
+   RENDER PACIENTES NA TELA
+========================================= */
+
+function renderPacientes(){
+
+let painel = document.getElementById("plantaoPanel");
+
+if(!painel){
+
+painel = document.createElement("div");
+
+painel.id="plantaoPanel";
+
+painel.style.position="fixed";
+painel.style.right="20px";
+painel.style.bottom="20px";
+
+painel.style.width="320px";
+
+painel.style.background="#111";
+
+painel.style.border="2px solid #ff3b3b";
+
+painel.style.borderRadius="10px";
+
+painel.style.padding="15px";
+
+painel.style.color="white";
+
+painel.style.fontFamily="monospace";
+
+document.body.appendChild(painel);
+
+}
+
+painel.innerHTML="<h3>🚑 Pacientes do Plantão</h3>";
+
+pacientesAtivos.forEach(p=>{
+
+let div=document.createElement("div");
+
+div.style.borderBottom="1px solid #333";
+
+div.style.padding="6px";
+
+div.innerHTML=`
+
+<b>${p.doenca}</b><br>
+Tempo: ${p.tempo}s<br>
+Sintomas: ${p.sintomas.join(", ")}
+
+`;
+
+painel.appendChild(div);
+
+});
+
+}
+
+/* =========================================
+   CONTAGEM REGRESSIVA DOS PACIENTES
+========================================= */
+
+setInterval(()=>{
+
+pacientesAtivos.forEach(p=>{
+
+p.tempo--;
+
+if(p.tempo <= 20){
+
+p.estado="grave";
+
+}
+
+if(p.tempo <= 0){
+
+showMessage("💀 Paciente morreu!");
+
+patientLost();
+
+pacientesAtivos = pacientesAtivos.filter(x=>x.id !== p.id);
+
+}
+
+});
+
+renderPacientes();
+
+},1000);
+
+/* =========================================
+   TRATAR PACIENTE
+========================================= */
+
+function tratarPaciente(){
+
+if(pacientesAtivos.length === 0){
+
+showMessage("Nenhum paciente!");
+
+return;
+
+}
+
+let paciente = pacientesAtivos[0];
+
+showMessage("🩺 Tratamento realizado!");
+
+patientSaved();
+
+pacientesAtivos.shift();
+
+renderPacientes();
+
+}
+
+/* =========================================
+   BOTÕES DO PLANTÃO
+========================================= */
+
+function createPlantaoControls(){
+
+const box=document.createElement("div");
+
+box.style.position="fixed";
+
+box.style.bottom="20px";
+
+box.style.left="50%";
+
+box.style.transform="translateX(-50%)";
+
+box.style.display="flex";
+
+box.style.gap="10px";
+
+box.innerHTML=`
+
+<button id="startPlantao">Iniciar Plantão</button>
+<button id="tratarBtn">Tratar Paciente</button>
+
+`;
+
+document.body.appendChild(box);
+
+document.getElementById("startPlantao").onclick=iniciarPlantao;
+
+document.getElementById("tratarBtn").onclick=tratarPaciente;
+
+}
+
+createPlantaoControls();
+
+/* =========================================
+   PARTE 11 — IA DIAGNÓSTICA
+========================================= */
+
+function analisarPaciente(){
+
+if(!currentPatient){
+
+showMessage("Nenhum paciente selecionado");
+
+return;
+
+}
+
+let resultados = [];
+
+diseaseDatabase.forEach(doenca=>{
+
+let score = 0;
+
+currentPatient.sintomas.forEach(s=>{
+
+if(doenca.sintomas.includes(s)){
+
+score++;
+
+}
+
+});
+
+if(score > 0){
+
+resultados.push({
+
+nome:doenca.nome,
+
+probabilidade: Math.round((score / doenca.sintomas.length) * 100)
+
+});
+
+}
+
+});
+
+resultados.sort((a,b)=>b.probabilidade-a.probabilidade);
+
+mostrarAnalise(resultados);
+
+}
+
+/* =========================================
+   MOSTRAR RESULTADO DA IA
+========================================= */
+
+function mostrarAnalise(lista){
+
+let panel = document.getElementById("aiPanel");
+
+if(!panel){
+
+panel = document.createElement("div");
+
+panel.id="aiPanel";
+
+panel.style.position="fixed";
+
+panel.style.right="20px";
+
+panel.style.top="350px";
+
+panel.style.width="280px";
+
+panel.style.background="#0f0f0f";
+
+panel.style.border="2px solid #00c3ff";
+
+panel.style.borderRadius="10px";
+
+panel.style.padding="15px";
+
+panel.style.color="white";
+
+panel.style.fontFamily="monospace";
+
+document.body.appendChild(panel);
+
+}
+
+panel.innerHTML="<h3>🧠 IA Diagnóstica</h3>";
+
+lista.slice(0,5).forEach(r=>{
+
+let div=document.createElement("div");
+
+div.style.marginBottom="6px";
+
+div.innerHTML=`
+${r.nome} — ${r.probabilidade}%
+`;
+
+panel.appendChild(div);
+
+});
+
+}
+
+/* =========================================
+   BOTÃO PARA USAR IA
+========================================= */
+
+function criarBotaoIA(){
+
+const btn=document.createElement("button");
+
+btn.innerText="🧠 Analisar Paciente";
+
+btn.style.position="fixed";
+
+btn.style.right="20px";
+
+btn.style.bottom="120px";
+
+btn.style.padding="12px";
+
+btn.style.background="#00c3ff";
+
+btn.style.border="none";
+
+btn.style.borderRadius="8px";
+
+btn.style.color="black";
+
+btn.style.fontWeight="bold";
+
+btn.onclick=analisarPaciente;
+
+document.body.appendChild(btn);
+
+}
+
+criarBotaoIA();
+
+/* =========================================
+   PARTE 12 — SISTEMA DE EXAMES
+========================================= */
+
+function pedirExame(tipo){
+
+if(!currentPatient){
+
+showMessage("Nenhum paciente selecionado");
+
+return;
+
+}
+
+let resultado = gerarResultadoExame(tipo);
+
+mostrarExame(tipo,resultado);
+
+}
+
+/* =========================================
+   GERADOR DE RESULTADOS
+========================================= */
+
+function gerarResultadoExame(tipo){
+
+switch(tipo){
+
+case "hemograma":
+
+return {
+
+leucocitos: Math.floor(Math.random()*20000),
+
+hemoglobina:(Math.random()*5+10).toFixed(1),
+
+plaquetas: Math.floor(Math.random()*400000)
+
+};
+
+case "pcr":
+
+return {
+
+pcr:(Math.random()*200).toFixed(1)
+
+};
+
+case "troponina":
+
+return {
+
+troponina:(Math.random()*5).toFixed(2)
+
+};
+
+case "cultura":
+
+return {
+
+bacteria: currentPatient.microbio || "Nenhum crescimento"
+
+};
+
+case "parasito":
+
+return {
+
+parasita: currentPatient.microbio.includes("Plasmodium") ? "Plasmodium detectado" : "Negativo"
+
+};
+
+case "raiox":
+
+return {
+
+imagem:["Normal","Infiltrado pulmonar","Cardiomegalia","Consolidação"][Math.floor(Math.random()*4)]
+
+};
+
+}
+
+}
+
+/* =========================================
+   MOSTRAR RESULTADO
+========================================= */
+
+function mostrarExame(tipo,dados){
+
+let panel=document.getElementById("examPanel");
+
+if(!panel){
+
+panel=document.createElement("div");
+
+panel.id="examPanel";
+
+panel.style.position="fixed";
+
+panel.style.left="20px";
+
+panel.style.bottom="200px";
+
+panel.style.width="300px";
+
+panel.style.background="#121212";
+
+panel.style.border="2px solid #00ff9c";
+
+panel.style.borderRadius="10px";
+
+panel.style.padding="15px";
+
+panel.style.color="white";
+
+panel.style.fontFamily="monospace";
+
+document.body.appendChild(panel);
+
+}
+
+panel.innerHTML=`<h3>🧪 ${tipo.toUpperCase()}</h3>`;
+
+for(let key in dados){
+
+panel.innerHTML+=`${key}: ${dados[key]}<br>`;
+
+}
+
+}
+
+/* =========================================
+   BOTÕES DE EXAME
+========================================= */
+
+function criarBotoesExame(){
+
+const box=document.createElement("div");
+
+box.style.position="fixed";
+
+box.style.right="20px";
+
+box.style.bottom="200px";
+
+box.style.display="grid";
+
+box.style.gridTemplateColumns="1fr 1fr";
+
+box.style.gap="6px";
+
+box.innerHTML=`
+
+<button onclick="pedirExame('hemograma')">Hemograma</button>
+<button onclick="pedirExame('pcr')">PCR</button>
+<button onclick="pedirExame('troponina')">Troponina</button>
+<button onclick="pedirExame('cultura')">Cultura</button>
+<button onclick="pedirExame('parasito')">Parasito</button>
+<button onclick="pedirExame('raiox')">Raio-X</button>
+
+`;
+
+document.body.appendChild(box);
+
+}
+
+criarBotoesExame();
+
+/* =========================================
+   PARTE 12 — SISTEMA DE EXAMES
+========================================= */
+
+function pedirExame(tipo){
+
+if(!currentPatient){
+
+showMessage("Nenhum paciente selecionado");
+
+return;
+
+}
+
+let resultado = gerarResultadoExame(tipo);
+
+mostrarExame(tipo,resultado);
+
+}
+
+/* =========================================
+   GERADOR DE RESULTADOS
+========================================= */
+
+function gerarResultadoExame(tipo){
+
+switch(tipo){
+
+case "hemograma":
+
+return {
+
+leucocitos: Math.floor(Math.random()*20000),
+
+hemoglobina:(Math.random()*5+10).toFixed(1),
+
+plaquetas: Math.floor(Math.random()*400000)
+
+};
+
+case "pcr":
+
+return {
+
+pcr:(Math.random()*200).toFixed(1)
+
+};
+
+case "troponina":
+
+return {
+
+troponina:(Math.random()*5).toFixed(2)
+
+};
+
+case "cultura":
+
+return {
+
+bacteria: currentPatient.microbio || "Nenhum crescimento"
+
+};
+
+case "parasito":
+
+return {
+
+parasita: currentPatient.microbio.includes("Plasmodium") ? "Plasmodium detectado" : "Negativo"
+
+};
+
+case "raiox":
+
+return {
+
+imagem:["Normal","Infiltrado pulmonar","Cardiomegalia","Consolidação"][Math.floor(Math.random()*4)]
+
+};
+
+}
+
+}
+
+/* =========================================
+   MOSTRAR RESULTADO
+========================================= */
+
+function mostrarExame(tipo,dados){
+
+let panel=document.getElementById("examPanel");
+
+if(!panel){
+
+panel=document.createElement("div");
+
+panel.id="examPanel";
+
+panel.style.position="fixed";
+
+panel.style.left="20px";
+
+panel.style.bottom="200px";
+
+panel.style.width="300px";
+
+panel.style.background="#121212";
+
+panel.style.border="2px solid #00ff9c";
+
+panel.style.borderRadius="10px";
+
+panel.style.padding="15px";
+
+panel.style.color="white";
+
+panel.style.fontFamily="monospace";
+
+document.body.appendChild(panel);
+
+}
+
+panel.innerHTML=`<h3>🧪 ${tipo.toUpperCase()}</h3>`;
+
+for(let key in dados){
+
+panel.innerHTML+=`${key}: ${dados[key]}<br>`;
+
+}
+
+}
+
+/* =========================================
+   BOTÕES DE EXAME
+========================================= */
+
+function criarBotoesExame(){
+
+const box=document.createElement("div");
+
+box.style.position="fixed";
+
+box.style.right="20px";
+
+box.style.bottom="200px";
+
+box.style.display="grid";
+
+box.style.gridTemplateColumns="1fr 1fr";
+
+box.style.gap="6px";
+
+box.innerHTML=`
+
+<button onclick="pedirExame('hemograma')">Hemograma</button>
+<button onclick="pedirExame('pcr')">PCR</button>
+<button onclick="pedirExame('troponina')">Troponina</button>
+<button onclick="pedirExame('cultura')">Cultura</button>
+<button onclick="pedirExame('parasito')">Parasito</button>
+<button onclick="pedirExame('raiox')">Raio-X</button>
+
+`;
+
+document.body.appendChild(box);
+
+}
+
+criarBotoesExame();
+
+/* =========================================
+   PARTE FINAL — SISTEMA ESTÁVEL
+========================================= */
+
+/* SCORE GLOBAL */
+
+
+/* =========================================
+   FUNÇÃO SEGURA DE SCORE
+========================================= */
+
+function addScore(valor){
+
+valor = Number(valor);
+
+if(isNaN(valor)) valor = 0;
+
+score += valor;
+
+if(isNaN(score)) score = 0;
+
+atualizarScore();
+
+}
+
+/* =========================================
+   HUD SCORE
+========================================= */
+
+function atualizarScore(){
+
+let hud = document.getElementById("scoreHUD");
+
+if(!hud){
+
+hud = document.createElement("div");
+
+hud.id="scoreHUD";
+
+hud.style.position="fixed";
+
+hud.style.top="20px";
+
+hud.style.right="20px";
+
+hud.style.background="#000";
+
+hud.style.padding="10px 20px";
+
+hud.style.border="2px solid #00ff9c";
+
+hud.style.borderRadius="10px";
+
+hud.style.color="white";
+
+hud.style.fontFamily="monospace";
+
+document.body.appendChild(hud);
+
+}
+
+hud.innerHTML = "🏆 Pontuação: " + score;
+
+}
+
+/* =========================================
+   GAME OVER
+========================================= */
+
+function gameOver(){
+
+let tela = document.createElement("div");
+
+tela.style.position="fixed";
+
+tela.style.top="0";
+
+tela.style.left="0";
+
+tela.style.width="100%";
+
+tela.style.height="100%";
+
+tela.style.background="rgba(0,0,0,0.9)";
+
+tela.style.display="flex";
+
+tela.style.flexDirection="column";
+
+tela.style.alignItems="center";
+
+tela.style.justifyContent="center";
+
+tela.style.color="white";
+
+tela.style.fontSize="30px";
+
+tela.innerHTML=`
+
+<h1>☠️ Paciente Perdido</h1>
+
+<p>Pontuação Final: ${score}</p>
+
+<button onclick="reiniciarJogo()">Reiniciar Plantão</button>
+
+`;
+
+document.body.appendChild(tela);
+
+salvarRanking(score);
+
+}
+
+/* =========================================
+   REINICIAR JOGO
+========================================= */
+
+function reiniciarJogo(){
+
+location.reload();
+
+}
+
+/* =========================================
+   RANKING DA TURMA
+========================================= */
+
+function salvarRanking(pontos){
+
+let ranking = JSON.parse(localStorage.getItem("rankingT6") || "[]");
+
+ranking.push(pontos);
+
+ranking.sort((a,b)=>b-a);
+
+ranking = ranking.slice(0,10);
+
+localStorage.setItem("rankingT6",JSON.stringify(ranking));
+
+}
+
+/* =========================================
+   MOSTRAR RANKING
+========================================= */
+
+function mostrarRanking(){
+
+let ranking = JSON.parse(localStorage.getItem("rankingT6") || "[]");
+
+let painel = document.createElement("div");
+
+painel.style.position="fixed";
+
+painel.style.left="50%";
+
+painel.style.top="50%";
+
+painel.style.transform="translate(-50%,-50%)";
+
+painel.style.background="#111";
+
+painel.style.padding="30px";
+
+painel.style.border="2px solid gold";
+
+painel.style.borderRadius="10px";
+
+painel.style.color="white";
+
+painel.style.fontFamily="monospace";
+
+let html="<h2>🏆 Ranking T6</h2>";
+
+ranking.forEach((p,i)=>{
+
+html += `<p>${i+1}º - ${p} pts</p>`;
+
+});
+
+html += `<br><button onclick="location.reload()">Fechar</button>`;
+
+painel.innerHTML = html;
+
+document.body.appendChild(painel);
+
+}
+
+/* =========================================
+   BOTÃO RANKING
+========================================= */
+
+function criarBotaoRanking(){
+
+let btn=document.createElement("button");
+
+btn.innerText="🏆 Ranking";
+
+btn.style.position="fixed";
+
+btn.style.bottom="20px";
+
+btn.style.right="20px";
+
+btn.style.padding="10px";
+
+btn.onclick=mostrarRanking;
+
+document.body.appendChild(btn);
+
+}
+
+criarBotaoRanking();
+
+atualizarScore();
+
+</script>
+
+</body>
+
+</html>

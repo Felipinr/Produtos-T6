@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bio-Architect | Hyper-Evolution</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg: #020508;
+            --panel: rgba(5, 12, 18, 0.98);
+            --ui-accent: #00d4ff;
+            --atp: #e1ff00;
+            --dna: #ff00ff;
+            --health: #00ff88;
+            --virus: #ff4466;
+            --border: rgba(0, 212, 255, 0.15);
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: #e0f0f5;
+            font-family: 'Space Grotesk', sans-serif;
+            overflow: hidden;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* --- Interface Lateral --- */
+        #ui-panel {
+            width: 400px;
+            background: var(--panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            box-shadow: 15px 0 40px rgba(0,0,0,0.8);
+        }
+
+        .atp-hero {
+            padding: 30px 20px;
+            background: radial-gradient(circle at top right, rgba(225, 255, 0, 0.1), transparent);
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .atp-count {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--atp);
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: -2px;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(0,0,0,0.4);
+            padding: 5px;
+            gap: 5px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 4px;
+            color: #446;
+            transition: 0.3s;
+        }
+
+        .tab.active {
+            color: var(--ui-accent);
+            background: rgba(0, 212, 255, 0.1);
+            box-shadow: inset 0 0 10px rgba(0, 212, 255, 0.1);
+        }
+
+        .upgrade-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        /* Cor ativa quando pode comprar */
+        .card:not(.disabled) {
+            border-color: rgba(225, 255, 0, 0.3);
+            background: rgba(225, 255, 0, 0.02);
+        }
+
+        .card:hover:not(.disabled) {
+            background: rgba(0, 212, 255, 0.08);
+            border-color: var(--ui-accent);
+            transform: scale(1.02);
+        }
+
+        .card.disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); border-color: var(--border); }
+        .card h4 { margin: 0; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; }
+        .card p { margin: 5px 0 0; font-size: 0.75rem; color: #88a; }
+        .card .price { color: var(--atp); font-family: 'JetBrains Mono'; font-weight: 700; font-size: 0.8rem; margin-top: 10px; display: block; }
+
+        /* --- Viewport --- */
+        #viewport { flex: 1; position: relative; }
+        canvas { display: block; }
+
+        #log {
+            position: absolute;
+            bottom: 100px;
+            right: 20px;
+            width: 250px;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 5px;
+        }
+
+        .log-entry {
+            background: rgba(0,0,0,0.7);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            border-left: 2px solid var(--ui-accent);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        #skills {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            background: rgba(0,0,0,0.6);
+            padding: 10px 25px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .skill {
+            width: 45px; height: 45px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill.ready { border-color: var(--ui-accent); color: var(--ui-accent); }
+        .skill .cd-fill {
+            position: absolute;
+            bottom: 0; width: 100%; height: 0%;
+            background: rgba(0, 212, 255, 0.3);
+        }
+
+        .atp-float {
+            position: absolute;
+            pointer-events: none;
+            font-family: 'JetBrains Mono';
+            font-weight: 700;
+            color: var(--atp);
+            animation: floatText 1s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes floatText {
+            to { transform: translateY(-100px); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<aside id="ui-panel">
+    <div class="atp-hero">
+        <div class="atp-count" id="atp-val">0</div>
+        <div id="atp-rate" style="font-size: 0.8rem; color: #668;">SÍNTESE: +0.0/s</div>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="setTab('eco', event)">Estrutura</div>
+        <div class="tab" onclick="setTab('research', event)">Pesquisa</div>
+        <div class="tab" onclick="setTab('dna', event)">DNA</div>
+    </div>
+
+    <div class="upgrade-scroll" id="upgrade-list"></div>
+
+    <div style="padding: 20px; border-top: 1px solid var(--border); background: rgba(0,0,0,0.2);">
+        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px;">
+            <span>🧬 DNA: <b id="dna-val" style="color:var(--dna)">0</b></span>
+            <span>👾 Alvos: <b id="kills-val">0</b></span>
+        </div>
+        <button onclick="evolveSpecie()" id="prestige-btn" style="width: 100%; background: var(--dna); color: white; border: none; padding: 10px; border-radius: 4px; font-weight: 700; cursor: pointer; opacity: 0.5;">
+            GERAR MUTAÇÃO (+0 DNA)
+        </button>
+    </div>
+</aside>
+
+<main id="viewport">
+    <div id="log"></div>
+    <div id="skills">
+        <div class="skill" id="skill-1" onclick="activateSkill(1)">⚡ <div class="cd-fill"></div></div>
+        <div class="skill" id="skill-2" onclick="activateSkill(2)">🛡️ <div class="cd-fill"></div></div>
+        <div class="skill" id="skill-3" onclick="activateSkill(3)">☣️ <div class="cd-fill"></div></div>
+    </div>
+    
+    <div style="position: absolute; top: 20px; left: 20px; display: flex; gap: 20px; pointer-events: none;">
+        <div style="background: rgba(0,0,0,0.5); padding: 10px; border-left: 4px solid var(--health); border-radius: 4px;">
+            <div style="font-size: 0.6rem; color: #88a;">INTEGRIDADE</div>
+            <div id="hp-val" style="font-family: 'JetBrains Mono'; font-weight: 700;">100%</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.5); padding: 10px; border-left: 4px solid var(--ui-accent); border-radius: 4px;">
+            <div style="font-size: 0.6rem; color: #88a;">MASSA TOTAL</div>
+            <div id="mass-val" style="font-family: 'JetBrains Mono'; font-weight: 700;">1.0pg</div>
+        </div>
+    </div>
+
+    <canvas id="mainCanvas"></canvas>
+</main>
+
+<script>
+    const canvas = document.getElementById('mainCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const STATE = {
+        atp: 0,
+        totalAtp: 0,
+        dna: 0,
+        atpPerClick: 1,
+        atpPerSec: 0,
+        health: 100,
+        mass: 1.0,
+        kills: 0,
+        currentTab: 'eco',
+        time: 0,
+        isOverdrive: false,
+        shieldActive: false,
+        mouse: { x: 0, y: 0 }
+    };
+
+    const UPGRADES = {
+        eco: [
+            { id: 'e1', name: 'Citoesqueleto', desc: '+1 ATP por clique', cost: 15, growth: 1.2, level: 0, power: 1, type: 'click' },
+            { id: 'e2', name: 'Mitocôndrias', desc: '+0.5 ATP por segundo', cost: 50, growth: 1.15, level: 0, power: 0.5, type: 'idle' },
+            { id: 'e3', name: 'Complexo de Golgi', desc: 'Multiplica ATP por 1.2x', cost: 500, growth: 1.5, level: 0, power: 1.2, type: 'mult' }
+        ],
+        research: [
+            { id: 'r1', name: 'Quimiotaxia', desc: 'Atrai nutrientes distantes', cost: 200, growth: 1.8, level: 0, power: 2, type: 'magnet' },
+            { id: 'r2', name: 'Lisossomas', desc: 'Dano automático a vírus', cost: 1000, growth: 2.0, level: 0, power: 10, type: 'auto_attack' }
+        ],
+        dna: [
+            { id: 'd1', name: 'Recombinação', desc: 'Preserva 10% do ATP no Reset', cost: 5, growth: 2, level: 0, power: 0.1, type: 'keep', currency: 'dna' }
+        ]
+    };
+
+    const cell = {
+        x: 0, y: 0, 
+        radius: 70, targetRadius: 70,
+        points: [], numPoints: 50,
+        velX: 0, velY: 0
+    };
+
+    let entities = []; 
+
+    function init() {
+        resize();
+        cell.x = canvas.width / 2;
+        cell.y = canvas.height / 2;
+
+        for (let i = 0; i < cell.numPoints; i++) {
+            const a = (i / cell.numPoints) * Math.PI * 2;
+            cell.points.push({
+                x: Math.cos(a) * cell.radius,
+                y: Math.sin(a) * cell.radius,
+                ox: Math.cos(a) * cell.radius,
+                oy: Math.sin(a) * cell.radius,
+                vx: 0, vy: 0
+            });
+        }
+
+        renderUpgrades();
+        loop();
+        
+        setInterval(() => {
+            let gain = STATE.atpPerSec;
+            if (STATE.isOverdrive) gain *= 3;
+            STATE.atp += gain;
+            STATE.totalAtp += gain;
+            updateUI();
+        }, 1000);
+
+        setInterval(() => {
+            if (Math.random() > 0.75) spawnEntity('virus');
+        }, 3500);
+    }
+
+    function loop() {
+        STATE.time++;
+        update();
+        draw();
+        requestAnimationFrame(loop);
+    }
+
+    function update() {
+        const dx = STATE.mouse.x - cell.x;
+        const dy = STATE.mouse.y - cell.y;
+        cell.velX += dx * 0.002;
+        cell.velY += dy * 0.002;
+        cell.velX *= 0.96;
+        cell.velY *= 0.96;
+        cell.x += cell.velX;
+        cell.y += cell.velY;
+
+        cell.x = Math.max(cell.radius, Math.min(canvas.width - cell.radius, cell.x));
+        cell.y = Math.max(cell.radius, Math.min(canvas.height - cell.radius, cell.y));
+
+        cell.radius += (cell.targetRadius - cell.radius) * 0.1;
+        cell.points.forEach(p => {
+            const ratio = cell.radius / 70;
+            const tx = p.ox * ratio;
+            const ty = p.oy * ratio;
+            p.vx += (tx - p.x) * 0.15;
+            p.vy += (ty - p.y) * 0.15;
+            p.vx *= 0.8;
+            p.vy *= 0.8;
+            p.x += p.vx;
+            p.y += p.vy;
+        });
+
+        if (STATE.time % 90 === 0) spawnEntity('nutrient');
+        
+        entities.forEach((e, i) => {
+            e.x += e.vx; e.y += e.vy;
+            const dist = Math.sqrt((e.x - cell.x)**2 + (e.y - cell.y)**2);
+            
+            if (e.type === 'nutrient') {
+                if (dist < cell.radius + 60 && UPGRADES.research[0].level > 0) {
+                    e.vx += (cell.x - e.x) * 0.04;
+                    e.vy += (cell.y - e.y) * 0.04;
+                }
+                if (dist < cell.radius) {
+                    STATE.atp += 5; STATE.mass += 0.05;
+                    cell.targetRadius += 0.5;
+                    entities.splice(i, 1);
+                    createFloat(e.x, e.y, "+5");
+                    updateUI();
+                }
+            } else if (e.type === 'virus') {
+                e.vx += (cell.x - e.x) * 0.002;
+                e.vy += (cell.y - e.y) * 0.002;
+                e.vx *= 0.985; e.vy *= 0.985;
+
+                if (dist < cell.radius) {
+                    if (!STATE.shieldActive) STATE.health -= 5;
+                    entities.splice(i, 1);
+                    addLog("⚠️ Membrana comprometida!");
+                    if (STATE.health <= 0) gameOver();
+                    updateUI();
+                }
+            }
+        });
+    }
+
+    function draw() {
+        ctx.fillStyle = 'rgba(2, 5, 8, 0.4)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.save();
+        ctx.translate(cell.x, cell.y);
+        ctx.beginPath();
+        ctx.moveTo(cell.points[0].x, cell.points[0].y);
+        for(let i=1; i<cell.points.length; i++) {
+            const p = cell.points[i];
+            const prev = cell.points[i-1];
+            ctx.quadraticCurveTo(prev.x, prev.y, (p.x+prev.x)/2, (p.y+prev.y)/2);
+        }
+        ctx.closePath();
+        
+        const grad = ctx.createRadialGradient(0,0,0, 0,0, cell.radius);
+        grad.addColorStop(0, '#0a161d');
+        grad.addColorStop(0.8, '#142a33');
+        grad.addColorStop(1, '#1a3340');
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.strokeStyle = STATE.shieldActive ? '#00ff88' : '#00d4ff';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        // Núcleo
+        ctx.beginPath();
+        ctx.arc(0, 0, cell.radius * 0.3, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255, 0, 255, 0.2)';
+        ctx.fill();
+        ctx.restore();
+
+        entities.forEach(e => {
+            ctx.beginPath();
+            ctx.arc(e.x, e.y, e.type === 'virus' ? 9 : 4, 0, Math.PI*2);
+            ctx.fillStyle = e.type === 'virus' ? '#ff4466' : '#00ffcc';
+            ctx.fill();
+        });
+    }
+
+    function handleInteraction(e) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        let killed = false;
+        entities.forEach((ent, i) => {
+            if (ent.type === 'virus') {
+                const d = Math.sqrt((x-ent.x)**2 + (y-ent.y)**2);
+                if (d < 45) {
+                    entities.splice(i, 1);
+                    STATE.kills++;
+                    STATE.atp += 25;
+                    addLog("🎯 Patógeno eliminado!");
+                    killed = true;
+                }
+            }
+        });
+
+        if (killed) { updateUI(); return; }
+
+        const dCell = Math.sqrt((x - cell.x)**2 + (y - cell.y)**2);
+        if (dCell < cell.radius + 30) {
+            let val = STATE.atpPerClick;
+            if (STATE.isOverdrive) val *= 4;
+            STATE.atp += val;
+            STATE.totalAtp += val;
+            createFloat(x, y, `+${val}`);
+            updateUI();
+        }
+    }
+
+    function buyUpgrade(tab, index) {
+        const up = UPGRADES[tab][index];
+        const currency = up.currency || 'atp';
+        
+        if (STATE[currency] >= up.cost) {
+            STATE[currency] -= up.cost;
+            up.level++;
+            up.cost = Math.floor(up.cost * up.growth);
+            
+            recalculateStats();
+            renderUpgrades();
+            updateUI();
+            addLog(`✅ Evolução: ${up.name}`);
+        }
+    }
+
+    function recalculateStats() {
+        const mult = Math.pow(1.2, UPGRADES.eco[2].level);
+        STATE.atpPerClick = (1 + UPGRADES.eco[0].level * UPGRADES.eco[0].power) * mult;
+        STATE.atpPerSec = (UPGRADES.eco[1].level * UPGRADES.eco[1].power) * mult;
+    }
+
+    function renderUpgrades() {
+        const container = document.getElementById('upgrade-list');
+        container.innerHTML = '';
+        UPGRADES[STATE.currentTab].forEach((up, i) => {
+            const card = document.createElement('div');
+            const canAfford = STATE[up.currency || 'atp'] >= up.cost;
+            card.className = `card ${canAfford ? '' : 'disabled'}`;
+            card.onclick = () => buyUpgrade(STATE.currentTab, i);
+            card.innerHTML = `
+                <h4>${up.name} <span>Nvl ${up.level}</span></h4>
+                <p>${up.desc}</p>
+                <span class="price">${up.cost} ${up.currency === 'dna' ? 'DNA' : 'ATP'}</span>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // Função melhorada para forçar o render das cores
+    function refreshUpgradeColors() {
+        const cards = document.querySelectorAll('.card');
+        UPGRADES[STATE.currentTab].forEach((up, i) => {
+            const card = cards[i];
+            if (!card) return;
+            const canAfford = STATE[up.currency || 'atp'] >= up.cost;
+            if (canAfford) {
+                card.classList.remove('disabled');
+            } else {
+                card.classList.add('disabled');
+            }
+        });
+    }
+
+    function setTab(t, event) {
+        STATE.currentTab = t;
+        document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+        if(event) event.currentTarget.classList.add('active');
+        renderUpgrades();
+    }
+
+    function spawnEntity(type) {
+        const side = Math.floor(Math.random()*4);
+        let x, y;
+        if(side==0) { x=Math.random()*canvas.width; y=-30; }
+        else if(side==1) { x=canvas.width+30; y=Math.random()*canvas.height; }
+        else if(side==2) { x=Math.random()*canvas.width; y=canvas.height+30; }
+        else { x=-30; y=Math.random()*canvas.height; }
+
+        entities.push({
+            type, x, y,
+            vx: (Math.random()-0.5)*1.5,
+            vy: (Math.random()-0.5)*1.5
+        });
+    }
+
+    function updateUI() {
+        document.getElementById('atp-val').innerText = Math.floor(STATE.atp).toLocaleString();
+        document.getElementById('atp-rate').innerText = `SÍNTESE: +${(STATE.atpPerSec * (STATE.isOverdrive?3:1)).toFixed(1)}/s`;
+        document.getElementById('hp-val').innerText = `${STATE.health}%`;
+        document.getElementById('mass-val').innerText = `${STATE.mass.toFixed(1)}pg`;
+        document.getElementById('dna-val').innerText = STATE.dna;
+        document.getElementById('kills-val').innerText = STATE.kills;
+
+        const dnaGain = Math.floor(Math.sqrt(STATE.totalAtp / 2500));
+        const pBtn = document.getElementById('prestige-btn');
+        pBtn.innerText = `GERAR MUTAÇÃO (+${dnaGain} DNA)`;
+        pBtn.style.opacity = dnaGain > 0 ? 1 : 0.5;
+        
+        document.getElementById('hp-val').style.color = STATE.health < 30 ? 'var(--virus)' : 'var(--health)';
+        
+        // CORREÇÃO: Atualiza os estados de cores dos cartões
+        refreshUpgradeColors();
+    }
+
+    function addLog(msg) {
+        const log = document.getElementById('log');
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.innerText = msg;
+        log.appendChild(entry);
+        setTimeout(() => entry.remove(), 3500);
+    }
+
+    function createFloat(x, y, txt) {
+        const el = document.createElement('div');
+        el.className = 'atp-float';
+        el.style.left = `${x + 400}px`;
+        el.style.top = `${y}px`;
+        el.innerText = txt;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1000);
+    }
+
+    function activateSkill(id) {
+        const el = document.getElementById(`skill-${id}`);
+        if (!el.classList.contains('ready')) return;
+        el.classList.remove('ready');
+        const fill = el.querySelector('.cd-fill');
+        
+        if (id === 1) { 
+            STATE.isOverdrive = true;
+            setTimeout(() => { STATE.isOverdrive = false; }, 10000);
+        } else if (id === 2) { 
+            STATE.shieldActive = true;
+            setTimeout(() => { STATE.shieldActive = false; }, 8000);
+        } else if (id === 3) { 
+            entities = entities.filter(e => e.type !== 'virus');
+        }
+
+        let p = 100;
+        const interval = setInterval(() => {
+            p -= 1;
+            fill.style.height = p + "%";
+            if (p <= 0) { clearInterval(interval); el.classList.add('ready'); }
+        }, 300);
+    }
+
+    function evolveSpecie() {
+        const gain = Math.floor(Math.sqrt(STATE.totalAtp / 2500));
+        if (gain <= 0) return;
+        STATE.dna += gain;
+        STATE.atp = 0; STATE.totalAtp = 0; STATE.mass = 1.0; STATE.health = 100;
+        cell.targetRadius = 70;
+        entities = [];
+        UPGRADES.eco.forEach(u => { u.level = 0; u.cost = Math.floor(u.cost/2); });
+        recalculateStats();
+        renderUpgrades();
+        updateUI();
+    }
+
+    function gameOver() {
+        STATE.health = 100;
+        STATE.atp = Math.floor(STATE.atp * 0.7);
+        updateUI();
+    }
+
+    function resize() {
+        const viewport = document.getElementById('viewport');
+        canvas.width = viewport.clientWidth;
+        canvas.height = viewport.clientHeight;
+    }
+
+    canvas.addEventListener('mousedown', handleInteraction);
+    window.addEventListener('mousemove', e => {
+        const rect = canvas.getBoundingClientRect();
+        STATE.mouse.x = e.clientX - rect.left;
+        STATE.mouse.y = e.clientY - rect.top;
+    });
+    window.addEventListener('resize', resize);
+    document.querySelectorAll('.skill').forEach(s => s.classList.add('ready'));
+    init();
+</script>
+</body>
+</html>

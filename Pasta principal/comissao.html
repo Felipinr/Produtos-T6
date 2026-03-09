@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comissão T6 Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Space+Grotesk:wght@700&display=swap');
+        
+        :root {
+            --rosa: #ec4899;
+            --rosa-escuro: #831843;
+            --bg-dark: #0a0407;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: #fce7f3;
+            margin: 0;
+            padding: 0;
+        }
+
+        .topo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            background: rgba(10, 4, 7, 0.85);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .topo__marca a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .topo__marca img {
+            height: 45px;
+            filter: drop-shadow(0 0 8px rgba(236, 72, 153, 0.4));
+        }
+
+        .topo__marca h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .menu {
+            display: flex;
+            gap: 8px;
+        }
+
+        .menu a {
+            text-decoration: none;
+            font-weight: 500;
+            color: rgba(252, 231, 243, 0.7);
+            padding: 8px 18px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .menu a:hover {
+            color: white;
+            background: rgba(236, 72, 153, 0.2);
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.1);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, border 0.3s ease;
+        }
+        
+        .glass:hover {
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .glow {
+            position: absolute;
+            filter: blur(120px);
+            opacity: 0.18;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .special-border {
+            position: relative;
+            background: #0a0407;
+            z-index: 1;
+        }
+
+        .special-border::after {
+            content: '';
+            position: absolute;
+            inset: -1.5px;
+            background: linear-gradient(45deg, #ec4899, #8b5cf6, #ec4899);
+            border-radius: inherit;
+            z-index: -1;
+            animation: borderRotate 3s linear infinite;
+        }
+
+        @keyframes borderRotate {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .group-photo-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .group-photo-container img {
+            transition: transform 0.7s ease;
+        }
+
+        .group-photo-container:hover img {
+            transform: scale(1.03);
+        }
+    </style>
+</head>
+<link rel="icon" href="/imagens/logot6.png.png" type="image/png">
+<body class="scroll-smooth">
+
+    <header class="topo">
+        <div class="topo__marca">
+            <a href="index.html">
+                <img src="/imagens/logot6.png.png" alt="Logo T6">
+                <h1>T6 Store</h1>
+            </a>
+        </div>
+        <nav class="menu">
+            <a href="index.html">Início</a>
+            <a href="produtos.html">Produtos</a>
+            <a href="simulador.html">Customizar</a>
+            <a href="dev.html">Desenvolvedor</a>
+        </nav>
+    </header>
+
+    <section class="relative pt-48 pb-20 px-6 text-center overflow-hidden">
+        <div class="glow bg-pink-500 w-96 h-96 -top-20 -left-20"></div>
+        <div class="glow bg-purple-600 w-80 h-80 top-40 -right-20"></div>
+        <div class="relative z-10">
+            <h1 class="text-5xl md:text-7xl font-black mb-6 tracking-tight leading-tight">
+                A Nossa <span class="text-pink-500">Comissão</span>
+            </h1>
+            <p class="text-pink-100/60 max-w-2xl mx-auto mb-10 text-lg">
+                As mentes por trás do espetáculo. Mais que um evento, estamos construindo o legado da T6. Conheça quem faz a magia acontecer e a equipe que está redefinindo o conceito de festas de medicina.
+            </p>
+            <a href="#departments" class="inline-block bg-white text-black px-10 py-4 rounded-full font-bold hover:bg-pink-500 hover:text-white transition-all shadow-lg">
+                Explorar Time
+            </a>
+        </div>
+    </section>
+
+    <main id="departments" class="max-w-6xl mx-auto px-6 space-y-32 pb-24">
+
+        <section>
+            <div class="flex items-center gap-4 mb-8">
+                <div class="p-3 bg-pink-500/10 rounded-xl text-pink-400">
+                    <i class="fa-solid fa-award text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold">Presidentes</h2>
+                    <p class="text-pink-100/40 text-sm">Liderança visionária e coordenação geral.</p>
+                </div>
+            </div>
+            <div class="group-photo-container mb-10 h-64 md:h-[400px]">
+                <img src="https://images.unsplash.com/photo-1552581234-26160f608093?auto=format&fit=crop&w=2000&q=80" class="w-full h-full object-cover" alt="Foto Grupo Presidentes">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0a0407] via-transparent opacity-80"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="p-6 rounded-3xl glass">
+                    <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80" class="w-14 h-14 rounded-full object-cover border-2 border-pink-500/20" alt="Presidente 1">
+                        <div>
+                            <h4 class="font-bold text-white">Yasmin Alcântara</h4>
+                            <p class="text-xs text-pink-400 uppercase tracking-widest font-semibold">Presidente</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-pink-100/30">
+                        <i class="fa-brands fa-instagram"></i><span class="text-xs font-mono">@yasminalcq
+</span>
+                    </div>
+                </div>
+                <div class="p-6 rounded-3xl glass">
+                    <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=800&q=80" class="w-14 h-14 rounded-full object-cover border-2 border-pink-500/20" alt="Presidente 2">
+                        <div>
+                            <h4 class="font-bold text-white">Hebert Fortes</h4>
+                            <p class="text-xs text-pink-400 uppercase tracking-widest font-semibold">Presidente</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-pink-100/30">
+                        <i class="fa-brands fa-instagram"></i><span class="text-xs font-mono">@hebertfortes</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="flex items-center gap-4 mb-8">
+                <div class="p-3 bg-pink-500/10 rounded-xl text-pink-400">
+                    <i class="fa-solid fa-users text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold">Secretários</h2>
+                    <p class="text-pink-100/40 text-sm">Organização e suporte administrativo.</p>
+                </div>
+            </div>
+            <div class="group-photo-container mb-10 h-64 md:h-[400px]">
+                <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=2000&q=80" class="w-full h-full object-cover" alt="Foto Grupo Secretários">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0a0407] via-transparent opacity-80"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="p-6 rounded-3xl glass">
+                    <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1521119989659-a83eee488004?auto=format&fit=crop&w=800&q=80" class="w-14 h-14 rounded-full object-cover border-2 border-pink-500/20" alt="Sec 1">
+                        <div>
+                            <h4 class="font-bold text-white">Maria Eduarda Gomes</h4>
+                            <p class="text-xs text-pink-400 uppercase tracking-widest font-semibold">Secretária</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-pink-100/30">
+                        <i class="fa-brands fa-instagram"></i><span class="text-xs font-mono">@_.dudagomes</span>
+                    </div>
+                </div>
+                <div class="p-6 rounded-3xl glass">
+                    <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=800&q=80" class="w-14 h-14 rounded-full object-cover border-2 border-pink-500/20" alt="Sec 2">
+                        <div>
+                            <h4 class="font-bold text-white">Pedro Henrique</h4>
+                            <p class="text-xs text-pink-400 uppercase tracking-widest font-semibold">Secretário</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-pink-100/30">
+                        <i class="fa-brands fa-instagram"></i><span class="text-xs font-mono">@ph_leitte</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="flex items-center gap-4 mb-8">
+                <div class="p-3 bg-pink-500/10 rounded-xl text-pink-400">
+                    <i class="fa-solid fa-sack-dollar text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold">Tesoureiros</h2>
+                    <p class="text-pink-100/40 text-sm">Gestão financeira e transparência.</p>
+                </div>
+            </div>
+            <div class="group-photo-container mb-10 h-64 md:h-[400px]">
+                <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=2000&q=80" class="w-full h-full object-cover" alt="Foto Grupo Tesouraria">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0a0407] via-transparent opacity-80"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="p-6 rounded-3xl glass">
+                    <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80" class="w-14 h-14 rounded-full object-cover border-2 border-pink-500/20" alt="Tesoureiro 1">
+                        <div>
+                            <h4 class="font-bold text-white">Iasmin Carnielo</h4>
+                            <p class="text-xs text-pink-400 uppercase tracking-widest font-semibold">Tesouraria</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-pink-100/30">
+                        <i class="fa-brands fa-instagram"></i><span class="text-xs font-mono">@iaxminc</span>
+                    </div>
+                </div>
+                <div class="p-6 rounded-3xl glass">
+                    <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80" class="w-14 h-14 rounded-full object-cover border-2 border-pink-500/20" alt="Tesoureiro 2">
+                        <div>
+                            <h4 class="font-bold text-white">João Marcelo Nogueira</h4>
+                            <p class="text-xs text-pink-400 uppercase tracking-widest font-semibold">Tesouraria</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-pink-100/30">
+                        <i class="fa-brands fa-instagram"></i><span class="text-xs font-mono">@nogueira.joao0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+   <section>
+            <div class="flex items-center gap-4 mb-8">
+                <div class="p-3 bg-pink-500/10 rounded-xl text-pink-400">
+                    <i class="fa-solid fa-briefcase text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold">Produtos</h2>
+                    <p class="text-pink-100/40 text-sm">Desenvolvimento e materialização de ideias.</p>
+                </div>
+            </div>
+            <div class="group-photo-container mb-10 h-64 md:h-[400px]">
+                <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=2000&q=80" class="w-full h-full object-cover" alt="Foto Grupo Produtos">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0a0407] via-transparent opacity-80"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="p-6 rounded-3xl glass">
+                    <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80" class="w-14 h-14 rounded-full object-cover border-2 border-pink-500/20" alt="Prod 2">
+                        <div>
+                            <h4 class="font-bold text-white">Membro Produtos</h4>
+                            <p class="text-xs text-pink-400 uppercase tracking-widest font-semibold">Gestão</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-pink-100/30">
+                        <i class="fa-brands fa-instagram"></i><span class="text-xs font-mono">@produtos.t6</span>
+                    </div>
+                </div>
+
+                <div class="p-6 rounded-3xl glass special-border">
+                    <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80" class="w-14 h-14 rounded-full object-cover" alt="Dev">
+                        <div>
+                            <h4 class="font-bold text-white">Felipe</h4>
+                            <p class="text-xs text-pink-400 uppercase tracking-widest font-semibold">Produtos & Dev</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-pink-100/30">
+                        <i class="fa-brands fa-instagram"></i><span class="text-xs font-mono">@felipemts0_</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="flex items-center gap-4 mb-8">
+                <div class="p-3 bg-pink-500/10 rounded-xl text-pink-400">
+                    <i class="fa-solid fa-bullhorn text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold">Marketing</h2>
+                    <p class="text-pink-100/40 text-sm">Comunicação e identidade visual.</p>
+                </div>
+            </div>
+            <div class="group-photo-container mb-10 h-64 md:h-[400px]">
+                <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=2000&q=80" class="w-full h-full object-cover" alt="Foto Grupo MKT">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0a0407] via-transparent opacity-80"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="p-6 rounded-3xl glass">
+                    <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1528892952291-009c663ce843?auto=format&fit=crop&w=800&q=80" class="w-14 h-14 rounded-full object-cover border-2 border-pink-500/20" alt="MKT 1">
+                        <div>
+                            <h4 class="font-bold text-white">Membro MKT 1</h4>
+                            <p class="text-xs text-pink-400 uppercase tracking-widest font-semibold">Marketing</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-pink-100/30">
+                        <i class="fa-brands fa-instagram"></i><span class="text-xs font-mono">@mkt.1</span>
+                    </div>
+                </div>
+                <div class="p-6 rounded-3xl glass">
+                    <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=800&q=80" class="w-14 h-14 rounded-full object-cover border-2 border-pink-500/20" alt="MKT 2">
+                        <div>
+                            <h4 class="font-bold text-white">Membro MKT 2</h4>
+                            <p class="text-xs text-pink-400 uppercase tracking-widest font-semibold">Marketing</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-pink-100/30">
+                        <i class="fa-brands fa-instagram"></i><span class="text-xs font-mono">@mkt.2</span>
+                    </div>
+                </div>
+                <div class="p-6 rounded-3xl glass">
+                    <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80" class="w-14 h-14 rounded-full object-cover border-2 border-pink-500/20" alt="MKT 3">
+                        <div>
+                            <h4 class="font-bold text-white">Membro MKT 3</h4>
+                            <p class="text-xs text-pink-400 uppercase tracking-widest font-semibold">Marketing</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-pink-100/30">
+                        <i class="fa-brands fa-instagram"></i><span class="text-xs font-mono">@mkt.3</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="flex items-center gap-4 mb-8">
+                <div class="p-3 bg-pink-500/10 rounded-xl text-pink-400">
+                    <i class="fa-solid fa-wand-magic-sparkles text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold">Eventos</h2>
+                    <p class="text-pink-100/40 text-sm">Experiências e logística das festas.</p>
+                </div>
+            </div>
+            <div class="group-photo-container mb-10 h-64 md:h-[400px]">
+                <img src="https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&w=2000&q=80" class="w-full h-full object-cover" alt="Foto Grupo Eventos">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#0a0407] via-transparent opacity-80"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="p-6 rounded-3xl glass">
+                    <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=800&q=80" class="w-14 h-14 rounded-full object-cover border-2 border-pink-500/20" alt="Ev 1">
+                        <div>
+                            <h4 class="font-bold text-white">Evento 1</h4>
+                            <p class="text-xs text-pink-400 uppercase tracking-widest font-semibold">Eventos</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-pink-100/30">
+                        <i class="fa-brands fa-instagram"></i><span class="text-xs font-mono">@eventos.1</span>
+                    </div>
+                </div>
+                <div class="p-6 rounded-3xl glass">
+                    <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=800&q=80" class="w-14 h-14 rounded-full object-cover border-2 border-pink-500/20" alt="Ev 2">
+                        <div>
+                            <h4 class="font-bold text-white">Evento 2</h4>
+                            <p class="text-xs text-pink-400 uppercase tracking-widest font-semibold">Eventos</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-pink-100/30">
+                        <i class="fa-brands fa-instagram"></i><span class="text-xs font-mono">@eventos.2</span>
+                    </div>
+                </div>
+                <div class="p-6 rounded-3xl glass">
+                    <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=800&q=80" class="w-14 h-14 rounded-full object-cover border-2 border-pink-500/20" alt="Ev 3">
+                        <div>
+                            <h4 class="font-bold text-white">Evento 3</h4>
+                            <p class="text-xs text-pink-400 uppercase tracking-widest font-semibold">Eventos</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2 text-pink-100/30">
+                        <i class="fa-brands fa-instagram"></i><span class="text-xs font-mono">@eventos.3</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-12 border-t border-white/10 text-center">
+        <p class="text-pink-100/20 text-xs mb-4">© 2026 T6 Store · Aqui só tem atleta.</p>
+        <div class="flex justify-center items-center gap-2 text-pink-500 font-bold text-sm tracking-widest">
+            <i class="fa-solid fa-code"></i> <span>BUILT BY Felipe (@felipemts0_)</span>
+        </div>
+    </footer>
+
+</body>
+</html>

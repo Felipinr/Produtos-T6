@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Patrocinadores | T6 Medicina</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="icon" href="/imagens/logot6.png.png" type="image/png">
+
+<style>
+
+/* RESET */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Inter',sans-serif;
+background:#ffffff;
+color:#111;
+}
+
+/* HEADER */
+
+header{
+
+position:fixed;
+top:0;
+width:100%;
+
+background:white;
+
+border-bottom:1px solid rgba(0,0,0,.05);
+
+z-index:1000;
+
+}
+
+.navbar{
+
+max-width:1300px;
+margin:auto;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+height:80px;
+
+padding:0 25px;
+
+}
+
+.logo-area{
+
+display:flex;
+align-items:center;
+gap:12px;
+
+}
+
+.logo-area img{
+height:45px;
+}
+
+.brand{
+font-weight:700;
+font-size:18px;
+}
+
+.menu{
+
+display:flex;
+gap:30px;
+
+list-style:none;
+
+}
+
+.menu a{
+
+text-decoration:none;
+
+color:#333;
+
+font-weight:500;
+
+transition:.3s;
+
+}
+
+.menu a:hover{
+color:#e91e63;
+}
+
+/* HERO */
+
+.hero{
+
+height:85vh;
+
+background:url('/imagens/patrocinadores-bg.jpg') center/cover no-repeat;
+
+display:flex;
+align-items:flex-end;
+
+color:white;
+
+position:relative;
+
+}
+
+.hero::after{
+
+content:"";
+
+position:absolute;
+
+width:100%;
+height:100%;
+
+background:linear-gradient(to top, rgba(0,0,0,.8), transparent);
+
+}
+
+.hero-text{
+
+position:relative;
+
+padding:80px;
+
+max-width:900px;
+
+}
+
+.hero-text h1{
+
+font-size:72px;
+
+font-weight:800;
+
+line-height:1.1;
+
+}
+
+.hero-text p{
+
+margin-top:15px;
+
+font-size:20px;
+
+opacity:.9;
+
+}
+
+/* SEÇÃO */
+
+.section{
+
+padding:100px 40px;
+
+max-width:1300px;
+
+margin:auto;
+
+text-align:center;
+
+}
+
+.section h2{
+
+font-size:40px;
+
+margin-bottom:20px;
+
+}
+
+.section p{
+
+font-size:18px;
+
+color:#666;
+
+margin-bottom:60px;
+
+}
+
+/* GRID PATROCINADORES */
+
+.sponsors{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+gap:40px;
+
+}
+
+/* CARD */
+
+.sponsor{
+
+background:white;
+
+padding:40px;
+
+border-radius:16px;
+
+box-shadow:0 10px 30px rgba(0,0,0,.08);
+
+transition:.35s;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+}
+
+.sponsor:hover{
+
+transform:translateY(-8px);
+
+box-shadow:0 20px 50px rgba(0,0,0,.15);
+
+}
+
+/* LOGO */
+
+.sponsor img{
+
+max-width:140px;
+
+max-height:80px;
+
+object-fit:contain;
+
+filter:grayscale(100%);
+
+transition:.3s;
+
+}
+
+.sponsor:hover img{
+
+filter:grayscale(0%);
+
+transform:scale(1.1);
+
+}
+
+/* CTA PATROCINADOR */
+
+.cta{
+
+margin-top:100px;
+
+padding:80px;
+
+background:black;
+
+color:white;
+
+border-radius:20px;
+
+}
+
+.cta h3{
+
+font-size:36px;
+
+margin-bottom:20px;
+
+}
+
+.cta p{
+
+opacity:.8;
+
+margin-bottom:30px;
+
+}
+
+.cta button{
+
+padding:16px 40px;
+
+border:none;
+
+border-radius:50px;
+
+background:#e91e63;
+
+color:white;
+
+font-weight:700;
+
+font-size:16px;
+
+cursor:pointer;
+
+transition:.3s;
+
+}
+
+.cta button:hover{
+
+transform:scale(1.05);
+
+}
+
+/* FOOTER */
+
+footer{
+
+margin-top:100px;
+
+padding:40px;
+
+text-align:center;
+
+border-top:1px solid rgba(0,0,0,.08);
+
+color:#777;
+
+font-size:14px;
+
+}
+
+/* RESPONSIVO */
+
+@media(max-width:900px){
+
+.hero-text h1{
+font-size:42px;
+}
+
+.hero-text{
+padding:40px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<nav class="navbar">
+
+<div class="logo-area">
+<a href="index.html">
+<img src="/imagens/logot6.png.png">
+</a>
+<span class="brand">T6 Store</span>
+</div>
+
+<ul class="menu">
+<li><a href="index.html">Início</a></li>
+<li><a href="produtos.html">Produtos</a></li>
+<li><a href="patrocinadores.html">Patrocinadores</a></li>
+<li><a href="dev.html">Desenvolvedor</a></li>
+</ul>
+
+</nav>
+
+</header>
+
+
+<section class="hero">
+
+<div class="hero-text">
+
+<h1>Nossos Patrocinadores</h1>
+
+<p>
+Empresas e parceiros que acreditam na T6 Medicina e ajudam
+a construir nossa trajetória.
+</p>
+
+</div>
+
+</section>
+
+
+<section class="section">
+
+<h2>Parceiros Oficiais</h2>
+
+<p>
+Agradecemos a todas as empresas que apoiam nossa turma
+e contribuem para nossos projetos.
+</p>
+
+
+<div class="sponsors">
+
+<div class="sponsor">
+<img src="/imagens/patro1.png">
+</div>
+
+<div class="sponsor">
+<img src="/imagens/patro2.png">
+</div>
+
+<div class="sponsor">
+<img src="/imagens/patro3.png">
+</div>
+
+<div class="sponsor">
+<img src="/imagens/patro4.png">
+</div>
+
+<div class="sponsor">
+<img src="/imagens/patro5.png">
+</div>
+
+<div class="sponsor">
+<img src="/imagens/patro6.png">
+</div>
+
+</div>
+
+
+<div class="cta">
+
+<h3>Seja um patrocinador</h3>
+
+<p>
+Sua empresa pode apoiar a T6 Medicina e ganhar visibilidade
+em nossos produtos e eventos.
+</p>
+
+<button>Entrar em contato</button>
+
+</div>
+
+</section>
+
+
+<footer>
+
+© 2025 - 2031 T6 Medicina | UNIRV
+
+</footer>
+
+</body>
+
+</html>
