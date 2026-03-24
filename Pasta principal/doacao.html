@@ -358,38 +358,32 @@ padding:40px;
 <div class="valor-btn">R$100</div>
 </div>
 
-<div class="aviso-doacao">
-
-<h3>Identificação da Doação</h3>
-
-<p>
-Para conseguirmos identificar sua doação, pedimos que você adicione <b>R$0,01</b> ao valor escolhido.
-</p>
-
-<p>
-Exemplos:<br>
-R$10 → <b>R$10,01</b><br>
-R$20 → <b>R$20,01</b><br>
-R$50 → <b>R$50,01</b>
-</p>
-
-<p>
-Assim conseguimos identificar que o valor recebido foi uma doação para a <b>Turma T6 de Medicina</b>.
-</p>
-
+<div id="form-doacao" style="text-align: left; background: white; padding: 25px; border-radius: 15px; margin-top: 20px; box-shadow: 0 8px 20px rgba(0,0,0,.08);">
+    <label style="font-weight: 600; margin-bottom: 8px; display: block;">Valor (R$):</label>
+    <input type="number" id="valorDoacao" min="1" step="1" value="10" style="width:100%; padding:15px; margin-bottom:15px; border-radius:10px; border:1px solid #ddd; font-size: 16px;">
+    
+    <label style="font-weight: 600; margin-bottom: 8px; display: block;">Mensagem de Apoio (opcional):</label>
+    <textarea id="mensagemDoacao" placeholder="Deixe uma mensagem para a T6..." rows="3" style="width:100%; padding:15px; margin-bottom:15px; border-radius:10px; border:1px solid #ddd; font-family:inherit; font-size: 16px; resize: vertical;"></textarea>
+    
+    <button type="button" onclick="registrarDoacao()" style="width:100%; margin-top: 5px;">Ajudar a Turma!</button>
 </div>
 
-<h3 style="margin-top:25px;">Pagamento via PIX</h3>
-
-<p>Copie o código abaixo e cole no aplicativo do seu banco.</p>
-
-<div class="pix-box" id="pixCode">
-
-00020126580014BR.GOV.BCB.PIX0136d8c9b3ea-2bcf-4fce-b721-8e8df81eef705204000053039865802BR5919Felipe Matos Duarte6009SAO PAULO62140510ppbgp6JZlp63040232
-
+<div class="aviso-doacao" id="aviso-container" style="display:none; margin-top:25px;">
+    <h3>Instruções para o Pagamento</h3>
+    <p>Sua intenção de doação foi registrada com sucesso! Para confirmarmos automaticamente, foi adicionado <b>R$0,01</b> ao seu valor original.</p>
+    <p style="margin-top: 10px;">Por favor, faça o PIX no valor <strong>exato</strong> de: <br><b id="valorExatoPix" style="font-size: 24px; color: var(--rosa);">R$ 10,01</b></p>
 </div>
 
-<button onclick="copiarPix()">Copiar código PIX</button>
+<div id="pix-container" style="display:none;">
+    <h3 style="margin-top:25px;">Pagamento via PIX</h3>
+    <p>Copie o código abaixo e cole no aplicativo do seu banco.</p>
+
+    <div class="pix-box" id="pixCode">
+    00020126580014BR.GOV.BCB.PIX0136d8c9b3ea-2bcf-4fce-b721-8e8df81eef705204000053039865802BR5919Felipe Matos Duarte6009SAO PAULO62140510ppbgp6JZlp63040232
+    </div>
+
+    <button onclick="copiarPix()">Copiar código PIX</button>
+</div>
 
 </div>
 
@@ -400,24 +394,79 @@ Assim conseguimos identificar que o valor recebido foi uma doação para a <b>Tu
 </footer>
 
 <script>
-
 const meta = 50000;
-let arrecadado = 0;
 
-let progresso = (arrecadado/meta)*100;
+// Carregar o total real do banco de dados (apenas as doações com status 'confirmado')
+fetch('api_doacoes.php?action=total')
+  .then(async res => {
+      const txt = await res.text();
+      try { return JSON.parse(txt); } catch(err) { throw new Error(txt.substring(0, 100)); }
+  })
+  .then(data => {
+      let arrecadado = parseFloat(data.arrecadado) || 0;
+      let progresso = Math.min((arrecadado/meta)*100, 100);
+      document.getElementById("barra").style.width = progresso + "%";
+      document.getElementById("textoMeta").innerText = `R$ ${arrecadado.toFixed(2).replace('.', ',')} arrecadados de R$ 50.000,00`;
+  }).catch(e => {
+      console.log('Erro ao buscar total:', e.message);
+      document.getElementById("barra").style.width = "0%";
+      document.getElementById("textoMeta").innerText = `R$ 0,00 arrecadados de R$ 50.000,00`;
+  });
 
-document.getElementById("barra").style.width = progresso+"%";
+// Botões de clique rápido (R$10, R$20...)
+document.querySelectorAll('.valor-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        let val = this.innerText.replace('R$', '');
+        document.getElementById('valorDoacao').value = val;
+    });
+});
 
-function copiarPix(){
+function registrarDoacao() {
+    let valor = parseFloat(document.getElementById('valorDoacao').value);
+    let mensagem = document.getElementById('mensagemDoacao').value;
 
-let texto = document.getElementById("pixCode").innerText;
+    if(isNaN(valor) || valor <= 0) {
+        alert("Por favor, insira um valor válido para doar.");
+        return;
+    }
 
-navigator.clipboard.writeText(texto);
+    // Adiciona 1 centavo para identificação (regra de negócio antiga mantida para facilitar a conciliação bancária)
+    let valorComCentavo = valor + 0.01;
 
-alert("Código PIX copiado! Agora cole no app do seu banco.");
+    let formData = new FormData();
+    formData.append('valor', valorComCentavo);
+    formData.append('mensagem', mensagem);
 
+    fetch('api_doacoes.php?action=doar', {
+        method: 'POST',
+        body: formData
+    }).then(async res => {
+        const txt = await res.text();
+        try { return JSON.parse(txt); } catch(err) { throw new Error(txt.substring(0, 100)); }
+    })
+    .then(data => {
+        if(data.sucesso) {
+            // Esconder o formulário e mostrar a tela do PIX para concluir a doação
+            document.getElementById('form-doacao').style.display = 'none';
+            document.getElementById('aviso-container').style.display = 'block';
+            document.getElementById('pix-container').style.display = 'block';
+            
+            // Alterar o texto com o valor exato a ser pago
+            document.getElementById('valorExatoPix').innerText = `R$ ${valorComCentavo.toFixed(2).replace('.', ',')}`;
+        } else {
+            alert("Erro ao registrar doação no banco: " + (data.erro || 'Desconhecido'));
+        }
+    }).catch(e => {
+        alert("Erro de comunicação com o servidor:\n\n" + e.message + "\n\nVocê está rodando pelo XAMPP (http://localhost/...) e o Apache/MySQL estão ligados?");
+    });
 }
 
+function copiarPix(){
+    let texto = document.getElementById("pixCode").innerText.trim();
+    navigator.clipboard.writeText(texto).then(() => {
+        alert("Código PIX copiado com sucesso! 🎉\nAgora cole no aplicativo do seu banco para finalizar a doação.");
+    });
+}
 </script>
 
 </body>

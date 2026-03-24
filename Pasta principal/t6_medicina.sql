@@ -64,7 +64,63 @@ CREATE TABLE IF NOT EXISTS itens_venda (
     CONSTRAINT fk_produto_item FOREIGN KEY (produto_id) REFERENCES produtos(id)
 ) ENGINE=InnoDB;
 
--- 7. Inserção do TEU Usuário e promoção a Administrador
+-- 7. Tabela de Pontuações de Jogos (T6 Arcade)
+CREATE TABLE IF NOT EXISTS pontuacoes_jogos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT,
+    jogo_nome VARCHAR(50) NOT NULL,
+    pontuacao INT NOT NULL DEFAULT 0,
+    data_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_usuario_pontuacao FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 8. Tabela de Designs Salvos (Simulador 3D)
+CREATE TABLE IF NOT EXISTS designs_salvos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT,
+    nome_design VARCHAR(100) NOT NULL,
+    configuracoes_json JSON NOT NULL,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_usuario_design FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 9. Tabela de Doações
+CREATE TABLE IF NOT EXISTS doacoes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT, -- Pode ser NULL se for doação anônima
+    valor DECIMAL(10,2) NOT NULL,
+    status ENUM('pendente', 'confirmado') DEFAULT 'pendente',
+    mensagem TEXT,
+    data_doacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_usuario_doacao FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- 10. Tabela de Carrinho de Compras
+CREATE TABLE IF NOT EXISTS carrinho (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    produto_id INT NOT NULL,
+    quantidade INT NOT NULL DEFAULT 1,
+    tamanho VARCHAR(10),
+    data_adicao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_usuario_carrinho FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+    CONSTRAINT fk_produto_carrinho FOREIGN KEY (produto_id) REFERENCES produtos(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 11. Tabela de Mensagens de Contato / Suporte
+CREATE TABLE IF NOT EXISTS mensagens_contato (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT, -- Pode ser NULL se o visitante não estiver logado
+    nome VARCHAR(100),
+    email VARCHAR(100),
+    assunto VARCHAR(150) NOT NULL,
+    mensagem TEXT NOT NULL,
+    status ENUM('aberto', 'em_andamento', 'resolvido') DEFAULT 'aberto',
+    data_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_usuario_mensagem FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- 12. Inserção do TEU Usuário e promoção a Administrador
 -- ATENÇÃO: Altera os valores abaixo para os teus dados reais antes de executar!
 -- Passo A: Cria a tua conta na tabela de utilizadores
 INSERT INTO usuarios (nome, cpf, email, senha, turma) 
@@ -75,7 +131,7 @@ VALUES (
     'felipe11353a',         -- Coloca a tua senha (depois no PHP usaremos criptografia)
     'T6'                         -- A tua turma
 )
-ON DUPLICATE KEY UPDATE nome='O Teu Nome Aqui';
+ON DUPLICATE KEY UPDATE nome='Felipe Matos';
 
 -- Passo B: Coloca a tua conta na tabela de administradores usando o teu email
 INSERT INTO administradores (usuario_id) 
