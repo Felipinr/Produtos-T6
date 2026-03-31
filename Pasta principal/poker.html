@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Poker Premium - T6</title>
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
+		:root {
+			--primary: #0f172a;
+			--accent: #ec4899;
+			/* Pink */
+			--danger: #ef4444;
+			--warning: #f59e0b;
+			--text-light: #f8fafc;
+			--card-back: #1e293b;
+			--glass-bg: rgba(255, 255, 255, 0.05);
+			--glass-border: rgba(255, 255, 255, 0.1);
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: 'Poppins', sans-serif;
+			user-select: none;
+		}
+
+		body {
+			background: radial-gradient(circle at center, #831843 0%, #4c0519 100%);
+			/* Dark Pink Gradient */
+			color: var(--text-light);
+			min-height: 100vh;
+			display: flex;
+			flex-direction: column;
+			overflow: hidden;
+			position: relative;
+		}
+
+		body::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ec4899' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+			z-index: 0;
+			pointer-events: none;
+		}
+
+		header {
+			background: var(--glass-bg);
+			backdrop-filter: blur(10px);
+			border-bottom: 1px solid var(--glass-border);
+			padding: 1rem 2rem;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			z-index: 10;
+			box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+		}
+
+		.logo {
+			font-size: 1.5rem;
+			font-weight: 700;
+			color: var(--accent);
+			text-transform: uppercase;
+			letter-spacing: 2px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.stats {
+			display: flex;
+			gap: 20px;
+			font-weight: 500;
+		}
+
+		.stat-box {
+			background: rgba(0, 0, 0, 0.3);
+			padding: 0.5rem 1rem;
+			border-radius: 8px;
+			border: 1px solid var(--glass-border);
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.chips {
+			color: var(--warning);
+		}
+
+		main {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			padding: 2rem;
+			z-index: 1;
+			max-width: 1200px;
+			margin: 0 auto;
+			width: 100%;
+		}
+
+		.player-area {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 1rem;
+			position: relative;
+		}
+
+		.area-title {
+			font-size: 1.2rem;
+			font-weight: 500;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+			opacity: 0.8;
+			background: var(--glass-bg);
+			padding: 0.4rem 1.5rem;
+			border-radius: 20px;
+			backdrop-filter: blur(5px);
+			border: 1px solid var(--glass-border);
+		}
+
+		.hand {
+			display: flex;
+			gap: 15px;
+			perspective: 1000px;
+			min-height: 180px;
+		}
+
+		.card {
+			width: 120px;
+			height: 170px;
+			position: relative;
+			transform-style: preserve-3d;
+			transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1), margin-top 0.3s ease;
+			cursor: pointer;
+			border-radius: 10px;
+			box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+		}
+
+		.card.held {
+			margin-top: -20px;
+			box-shadow: 0 20px 30px rgba(236, 72, 153, 0.4);
+			border: 2px solid var(--accent);
+		}
+
+		.card.flipped {
+			transform: rotateY(180deg);
+		}
+
+		.card-face {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			backface-visibility: hidden;
+			border-radius: 10px;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+			padding: 10px;
+			background: white;
+			border: 1px solid #ccc;
+		}
+
+		.card-back {
+			background: linear-gradient(135deg, var(--card-back) 0%, #0f172a 100%);
+			border: 2px solid rgba(255, 255, 255, 0.2);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 3rem;
+			color: rgba(255, 255, 255, 0.1);
+		}
+
+		.card-back::after {
+			content: '♠';
+			background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.05) 0, rgba(255, 255, 255, 0.05) 10px, transparent 10px, transparent 20px);
+			position: absolute;
+			inset: 5px;
+			border-radius: 6px;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.card-front {
+			transform: rotateY(180deg);
+		}
+
+		.card-front .value {
+			font-size: 1.5rem;
+			font-weight: bold;
+			line-height: 1;
+		}
+
+		.card-front .suit {
+			font-size: 2rem;
+			line-height: 1;
+		}
+
+		.card-front .center-suit {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			font-size: 4rem;
+			opacity: 0.8;
+		}
+
+		.card-front .bottom-right {
+			align-self: flex-end;
+			transform: rotate(180deg);
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.red {
+			color: #ef4444;
+		}
+
+		.black {
+			color: #1e293b;
+		}
+
+		.hold-text {
+			position: absolute;
+			top: -30px;
+			left: 50%;
+			transform: translateX(-50%);
+			background: var(--accent);
+			color: white;
+			padding: 2px 10px;
+			border-radius: 10px;
+			font-size: 0.8rem;
+			font-weight: bold;
+			text-transform: uppercase;
+			opacity: 0;
+			transition: opacity 0.3s;
+			pointer-events: none;
+		}
+
+		.card.held .hold-text {
+			opacity: 1;
+		}
+
+		.table-center {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			gap: 20px;
+			flex: 1;
+		}
+
+		.pot-area {
+			background: var(--glass-bg);
+			backdrop-filter: blur(10px);
+			border: 1px solid var(--glass-border);
+			padding: 1rem 3rem;
+			border-radius: 30px;
+			font-size: 1.5rem;
+			font-weight: bold;
+			display: flex;
+			align-items: center;
+			gap: 15px;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+		}
+
+		.pot-area span {
+			color: var(--warning);
+			font-size: 2rem;
+		}
+
+		.game-message {
+			font-size: 1.8rem;
+			font-weight: bold;
+			text-align: center;
+			min-height: 40px;
+			text-transform: uppercase;
+			letter-spacing: 2px;
+			text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+			transition: all 0.3s ease;
+		}
+
+		.game-message.win {
+			color: var(--accent);
+		}
+
+		.game-message.lose {
+			color: var(--danger);
+		}
+
+		.game-message.draw {
+			color: var(--warning);
+		}
+
+		.controls {
+			display: flex;
+			gap: 15px;
+			justify-content: center;
+			margin-top: 10px;
+		}
+
+		button {
+			background: rgba(255, 255, 255, 0.1);
+			backdrop-filter: blur(5px);
+			border: 1px solid var(--glass-border);
+			color: white;
+			padding: 0.8rem 2rem;
+			font-size: 1.1rem;
+			border-radius: 12px;
+			cursor: pointer;
+			transition: all 0.2s;
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+		}
+
+		button:hover:not(:disabled) {
+			background: rgba(255, 255, 255, 0.2);
+			transform: translateY(-2px);
+			box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+		}
+
+		button:active:not(:disabled) {
+			transform: translateY(0);
+		}
+
+		button:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+			background: rgba(0, 0, 0, 0.2);
+		}
+
+		button.primary {
+			background: var(--accent);
+			border-color: #db2777;
+			box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+		}
+
+		button.primary:hover:not(:disabled) {
+			background: #db2777;
+			box-shadow: 0 0 30px rgba(236, 72, 153, 0.6);
+		}
+
+		.bet-controls {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			background: var(--glass-bg);
+			padding: 0.5rem;
+			border-radius: 12px;
+			border: 1px solid var(--glass-border);
+		}
+
+		.bet-controls button {
+			padding: 0.5rem 1rem;
+		}
+
+		.bet-amount {
+			font-size: 1.2rem;
+			font-weight: bold;
+			min-width: 60px;
+			text-align: center;
+		}
+
+		@media (max-width: 768px) {
+			.hand {
+				gap: -30px;
+			}
+
+			.card {
+				width: 60px;
+				height: 85px;
+			}
+
+			.card:not(:first-child) {
+				margin-left: -30px;
+			}
+
+			.card.held {
+				margin-top: -10px;
+			}
+
+			.card-front .value {
+				font-size: 1rem;
+			}
+
+			.card-front .suit {
+				font-size: 1.2rem;
+			}
+
+			.card-front .center-suit {
+				font-size: 2rem;
+			}
+
+			.card-front .bottom-right {
+				display: none;
+			}
+
+			header {
+				padding: 0.5rem 1rem;
+				flex-direction: column;
+				gap: 10px;
+			}
+
+			.controls {
+				flex-wrap: wrap;
+			}
+		}
+
+		/* Sparkle animation for win */
+		@keyframes sparkle {
+			0% {
+				transform: scale(0) rotate(0deg);
+				opacity: 0;
+			}
+
+			50% {
+				transform: scale(1) rotate(180deg);
+				opacity: 1;
+			}
+
+			100% {
+				transform: scale(0) rotate(360deg);
+				opacity: 0;
+			}
+		}
+
+		.sparkle {
+			position: absolute;
+			width: 20px;
+			height: 20px;
+			background: radial-gradient(circle, #fff, transparent);
+			border-radius: 50%;
+			pointer-events: none;
+			animation: sparkle 1s linear forwards;
+		}
+	</style>
+</head>
+
+<body>
+
+	<header>
+		<div class="logo">♠ Poker Premium</div>
+		<div class="stats">
+			<div class="stat-box">
+				<span style="font-size: 1.2rem;">🏆</span>
+				<span>Vitórias: <span id="wins">0</span></span>
+			</div>
+			<div class="stat-box">
+				<span style="font-size: 1.2rem;">💰</span>
+				<span class="chips">Fichas: <span id="balance">1000</span></span>
+			</div>
+			<button id="btn-add-chips"
+				style="padding: 0.5rem 1rem; font-size: 0.9rem; margin-left: -10px; border-radius: 8px;">+1000
+				Fichas</button>
+		</div>
+	</header>
+
+	<main>
+		<div class="player-area" id="bot-area">
+			<div class="area-title" id="bot-status">Adversário (Aguardando)</div>
+			<div class="hand" id="bot-hand">
+				<!-- Bot cards will go here -->
+			</div>
+		</div>
+
+		<div class="table-center">
+			<div class="pot-area">
+				Pote: <span><span id="pot">0</span> 💰</span>
+			</div>
+			<div class="game-message" id="message">Faça sua aposta para começar!</div>
+		</div>
+
+		<div class="player-area" id="user-area">
+			<div class="hand" id="user-hand">
+				<!-- User cards will go here -->
+			</div>
+			<div class="area-title" id="user-status">Sua Mão</div>
+
+			<div class="controls">
+				<div class="bet-controls" id="bet-panel">
+					<span style="font-size: 1.1rem; font-weight: bold; margin-right: 5px;">Aposta:</span>
+					<button id="btn-bet-minus">-</button>
+					<div class="bet-amount" id="current-bet">50</div>
+					<button id="btn-bet-plus">+</button>
+				</div>
+				<button id="btn-deal" class="primary">Apostar & Iniciar</button>
+				<button id="btn-draw" class="primary" style="display: none;">Trocar Cartas</button>
+				<button id="btn-fold" style="display: none;">Correr</button>
+			</div>
+		</div>
+	</main>
+
+	<script>
+		// Game Logic & State
+		const suits = ['♠', '♥', '♣', '♦'];
+		const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+
+		let deck = [];
+		let userHand = [];
+		let botHand = [];
+		let userHolds = [false, false, false, false, false];
+
+		let balance = 1000;
+		let currentBet = 50;
+		let pot = 0;
+		let wins = 0;
+
+		// DOM Elements
+		const elBalance = document.getElementById('balance');
+		const elPot = document.getElementById('pot');
+		const elWins = document.getElementById('wins');
+		const elCurrentBet = document.getElementById('current-bet');
+		const elMessage = document.getElementById('message');
+		const elUserHand = document.getElementById('user-hand');
+		const elBotHand = document.getElementById('bot-hand');
+
+		const btnDeal = document.getElementById('btn-deal');
+		const btnDraw = document.getElementById('btn-draw');
+		const btnFold = document.getElementById('btn-fold');
+		const btnBetPlus = document.getElementById('btn-bet-plus');
+		const btnBetMinus = document.getElementById('btn-bet-minus');
+		const btnAddChips = document.getElementById('btn-add-chips');
+		const betPanel = document.getElementById('bet-panel');
+		const userStatus = document.getElementById('user-status');
+		const botStatus = document.getElementById('bot-status');
+
+		const STATE_IDLE = 0;
+		const STATE_DRAW = 1;
+		const STATE_OVER = 2;
+		let gameState = STATE_IDLE;
+
+		function initDeck() {
+			deck = [];
+			for (let s of suits) {
+				for (let v of values) {
+					deck.push({ suit: s, value: v, numericValue: values.indexOf(v) + 2 });
+				}
+			}
+		}
+
+		function shuffleSequence(array) {
+			for (let i = array.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[array[i], array[j]] = [array[j], array[i]];
+			}
+		}
+
+		function createCardElement(card, index, isBot = false) {
+			const el = document.createElement('div');
+			el.className = 'card';
+			if (!isBot) el.id = `user-card-${index}`;
+
+			const isRed = card.suit === '♥' || card.suit === '♦';
+			const colorClass = isRed ? 'red' : 'black';
+
+			el.innerHTML = `
+                <div class="card-face card-back"></div>
+                <div class="card-face card-front ${colorClass}">
+                    <div style="line-height: 1;">
+                        <div class="value">${card.value}</div>
+                        <div class="suit">${card.suit}</div>
+                    </div>
+                    <div class="center-suit">${card.suit}</div>
+                    <div class="bottom-right">
+                        <div class="value">${card.value}</div>
+                        <div class="suit">${card.suit}</div>
+                    </div>
+                </div>
+                ${!isBot ? '<div class="hold-text">Manter</div>' : ''}
+            `;
+
+			if (!isBot) {
+				el.addEventListener('click', () => {
+					if (gameState === STATE_DRAW) toggleHold(index);
+				});
+			}
+
+			return el;
+		}
+
+		function toggleHold(index) {
+			userHolds[index] = !userHolds[index];
+			const el = document.getElementById(`user-card-${index}`);
+			if (userHolds[index]) {
+				el.classList.add('held');
+			} else {
+				el.classList.remove('held');
+			}
+		}
+
+		function renderHand(hand, container, isBot = false, hideCards = false) {
+			container.innerHTML = '';
+			hand.forEach((card, i) => {
+				const el = createCardElement(card, i, isBot);
+				container.appendChild(el);
+
+				// Animate entry
+				setTimeout(() => {
+					if (!hideCards) {
+						el.classList.add('flipped');
+					}
+				}, i * 150 + 100);
+			});
+		}
+
+		function flipCard(el, card) {
+			return new Promise(resolve => {
+				el.style.transform = "rotateY(0deg)"; // flip to back briefly
+				setTimeout(() => {
+					const isRed = card.suit === '♥' || card.suit === '♦';
+					const colorClass = isRed ? 'red' : 'black';
+					const front = el.querySelector('.card-front');
+					front.className = `card-face card-front ${colorClass}`;
+					front.innerHTML = `
+                        <div style="line-height: 1;">
+                            <div class="value">${card.value}</div>
+                            <div class="suit">${card.suit}</div>
+                        </div>
+                        <div class="center-suit">${card.suit}</div>
+                        <div class="bottom-right">
+                            <div class="value">${card.value}</div>
+                            <div class="suit">${card.suit}</div>
+                        </div>
+                    `;
+					el.classList.add('flipped'); // rotate to front
+					resolve();
+				}, 300); // Wait for half flip
+			});
+		}
+
+		function setBalance(amt) { balance = amt; elBalance.innerText = balance; }
+		function setPot(amt) { pot = amt; elPot.innerText = pot; }
+
+		function updateBetLimit() {
+			if (currentBet > balance) currentBet = balance;
+			if (currentBet < 10 && balance >= 10) currentBet = 10;
+			if (balance === 0) currentBet = 0;
+			elCurrentBet.innerText = currentBet;
+		}
+
+		btnBetPlus.onclick = () => { if (currentBet + 10 <= balance) currentBet += 10; elCurrentBet.innerText = currentBet; };
+		btnBetMinus.onclick = () => { if (currentBet - 10 >= 10) currentBet -= 10; elCurrentBet.innerText = currentBet; };
+		btnAddChips.onclick = () => {
+			setBalance(balance + 1000);
+			updateBetLimit();
+
+			// Restaurar botões caso tenham sido escondidos no caso de falência
+			if (btnDeal.style.display === 'none' && (gameState === STATE_IDLE || gameState === STATE_OVER)) {
+				btnDeal.style.display = 'inline-block';
+				betPanel.style.display = 'flex';
+			}
+
+			elMessage.innerText = "+1000 Fichas Adicionadas!";
+			elMessage.className = "game-message";
+			setTimeout(() => {
+				if ((gameState === STATE_IDLE || gameState === STATE_OVER) && pot === 0) {
+					elMessage.innerText = "Faça sua aposta para começar!";
+				}
+			}, 1500);
+		};
+
+		// Evaluation Logic
+		function evaluateHand(hand) {
+			const counts = {};
+			const suitsCount = {};
+			const numValues = hand.map(c => c.numericValue).sort((a, b) => a - b);
+
+			hand.forEach(c => {
+				counts[c.numericValue] = (counts[c.numericValue] || 0) + 1;
+				suitsCount[c.suit] = (suitsCount[c.suit] || 0) + 1;
+			});
+
+			const isFlush = Object.values(suitsCount).some(c => c === 5);
+			let isStraight = true;
+			for (let i = 0; i < 4; i++) {
+				if (numValues[i] + 1 !== numValues[i + 1]) { isStraight = false; break; }
+			}
+			// Special case A-2-3-4-5
+			if (!isStraight && numValues.join(',') === "2,3,4,5,14") {
+				isStraight = true;
+				// Move Ace to front for scoring
+				numValues.pop();
+				numValues.unshift(1);
+			}
+
+			const amounts = Object.values(counts).sort((a, b) => b - a);
+
+			// Hand Ranks: 9=Straight Flush to 0=High Card
+			let rank = 0;
+			let rankName = "Carta Alta";
+			if (isStraight && isFlush) { rank = 8; rankName = "Straight Flush"; }
+			else if (amounts[0] === 4) { rank = 7; rankName = "Quadra"; }
+			else if (amounts[0] === 3 && amounts[1] === 2) { rank = 6; rankName = "Full House"; }
+			else if (isFlush) { rank = 5; rankName = "Flush"; }
+			else if (isStraight) { rank = 4; rankName = "Sequência"; }
+			else if (amounts[0] === 3) { rank = 3; rankName = "Trinca"; }
+			else if (amounts[0] === 2 && amounts[1] === 2) { rank = 2; rankName = "Dois Pares"; }
+			else if (amounts[0] === 2) { rank = 1; rankName = "Um Par"; }
+
+			// Score calculation to break ties: 
+			// rank * 1M + highest pair/triple * 10k + highest kicker etc.
+			// Simplified scoring for 5-card draw
+			let score = rank * 1000000;
+
+			if (rank === 4 || rank === 8) { // Straight
+				score += numValues[4] * 1000;
+			} else {
+				// Group values by count
+				const grouped = Object.entries(counts).map(([v, c]) => ({ val: parseInt(v), cnt: c }));
+				grouped.sort((a, b) => b.cnt !== a.cnt ? b.cnt - a.cnt : b.val - a.val);
+
+				let multiplier = 10000;
+				for (let g of grouped) {
+					score += g.val * multiplier;
+					multiplier /= 100;
+				}
+			}
+
+			return { rank, name: rankName, score };
+		}
+
+		// Bot AI: Decide what to hold
+		function botDetermineHolds(hand) {
+			const h = evaluateHand(hand);
+			let holds = [false, false, false, false, false];
+			if (h.rank >= 4) {
+				// Keep everything if straight or better
+				return [true, true, true, true, true];
+			}
+
+			// Just keep pairs/triples/quads
+			const counts = {};
+			hand.forEach(c => counts[c.numericValue] = (counts[c.numericValue] || 0) + 1);
+
+			hand.forEach((c, i) => {
+				if (counts[c.numericValue] > 1) holds[i] = true;
+				// Keep high cards optionally?
+				else if (c.numericValue >= 11 && h.rank === 0) {
+					// Keep one face card if nothing else
+					if (holds.filter(Boolean).length === 0) holds[i] = true;
+				}
+			});
+			return holds;
+		}
+
+		function createParticles() {
+			const main = document.querySelector('main');
+			for (let i = 0; i < 30; i++) {
+				const p = document.createElement('div');
+				p.className = 'sparkle';
+				p.style.left = Math.random() * innerWidth + 'px';
+				p.style.top = Math.random() * innerHeight + 'px';
+				p.style.animationDuration = Math.random() * 1 + 0.5 + 's';
+				main.appendChild(p);
+				setTimeout(() => p.remove(), 1500);
+			}
+		}
+
+		async function startGame() {
+			if (currentBet <= 0 || balance < currentBet) {
+				elMessage.innerText = "Saldo insuficiente para apostar!";
+				return;
+			}
+
+			gameState = STATE_DRAW;
+			setBalance(balance - currentBet);
+			setPot(currentBet * 2); // Bot matches bet
+			elMessage.innerText = "Selecione as cartas para manter";
+			elMessage.className = "game-message";
+			botStatus.innerText = "Adversário (Pensando...)";
+			userStatus.innerText = "Sua Mão";
+
+			btnDeal.style.display = 'none';
+			betPanel.style.display = 'none';
+			btnDraw.style.display = 'inline-block';
+			btnFold.style.display = 'inline-block';
+
+			initDeck();
+			shuffleSequence(deck);
+
+			userHand = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()];
+			botHand = [deck.pop(), deck.pop(), deck.pop(), deck.pop(), deck.pop()];
+			userHolds = [false, false, false, false, false];
+
+			renderHand(userHand, elUserHand, false);
+			renderHand(botHand, elBotHand, true, true); // hide bot cards
+		}
+
+		async function doDrawPhase() {
+			gameState = STATE_OVER;
+			btnDraw.style.display = 'none';
+			btnFold.style.display = 'none';
+			elMessage.innerText = "Trocando cartas...";
+
+			// Replace unheld cards for user
+			for (let i = 0; i < 5; i++) {
+				if (!userHolds[i]) {
+					userHand[i] = deck.pop();
+					const cardEl = elUserHand.children[i];
+					await flipCard(cardEl, userHand[i]);
+				}
+			}
+
+			const evalUser = evaluateHand(userHand);
+			userStatus.innerText = `Sua Mão: ${evalUser.name}`;
+
+			// Bot logic
+			botStatus.innerText = "Adversário (Trocando...)";
+			await new Promise(r => setTimeout(r, 800));
+
+			const botHolds = botDetermineHolds(botHand);
+			let botDrew = 0;
+			for (let i = 0; i < 5; i++) {
+				if (!botHolds[i]) {
+					botHand[i] = deck.pop();
+					botDrew++;
+				}
+			}
+
+			botStatus.innerText = botDrew > 0 ? `Adversário (Trocou ${botDrew} cartas)` : "Adversário (Manteve Tudo)";
+			await new Promise(r => setTimeout(r, 800));
+
+			// Showdown
+			elMessage.innerText = "Mostrando Cartas...";
+
+			// Flip bot cards
+			for (let i = 0; i < 5; i++) {
+				const cardEl = elBotHand.children[i];
+				if (!cardEl.classList.contains('flipped')) {
+					flipCard(cardEl, botHand[i]);
+				}
+			}
+			await new Promise(r => setTimeout(r, 600));
+
+			const evalBot = evaluateHand(botHand);
+			botStatus.innerText = `Adversário: ${evalBot.name}`;
+
+			determineWinner(evalUser, evalBot);
+		}
+
+		function determineWinner(u, b) {
+			setTimeout(() => {
+				if (u.score > b.score) {
+					elMessage.innerText = `Você Venceu com ${u.name}!`;
+					elMessage.className = "game-message win";
+					createParticles();
+					setBalance(balance + pot);
+					wins++;
+					elWins.innerText = wins;
+				} else if (u.score < b.score) {
+					elMessage.innerText = `Você Perdeu para ${b.name}!`;
+					elMessage.className = "game-message lose";
+				} else {
+					elMessage.innerText = `Empate com ${u.name}!`;
+					elMessage.className = "game-message draw";
+					setBalance(balance + (pot / 2));
+				}
+
+				setPot(0);
+				setTimeout(resetControls, 2000);
+			}, 500);
+		}
+
+		function doFold() {
+			gameState = STATE_OVER;
+			btnDraw.style.display = 'none';
+			btnFold.style.display = 'none';
+			elMessage.innerText = "Você Correu! Adversário ganha o pote.";
+			elMessage.className = "game-message lose";
+			botStatus.innerText = "Adversário Venceu (Fold)";
+			setPot(0);
+			setTimeout(resetControls, 1500);
+		}
+
+		function resetControls() {
+			updateBetLimit();
+			btnDeal.style.display = 'inline-block';
+			betPanel.style.display = 'flex';
+			btnDraw.style.display = 'none';
+			btnFold.style.display = 'none';
+			btnDeal.innerText = "Apostar & Iniciar";
+
+			if (balance <= 0) {
+				elMessage.innerText = "Fim de jogo! Você faliu.";
+				btnDeal.style.display = 'none';
+				betPanel.style.display = 'none';
+				setTimeout(() => {
+					if (confirm("Deseja recarregar 1000 fichas e tentar de novo?")) {
+						setBalance(1000);
+						updateBetLimit();
+						btnDeal.style.display = 'inline-block';
+						betPanel.style.display = 'flex';
+						elMessage.innerText = "Faça sua aposta para começar!";
+						elMessage.className = "game-message";
+					}
+				}, 1000);
+			}
+		}
+
+		btnDeal.addEventListener('click', startGame);
+		btnDraw.addEventListener('click', doDrawPhase);
+		btnFold.addEventListener('click', doFold);
+
+		// Init blank cards
+		initDeck();
+		renderHand([{ suit: '♠', value: '?' }, { suit: '♠', value: '?' }, { suit: '♠', value: '?' }, { suit: '♠', value: '?' }, { suit: '♠', value: '?' }], elBotHand, true, true);
+		renderHand([{ suit: '♠', value: '?' }, { suit: '♠', value: '?' }, { suit: '♠', value: '?' }, { suit: '♠', value: '?' }, { suit: '♠', value: '?' }], elUserHand, false, true);
+
+	</script>
+</body>
+
+</html>
