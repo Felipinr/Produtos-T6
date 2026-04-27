@@ -299,7 +299,7 @@ footer{
       <input type="number" min="1" max="99" placeholder="Ex: 10">
     </div>
 
-    <button>Comprar Agora</button>
+    <button onclick="comprarWhatsApp()">Comprar Agora</button>
   </div>
 
 </section>
@@ -317,6 +317,28 @@ function trocarImagem(elemento){
   });
 
   elemento.classList.add("active");
+}
+
+function comprarWhatsApp(){
+  const produto = document.querySelector('.info h2').innerText;
+  const preco = document.querySelector('.preco').innerText;
+  const tamanho = document.querySelector('select').value;
+  const nomeInput = document.querySelector('input[type="text"]');
+  const numeroInput = document.querySelector('input[type="number"]');
+  const nome = nomeInput ? nomeInput.value : '';
+  const numero = numeroInput ? numeroInput.value : '';
+
+  let msg = `Olá! Tenho interesse em comprar:\n\n`;
+  msg += `*Produto:* ${produto}\n`;
+  msg += `*Preço:* ${preco}\n`;
+  msg += `*Tamanho:* ${tamanho}\n`;
+  if(nome) msg += `*Nome personalizado:* ${nome}\n`;
+  if(numero) msg += `*Número:* ${numero}\n`;
+  msg += `\nVim pelo site da T6 Store!`;
+
+  const telefone = '5562985332978';
+  const url = `https://wa.me/${telefone}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
 }
 </script>
 
