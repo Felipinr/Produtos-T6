@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS mensagens_contato (
 INSERT INTO usuarios (nome, cpf, email, senha, turma) 
 VALUES (
     'Felipe Matos',           -- Coloca o teu nome
-    '069.790.521-79',            -- Coloca o teu CPF
+    '',            -- Coloca o teu CPF
     'felipematosduarte2@gmail.com',     -- Coloca o teu email real
     'felipe11353a',         -- Coloca a tua senha (depois no PHP usaremos criptografia)
     'T6'                         -- A tua turma
